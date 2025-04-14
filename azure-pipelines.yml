@@ -1,0 +1,57 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+  - stage: Build
+    jobs:
+      - job: BuildApp
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+            displayName: 'Install Node.js'
+
+          - script: |
+              cd tutorconnectfrontend
+              npm install
+              npm run build
+            displayName: 'Build React Frontend'
+
+          - task: JavaToolInstaller@0
+            inputs:
+              versionSpec: '17'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+            displayName: 'Install JDK 17'
+
+
+          - script: |
+              cd TutorConnect
+              ./mvnw clean package -DskipTests
+            displayName: 'Build Spring Boot Backend'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: 'TutorConnect/target'
+              artifactName: 'springboot'
+              publishLocation: 'Container'
+            displayName: 'Publish Spring Boot Artifact'
+
+          # Étape 6 : Publier les artefacts frontend
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: 'tutorconnectfrontend/build'
+              artifactName: 'reactapp'
+              publishLocation: 'Container'
+            displayName: 'Publish React Artifact'
