@@ -118,7 +118,7 @@
             depth += 1;
             // Add each node and sub-nodes.
             $.each(nodes, function addNodes(id, node) {
-                // Index node element.
+                // DashIndex node element.
                 var treeItem = $(templates.treeviewItem)
                     .attr('data-target', "#" + _this.itemIdPrefix + node.nodeId)
                     .attr('style', 'padding-left:' + leftPadding)

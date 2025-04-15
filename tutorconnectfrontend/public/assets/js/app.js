@@ -6,7 +6,7 @@ NOTE: This file contains the styling for responsive Template.
 */
 
 /*----------------------------------------------
-Index Of Script
+DashIndex Of Script
 ------------------------------------------------
 
 :: Tooltip
@@ -39,7 +39,7 @@ Index Of Script
 :: Pricing tab
 
 ------------------------------------------------
-Index Of Script
+DashIndex Of Script
 ----------------------------------------------*/
 
 (function (jQuery) {

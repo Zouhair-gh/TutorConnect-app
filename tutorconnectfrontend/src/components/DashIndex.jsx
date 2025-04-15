@@ -6,7 +6,7 @@ import Order from './Order';
 import Footer from '../layouts/footer';
 import Loader from "../layouts/loader";
 
-const Index = () => {
+const DashIndex = () => {
     return (
         <>
 
@@ -370,4 +370,4 @@ const Index = () => {
     );
 }
 
-export default Index;
+export default DashIndex;
