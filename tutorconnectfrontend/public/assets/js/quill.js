@@ -2971,8 +2971,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * and recurse.
 	 * @param {string} text1 Old string to be diffed.
 	 * @param {string} text2 New string to be diffed.
-	 * @param {number} x Index of split point in text1.
-	 * @param {number} y Index of split point in text2.
+	 * @param {number} x DashIndex of split point in text1.
+	 * @param {number} y DashIndex of split point in text2.
 	 * @return {Array} Array of diff tuples.
 	 */
 	function diff_bisectSplit_(text1, text2, x, y) {
