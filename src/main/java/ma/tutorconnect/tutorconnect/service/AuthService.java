@@ -23,14 +23,22 @@ public class AuthService {
     private JwtUtil jwtUtil;
 
     public String login(LoginRequest request) throws Exception {
-        Optional<User> userOpt = Optional.ofNullable(userRepository.findByEmail(request.getEmail()));
-        if (userOpt.isEmpty()) {
+        if (request.getEmail() == null || request.getPassword() == null) {
+            throw new Exception("Email and password are required");
+        }
+
+
+        User user = userRepository.findByEmail(request.getEmail());
+        if (user == null) {
             throw new Exception("Invalid credentials");
         }
-        User user = userOpt.get();
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+
+
+        if (user.getPassword() == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new Exception("Invalid credentials");
         }
+
+
         return jwtUtil.generateToken(user.getEmail());
     }
 }

@@ -15,4 +15,3 @@ public class LoginRequest {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 }
-// This class is used to represent the login request payload.

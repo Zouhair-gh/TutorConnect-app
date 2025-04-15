@@ -10,6 +10,7 @@ export default function LoginForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
 
         try {
             const response = await axiosClient.post('/login', {
@@ -19,11 +20,21 @@ export default function LoginForm() {
 
             const { token } = response.data;
             localStorage.setItem('auth_token', token);
-
+            console.log("Login successful");
+            // Handle successful login (redirect, etc.)
         } catch (error) {
-            console.error(error.response?.data?.message || "Erreur de connexion");
+            console.error("Login error details:", error);
+            console.error("Response data:", error.response?.data);
+            console.error("Status:", error.response?.status);
+
+            const message = error.response?.data?.message || "Erreur de connexion";
+            console.error("Login error:", message);
+        }
+        finally {
+            setIsLoading(false);
         }
     };
+
     return (
         <div className="login-container">
             <div className="login-header">
