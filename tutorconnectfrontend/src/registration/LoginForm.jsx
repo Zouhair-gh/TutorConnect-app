@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './LoginForm.css';
+import axiosClient from '../api/axiosClient';
 
 export default function LoginForm() {
     const [email, setEmail] = useState('');
@@ -7,17 +8,22 @@ export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
 
-        // Simulate login process
-        setTimeout(() => {
-            console.log('Login submitted:', { email, password });
-            setIsLoading(false);
-        }, 1500);
+        try {
+            const response = await axiosClient.post('/login', {
+                email,
+                password,
+            });
+
+            const { token } = response.data;
+            localStorage.setItem('auth_token', token);
+
+        } catch (error) {
+            console.error(error.response?.data?.message || "Erreur de connexion");
+        }
     };
-
     return (
         <div className="login-container">
             <div className="login-header">
