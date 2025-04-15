@@ -7,12 +7,10 @@ import ma.tutorconnect.tutorconnect.security.JwtUtil;
 import ma.tutorconnect.tutorconnect.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
@@ -31,7 +29,6 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
-
 
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest request) throws Exception {
@@ -63,6 +60,36 @@ public class AuthController {
             System.err.println("Authentication error: " + e.getMessage());
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    @GetMapping("/verifyToken")
+    public ResponseEntity<Map<String, Object>> verifyToken(@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).build();
+            }
+
+            String token = authHeader.substring(7);
+            if (!jwtUtil.validateToken(token)) {
+                return ResponseEntity.status(401).build();
+            }
+
+            String email = jwtUtil.extractEmail(token);
+            User user = userRepository.findByEmail(email);
+
+            if (user == null) {
+                return ResponseEntity.status(401).build();
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("email", user.getEmail());
+            response.put("username", user.getUsername());
+            response.put("role", user.getRole());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
         }
     }
 }

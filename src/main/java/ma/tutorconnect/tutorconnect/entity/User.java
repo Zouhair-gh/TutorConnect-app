@@ -86,4 +86,16 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public RoleEnum getRole() {
+        return role;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 }
