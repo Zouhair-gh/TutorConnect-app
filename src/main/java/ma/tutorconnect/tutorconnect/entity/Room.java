@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -18,5 +20,7 @@ public class Room {
     private Long id;
     private String name;
     private int capacity;
-
+    private Date startDate;
+    private Date endDate;
+    private Long amount ;
 }
