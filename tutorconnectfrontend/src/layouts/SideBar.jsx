@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SideBar = ({ role }) => {
-<<<<<<< HEAD
+  const navigate = useNavigate();
+
   return (
     <div>
       &lt;&gt;
@@ -19,163 +19,6 @@ const SideBar = ({ role }) => {
             </a>
             <div className="iq-menu-bt-sidebar ml-0">
               <i className="las la-bars wrapper-menu" />
-=======
-    console.log("Current role in SideBar:", role);
-    return (
-
-        <div>
-            &lt;&gt;
-        <div className="wrapper">
-            <div className="iq-sidebar  sidebar-default ">
-                <div className="iq-sidebar-logo d-flex align-items-center justify-content-between">
-                    <a href="../backend/index.html" className="header-logo">
-                        <img src="../assets/images/logo.png" className="img-fluid rounded-normal light-logo" alt="logo" /><h5 className="logo-title light-logo ml-3">POSDash</h5>
-                    </a>
-                    <div className="iq-menu-bt-sidebar ml-0">
-                        <i className="las la-bars wrapper-menu" />
-                    </div>
-                </div>
-
-        <div className="data-scrollbar" data-scroll={1}>
-        <nav className="iq-sidebar-menu">
-            <ul id="iq-sidebar-toggle" className="iq-menu">
-                <li className="active">
-                    <a href="" className="svg-icon">
-                        <svg className="svg-icon" id="p-dash1" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1={12} y1="22.08" x2={12} y2={12} />
-                        </svg>
-                        <span className="ml-4">Dashboards</span>
-                    </a>
-                </li>
-                {role === 'admin' && (
-                    <>
-                        <li className="">
-                            <a href="/admin/usermanagement" className="svg-icon">
-                                <svg className="svg-icon" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                    <circle cx={9} cy={7} r={4} />
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                                <span className="ml-4">Manage Users</span>
-                            </a>
-                        </li>
-                        <li className="">
-                            <a href="/admin/reports" className="svg-icon">
-                                <svg className="svg-icon" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                    <polyline points="14 2 14 8 20 8" />
-                                    <line x1={16} y1={13} x2={8} y2={13} />
-                                    <line x1={16} y1={17} x2={8} y2={17} />
-                                    <polyline points="10 9 9 9 8 9" />
-                                </svg>
-                                <span className="ml-4">Reports</span>
-                            </a>
-                        </li>
-                    </>
-                )}
-                {role === 'tutor' && (
-                    <>
-                        {/* session info*/}
-                        <li className=" ">
-                            <a href="" className="collapsed" data-toggle="collapse" aria-expanded="false">
-                                <svg className="svg-icon" id="p-dash3" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x={9} y={9} width={13} height={13} rx={2} ry={2} />
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                </svg>
-                                <span className="ml-4">My Session</span>
-                                <svg className="svg-icon iq-arrow-right arrow-active" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="10 15 15 20 20 15" /><path d="M4 4h7a4 4 0 0 1 4 4v12" />
-                                </svg>
-                            </a>
-                        </li>
-
-                        {/* students info*/}
-                        <li className=" ">
-                            <a href="   " className="collapsed" data-toggle="collapse" aria-expanded="false">
-                                <svg className="svg-icon" id="p-dash4" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" />
-                                </svg>
-                                <span className="ml-4">My Students</span>
-                                <svg className="svg-icon iq-arrow-right arrow-active" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="10 15 15 20 20 15" /><path d="M4 4h7a4 4 0 0 1 4 4v12" />
-                                </svg>
-                            </a>
-                        </li>
-
-                        {/* dms info*/}
-                        <li className=" ">
-                            <a href="" className="collapsed" data-toggle="collapse" aria-expanded="false">
-                                <svg className="svg-icon" id="p-dash4" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" />
-                                </svg>
-                                <span className="ml-4">Direct messages</span>
-                                <svg className="svg-icon iq-arrow-right arrow-active" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="10 15 15 20 20 15" /><path d="M4 4h7a4 4 0 0 1 4 4v12" />
-                                </svg>
-                            </a>
-                        </li>
-
-                        {/* classes info*/}
-                        <li className=" ">
-                            <a href="" className="collapsed" data-toggle="collapse" aria-expanded="false">
-                                <svg className="svg-icon" id="p-dash4" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" />
-                                </svg>
-                                <span className="ml-4">My classes</span>
-                                <svg className="svg-icon iq-arrow-right arrow-active" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="10 15 15 20 20 15" /><path d="M4 4h7a4 4 0 0 1 4 4v12" />
-                                </svg>
-                            </a>
-                            <ul id="" className="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
-                                <li className>
-                                    <a href="">
-                                        <i className="las la-minus" /><span>Customers</span>
-                                    </a>
-                                </li>
-                                <li className>
-                                    <a href="">
-                                        <i className="las la-minus" /><span>Add Customers</span>
-                                    </a>
-                                </li>
-                            </ul>
-
-                        </li>
-                        <li className=" ">
-                            <a href="" className="collapsed" data-toggle="collapse" aria-expanded="false">
-                                <svg className="svg-icon" id="p-dash8" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx={9} cy={7} r={4} /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                                <span className="ml-4">My claaes</span>
-                                <svg className="svg-icon iq-arrow-right arrow-active" width={20} height={20} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="10 15 15 20 20 15" /><path d="M4 4h7a4 4 0 0 1 4 4v12" />
-                                </svg>
-                            </a>
-                            <ul id="people" className="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
-                                <li className>
-                                    <a href="">
-                                        <i className="las la-minus" /><span>Classe 1</span>
-                                    </a>
-                                </li>
-                                <li className>
-                                    <a href="">
-                                        <i className="las la-minus" /><span> Classe 2</span>
-                                    </a>
-                                </li>
-                                <li className>
-                                    <a href="">
-                                        <i className="las la-minus" /><span>Classe 3</span>
-                                    </a>
-                                </li>
-
-                            </ul>
-                        </li>
-                    </>
-                )}
-            </ul>
-        </nav>
-    <div className="p-3" />
-        </div>
->>>>>>> d68b1313215433c27bda65dc545d418208562eaf
             </div>
           </div>
 
@@ -204,12 +47,68 @@ const SideBar = ({ role }) => {
                     <span className="ml-4">Dashboards</span>
                   </a>
                 </li>
-                {role === "admin" && (
-                  <>
-                    <li>Manage Users</li>
-                    <li>Reports</li>
-                  </>
-                )}
+                {/* ADMIN NON FONCTIONNEL  */}
+                {/* {role === "admin" && ( */}
+                <li className=" ">
+                  <a
+                    href="#category"
+                    className="collapsed"
+                    data-toggle="collapse"
+                    aria-expanded="false"
+                  >
+                    <svg
+                      className="svg-icon"
+                      id="p-dash3"
+                      width={20}
+                      height={20}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x={9} y={9} width={13} height={13} rx={2} ry={2} />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    <span className="ml-4">Categories</span>
+                    <svg
+                      className="svg-icon iq-arrow-right arrow-active"
+                      width={20}
+                      height={20}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="10 15 15 20 20 15" />
+                      <path d="M4 4h7a4 4 0 0 1 4 4v12" />
+                    </svg>
+                  </a>
+                  <ul
+                    id="category"
+                    className="iq-submenu collapse"
+                    data-parent="#iq-sidebar-toggle"
+                  >
+                    <li className="liste rooms">
+                      <a onClick={() => navigate("/rooms")}>
+                        <i className="las la-minus" />
+                        <span>List Rooms</span>
+                      </a>
+                    </li>
+                    <li className="add room">
+                      <a onClick={() => navigate("/rooms/create")}>
+                        <i className="las la-minus" />
+                        <span>Add Room</span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                {/* )} */}
                 {role === "tutor" && (
                   <>
                     {/* session info*/}

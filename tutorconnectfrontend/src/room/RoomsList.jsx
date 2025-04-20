@@ -1,8 +1,15 @@
+import Footer from "../layouts/footer";
+import Navbar from "../layouts/NavBar";
+import SideBar from "../layouts/SideBar";
+
 const RoomsList = () => {
   return (
-    <div className="rooms-list">
-      <h1>Rooms List</h1>
-    </div>
+    <>
+      <SideBar />
+      <Navbar />
+      <div className="wrapper"></div>
+      <Footer />
+    </>
   );
 };
 
