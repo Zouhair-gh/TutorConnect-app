@@ -10,9 +10,11 @@ import TutorDashboard from "./components/TutorDashboard";
 import Index from "./Website/components/Index";
 import LoginForm from "./registration/LoginForm";
 import UnauthorizedPage from "./Unauthorized/UnauthorizedPage";
+import CreateUserForm from "./components/users/CreateUserForm";
+import UserManagement from "./components/users/UserManagement";
 
-// Auth Context (optional but recommended for larger apps)
 const AuthContext = React.createContext();
+
 
 const ProtectedAdminRoute = ({ children }) => {
     const [auth, setAuth] = useState({ loading: true, isValid: false, isAdmin: false });
@@ -52,7 +54,7 @@ const ProtectedTutorRoute = ({ children }) => {
         const verifyToken = async () => {
             try {
                 const response = await axiosClient.get('/verifyToken');
-                console.log("🔐 ROLE FROM BACKEND:", response.data.role); // <--- DEBUG LOG
+                console.log(" ROLE FROM BACKEND:", response.data.role); // <--- DEBUG LOG
 
                 const role = response.data.role?.trim().toUpperCase();
 
@@ -156,6 +158,7 @@ function App() {
         });
     };
 
+
     return (
         <AuthContext.Provider value={{
             ...authState,
@@ -170,17 +173,34 @@ function App() {
                         element={<LoginForm />}
                     />
                     <Route
-                        path="/admin/dashboard"
+                    path="/admin/dashboard"
+                    element={
+                        <ProtectedAdminRoute>
+                            <DashIndex />
+
+                        </ProtectedAdminRoute>
+                    }
+                />
+                    <Route
+                        path="/admin/createuser"
                         element={
                             <ProtectedAdminRoute>
-                                <DashIndex />
+
+                                <CreateUserForm />
+                            </ProtectedAdminRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/usermanagement"
+                        element={
+                            <ProtectedAdminRoute>
+                                <UserManagement />
                             </ProtectedAdminRoute>
                         }
                     />
 
 
                     {/* tutor dashboard route */}
-                    {/* added by maaroufi */}
 
                     <Route
                         path="/tutor/TutorDashboard"

@@ -17,7 +17,7 @@ const AuthService = {
 
     logout: async () => {
         try {
-            // Call the backend logout endpoint
+
             await axiosClient.post('/logout');
 
             localStorage.removeItem('authToken');

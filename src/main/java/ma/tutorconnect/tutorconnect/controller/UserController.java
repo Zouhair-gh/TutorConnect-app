@@ -1,8 +1,11 @@
 package ma.tutorconnect.tutorconnect.controller;
 
 
+import ma.tutorconnect.tutorconnect.dto.CreateUserDto;
 import ma.tutorconnect.tutorconnect.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ma.tutorconnect.tutorconnect.entity.User;
 
@@ -27,10 +30,13 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public ResponseEntity<User> createUser(@RequestBody CreateUserDto createUserDto) {
+        User createdUser = userService.createUser(createUserDto);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
+
 
     @PutMapping("/{id}")
     public User updateUser(@PathVariable Long id, @RequestBody User user) {

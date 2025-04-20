@@ -19,4 +19,19 @@ public class Tutor extends User{
     @OneToMany(mappedBy = "tutor")
     private List<Deliverable> deliverables;
 
+    public List<Deliverable> getDeliverables() {
+        return deliverables;
+    }
+
+    public String getSpecialites() {
+        return specialites;
+    }
+
+    public void setSpecialites(String specialites) {
+        this.specialites = specialites;
+    }
+
+    public void setDeliverables(List<Deliverable> deliverables) {
+        this.deliverables = deliverables;
+    }
 }

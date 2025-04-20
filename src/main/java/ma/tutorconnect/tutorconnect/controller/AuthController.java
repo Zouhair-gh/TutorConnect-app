@@ -63,6 +63,30 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(@RequestHeader("Authorization") String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).build();
+            }
+
+            String token = authHeader.substring(7);
+
+
+            // Since JWT tokens are stateless, we typically handle logout client-side
+            // But for extra security, we could implement a token blacklist
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Successfully logged out");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Logout failed");
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
     @GetMapping("/verifyToken")
     public ResponseEntity<Map<String, Object>> verifyToken(@RequestHeader("Authorization") String authHeader) {
         try {

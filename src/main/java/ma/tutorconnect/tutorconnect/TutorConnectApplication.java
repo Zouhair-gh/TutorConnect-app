@@ -16,27 +16,27 @@ public class TutorConnectApplication {
         SpringApplication.run(TutorConnectApplication.class, args);
     }
 
-    @Bean
+  //  @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-      @Bean
+      //@Bean
     public CommandLineRunner addInitialAdmin(UserRepository userRepository, BCryptPasswordEncoder encoder) {
         return args -> {
-            String adminEmail = "admin@example.com";
-            if (userRepository.findByEmail(adminEmail) == null) {
-                User admin = new User();
+            String tutorEmail = "tutor@gmail.com";
+            if (userRepository.findByEmail(tutorEmail) == null) {
+                User Tutor = new User();
 
-                admin.setEmail(adminEmail);
-                admin.setPassword(encoder.encode("123456789"));
-                admin.setFirstName("Admin");
-                admin.setLastName("Root");
-                admin.setRole(RoleEnum.ADMIN);
+                Tutor.setEmail(tutorEmail);
+                Tutor.setPassword(encoder.encode("123456789"));
+                Tutor.setFirstName("Tutor");
+                Tutor.setLastName("Root");
+                Tutor.setRole(RoleEnum.TUTOR);
 
-                userRepository.save(admin);
-                System.out.println("✅ Admin user created!");
+                userRepository.save(Tutor);
+                System.out.println("✅ Tutor user created!");
             } else {
-                System.out.println("ℹ️ Admin user already exists.");
+                System.out.println("ℹ️ Tutor user already exists.");
             }
         };
     }
