@@ -16,10 +16,11 @@ public class TutorConnectApplication {
         SpringApplication.run(TutorConnectApplication.class, args);
     }
 
-    @Bean
+  //  @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+<<<<<<< HEAD
 
 
 
@@ -39,6 +40,25 @@ public class TutorConnectApplication {
                 System.out.println("✅ TUTOR user created!");
             } else {
                 System.out.println("ℹ️ TUTOR user already exists.");
+=======
+      //@Bean
+    public CommandLineRunner addInitialAdmin(UserRepository userRepository, BCryptPasswordEncoder encoder) {
+        return args -> {
+            String tutorEmail = "tutor@gmail.com";
+            if (userRepository.findByEmail(tutorEmail) == null) {
+                User Tutor = new User();
+
+                Tutor.setEmail(tutorEmail);
+                Tutor.setPassword(encoder.encode("123456789"));
+                Tutor.setFirstName("Tutor");
+                Tutor.setLastName("Root");
+                Tutor.setRole(RoleEnum.TUTOR);
+
+                userRepository.save(Tutor);
+                System.out.println("✅ Tutor user created!");
+            } else {
+                System.out.println("ℹ️ Tutor user already exists.");
+>>>>>>> d68b1313215433c27bda65dc545d418208562eaf
             }
         };
     }

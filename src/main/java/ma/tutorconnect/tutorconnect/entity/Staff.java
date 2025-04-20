@@ -14,4 +14,27 @@ public class Staff extends User {
     private String specialiter;
     private int nbrAnneeExp;
 
+    public String getBibliographie() {
+        return bibliographie;
+    }
+
+    public String getSpecialiter() {
+        return specialiter;
+    }
+
+    public int getNbrAnneeExp() {
+        return nbrAnneeExp;
+    }
+
+    public void setBibliographie(String bibliographie) {
+        this.bibliographie = bibliographie;
+    }
+
+    public void setSpecialiter(String specialiter) {
+        this.specialiter = specialiter;
+    }
+
+    public void setNbrAnneeExp(int nbrAnneeExp) {
+        this.nbrAnneeExp = nbrAnneeExp;
+    }
 }
