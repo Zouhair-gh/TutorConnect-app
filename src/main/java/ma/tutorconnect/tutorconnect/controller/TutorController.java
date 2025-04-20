@@ -35,4 +35,13 @@ public class TutorController {
     public void deleteTutor(@PathVariable Long id) {
         tutorService.deleteTutor(id);
     }
+
+   // Get the dashboard data for the tutor
+   // added by maaroufi
+    @GetMapping("/dashboard/{id}")
+    public Tutor getTutorDashboard(@PathVariable Long id) {
+        Tutor tutor = tutorService.getTutorById(id);
+        return tutor;
+    }
 }
+
