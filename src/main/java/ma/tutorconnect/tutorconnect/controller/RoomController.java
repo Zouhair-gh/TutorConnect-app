@@ -19,7 +19,7 @@ public class RoomController {
     public List<Room> getAllRooms () { return roomService.getAllRooms();}
     @GetMapping("/{id}")
     public Room getRoomById(@PathVariable Long id) { return roomService.getRoomById(id);}
-    @PostMapping
+    @PostMapping("/create")
     public Room createRoom(@RequestBody Room room) { return roomService.saveRoom(room);}
    @PutMapping("/{id}")
    public Room updateRoom(@PathVariable Long id, @RequestBody Room room) { return roomService.saveRoom(room);}
