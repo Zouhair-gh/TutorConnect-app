@@ -20,28 +20,25 @@ public class TutorConnectApplication {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-<<<<<<< Updated upstream
-      @Bean
-=======
 
-    @Bean
->>>>>>> Stashed changes
+
+
     public CommandLineRunner addInitialAdmin(UserRepository userRepository, BCryptPasswordEncoder encoder) {
         return args -> {
-            String adminEmail = "admin@example.com";
+            String adminEmail = "tutor@example.com";
             if (userRepository.findByEmail(adminEmail) == null) {
                 User admin = new User();
 
                 admin.setEmail(adminEmail);
                 admin.setPassword(encoder.encode("123456789"));
-                admin.setFirstName("Admin");
-                admin.setLastName("Root");
-                admin.setRole(RoleEnum.ADMIN);
+                admin.setFirstName("Tuteur");
+                admin.setLastName("TUTOR");
+                admin.setRole(RoleEnum.TUTOR);
 
                 userRepository.save(admin);
-                System.out.println("✅ Admin user created!");
+                System.out.println("✅ TUTOR user created!");
             } else {
-                System.out.println("ℹ️ Admin user already exists.");
+                System.out.println("ℹ️ TUTOR user already exists.");
             }
         };
     }
