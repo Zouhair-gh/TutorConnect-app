@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+    import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 import './LoginForm.css';
@@ -35,11 +35,13 @@ const LoginForm = () => {
             // 4. Redirect based on role
             if (userRole === 'ADMIN') {
                 navigate('/admin/dashboard');
+            } else if (userRole === 'TUTOR') {
+                navigate('/tutor/TutorDashboard');
             } else {
                 navigate('/unauthorized', {
                     state: {
                         from: location.pathname,
-                        requiredRole: 'ADMIN',
+                        requiredRole: 'ADMIN or TUTOR',
                         userRole
                     }
                 });

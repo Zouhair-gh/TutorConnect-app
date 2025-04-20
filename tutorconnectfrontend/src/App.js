@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "r
 import axiosClient  from "./api/axiosClient";
 // Pages & Components
 import DashIndex from "./components/DashIndex";
+
+// tutor dashboard created in ./components
+// added by maaroufi
+import TutorDashboard from "./components/TutorDashboard";
 import Index from "./Website/components/Index";
 import LoginForm from "./registration/LoginForm";
 import UnauthorizedPage from "./Unauthorized/UnauthorizedPage";
@@ -32,13 +36,50 @@ const ProtectedAdminRoute = ({ children }) => {
 
         verifyToken();
     }, [navigate]);
-
     if (auth.loading) return <div>Loading...</div>;
     if (!auth.isValid) return <Navigate to="/login" />;
     if (!auth.isAdmin) return <Navigate to="/" />;
 
     return children;
 };
+
+
+const ProtectedTutorRoute = ({ children }) => {
+    const [auth, setAuth] = useState({ loading: true, isValid: false, isTutor: false });
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const verifyToken = async () => {
+            try {
+                const response = await axiosClient.get('/verifyToken');
+                console.log("🔐 ROLE FROM BACKEND:", response.data.role); // <--- DEBUG LOG
+
+                const role = response.data.role?.trim().toUpperCase();
+
+                setAuth({
+                    loading: false,
+                    isValid: true,
+                    isTutor: role === 'TUTOR'
+                });
+            } catch (error) {
+                localStorage.removeItem('authToken');
+                setAuth({ loading: false, isValid: false, isTutor: false });
+                navigate('/login');
+            }
+
+        };
+
+
+        verifyToken();
+    }, [navigate]);
+
+    if (auth.loading) return <div>Loading...</div>;
+    if (!auth.isValid) return <Navigate to="/TutorDashboard" />;
+    if (!auth.isTutor) return <Navigate to="/unauthorized" />;
+
+    return children;
+};
+
 function App() {
     const [authState, setAuthState] = useState({
         isAuthenticated: false,
@@ -136,6 +177,20 @@ function App() {
                             </ProtectedAdminRoute>
                         }
                     />
+
+
+                    {/* tutor dashboard route */}
+                    {/* added by maaroufi */}
+
+                    <Route
+                        path="/tutor/TutorDashboard"
+                        element={
+                            <ProtectedTutorRoute>
+                                <TutorDashboard />
+                            </ProtectedTutorRoute>
+                        }
+                    />
+
                     <Route
                         path="/unauthorized"
                         element={
