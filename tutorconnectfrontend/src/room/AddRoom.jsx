@@ -1,5 +1,5 @@
 import SideBar from "../layouts/SideBar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axiosClient from "../api/axiosClient";
 import Navbar from "../layouts/NavBar";
 import Footer from "../layouts/footer";
@@ -19,6 +19,28 @@ const AddRoom = () => {
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+
+      if (end >= start) {
+        // Calculate difference in days
+        const diffTime = Math.abs(end - start);
+        // +1 to include both
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        //  20 * nbr_days
+        const calculatedAmount = diffDays * 20;
+
+        setFormData((prev) => ({
+          ...prev,
+          amount: calculatedAmount,
+        }));
+      }
+    }
+  }, [formData.startDate, formData.endDate]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -34,7 +56,6 @@ const AddRoom = () => {
     setIsSubmitting(true);
 
     try {
-      // Validation frontale
       if (new Date(formData.endDate) < new Date(formData.startDate)) {
         throw new Error("La date de fin doit être après la date de début");
       }
@@ -42,18 +63,25 @@ const AddRoom = () => {
       const payload = {
         ...formData,
         capacity: parseInt(formData.capacity),
-        amount: formData.amount ? parseInt(formData.amount) : null,
+        amount: parseInt(formData.amount),
+        startDate: new Date(formData.startDate).toISOString().split("T")[0],
+        endDate: new Date(formData.endDate).toISOString().split("T")[0],
       };
 
       await axiosClient.post("/rooms/create", payload);
-      setSuccess("room created successfully");
+      setSuccess("Salle créée avec succès");
       setTimeout(() => navigate("/rooms"), 1500);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Erreur lors de la création"
-      );
+      if (err.response?.status === 400) {
+        const errors = err.response.data
+          .map((e) => e.defaultMessage)
+          .join(", ");
+        setError(`Erreurs : ${errors}`);
+      } else if (err.response?.status === 403) {
+        setError("Action non autorisée.");
+      } else {
+        setError(err.message || "Erreur lors de la création");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -119,9 +147,11 @@ const AddRoom = () => {
                       id="amount"
                       name="amount"
                       value={formData.amount}
-                      onChange={handleChange}
                       min="0"
                     />
+                    <small className="text-muted">
+                      Automatically calculated based on selected dates
+                    </small>
                   </div>
                 </div>
 

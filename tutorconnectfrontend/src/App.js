@@ -43,6 +43,7 @@ const ProtectedAdminRoute = ({ children }) => {
       } catch (error) {
         localStorage.removeItem("authToken");
         setAuth({ loading: false, isValid: false, isAdmin: false });
+        console.log("Error verifying token:", error);
         navigate("/login");
       }
     };
