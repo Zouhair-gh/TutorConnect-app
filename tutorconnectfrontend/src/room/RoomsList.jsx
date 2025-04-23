@@ -170,7 +170,7 @@ const RoomsList = () => {
   const handleDelete = async (roomId) => {
     if (window.confirm("Are you sure you want to delete this room?")) {
       try {
-        await axiosClient.delete(`/api/rooms/${roomId}`);
+        await axiosClient.delete(`/rooms/${roomId}`);
         setDeleteSuccess("Room deleted successfully");
         setRooms(rooms.filter((room) => room.id !== roomId));
 
@@ -189,7 +189,7 @@ const RoomsList = () => {
     return date.toLocaleDateString();
   };
 
-  // Function to get random color class for card background
+  // card background
   const getRandomColorClass = () => {
     const colors = ["primary", "success", "warning", "danger", "info"];
     return colors[Math.floor(Math.random() * colors.length)];
