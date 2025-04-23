@@ -20,6 +20,8 @@ import CreateUserForm from "./components/users/CreateUserForm";
 import UserManagement from "./components/users/UserManagement";
 import RoomsList from "./room/RoomsList";
 import AddRoom from "./room/AddRoom";
+import RoomView from "./room/RoomView";
+import EditRoom from "./room/EditRoom";
 
 const AuthContext = React.createContext();
 
@@ -235,6 +237,30 @@ function App() {
             element={
               <ProtectedAdminRoute>
                 <AddRoom />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
+            path="/rooms"
+            element={
+              <ProtectedAdminRoute>
+                <RoomsList />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
+            path="/rooms/:id"
+            element={
+              <ProtectedAdminRoute>
+                <RoomView />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
+            path="/rooms/edit/:id"
+            element={
+              <ProtectedAdminRoute>
+                <EditRoom />
               </ProtectedAdminRoute>
             }
           />

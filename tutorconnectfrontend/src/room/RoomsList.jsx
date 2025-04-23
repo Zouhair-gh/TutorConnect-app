@@ -241,7 +241,7 @@ const RoomsList = () => {
                                 <p className="mb-1">
                                   Capacity: {room.capacity} people
                                 </p>
-                                <p className="mb-1">Amount: €{room.amount}</p>
+                                <p className="mb-1">Amount: {room.amount}</p>
                                 <p className="mb-1">
                                   Period: {formatDate(room.startDate)} -{" "}
                                   {formatDate(room.endDate)}
