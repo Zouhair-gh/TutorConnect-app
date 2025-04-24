@@ -22,6 +22,9 @@ import RoomsList from "./room/RoomsList";
 import AddRoom from "./room/AddRoom";
 import RoomView from "./room/RoomView";
 import EditRoom from "./room/EditRoom";
+import TicketList from "./components/services/TicketList";
+import TicketDetail from "./components/services/TicketDetail";
+import TicketForm from "./components/services/TicketForm";
 
 const AuthContext = React.createContext();
 
@@ -219,6 +222,30 @@ function App() {
                 <TutorDashboard />
               </ProtectedTutorRoute>
             }
+          />
+          <Route
+              path="/tutor/tickets"
+              element={
+                <ProtectedTutorRoute>
+                  <TicketList />
+                </ProtectedTutorRoute>
+              }
+          />
+          <Route
+              path="/tutor/tickets/:id"
+              element={
+                <ProtectedTutorRoute>
+                  <TicketDetail />
+                </ProtectedTutorRoute>
+              }
+          />
+          <Route
+              path="/tutor/tickets/create"
+              element={
+                <ProtectedTutorRoute>
+                  <TicketForm />
+                </ProtectedTutorRoute>
+              }
           />
 
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
