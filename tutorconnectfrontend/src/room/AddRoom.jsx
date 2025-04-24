@@ -1,4 +1,4 @@
-import SideBar from "../layouts/SideBar";
+import SideBar from "../layouts/SideBars/SideBar";
 import React, { useState, useEffect } from "react";
 import axiosClient from "../api/axiosClient";
 import Navbar from "../layouts/NavBar";

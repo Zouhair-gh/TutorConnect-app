@@ -1,14 +1,14 @@
 import React from 'react';
-import DashboardLayout from '../layouts/DashboardLayout';
+import TutorSideBar from "../layouts/SideBars/TutorSideBar";
+import NavBar from "../layouts/NavBar";
 
 
 const TutorDashboard = () => {
     return (
+    <>
+        <TutorSideBar />
+        <NavBar />
 
-        <DashboardLayout role="tutor">
-            <div className="dashboard-header">
-                <h2>Welcome back, Tutor 👋</h2>
-            </div>
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
@@ -165,10 +165,10 @@ const TutorDashboard = () => {
                     </div>
                 </div>
             </div>
+    </>
 
 
 
-        </DashboardLayout>
     );
 };
 export default TutorDashboard;

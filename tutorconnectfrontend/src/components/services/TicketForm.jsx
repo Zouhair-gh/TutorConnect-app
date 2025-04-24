@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TicketService from "./TicketService";
-import SideBar from "../../layouts/SideBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 import NavBar from "../../layouts/NavBar";
 
 
@@ -43,7 +43,7 @@ const TicketForm = () => {
 
     return (
         <>
-            <SideBar />
+              <TutorSideBar />
             <NavBar/>
             <div className="wrapper">
                 <div className="content-page">

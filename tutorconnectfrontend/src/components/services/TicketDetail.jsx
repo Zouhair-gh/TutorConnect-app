@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TicketService from "./TicketService";
-import SideBar from "../../layouts/SideBar";
+
 import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 
 const TicketDetail = () => {
@@ -74,7 +75,7 @@ const TicketDetail = () => {
     if (loading) {
         return (
             <>
-                <SideBar />
+                <TutorSideBar />
                 <NavBar />
                 <div className="wrapper">
                     <div className="content-page">
@@ -102,7 +103,7 @@ const TicketDetail = () => {
     if (error) {
         return (
             <>
-                <SideBar />
+                  <TutorSideBar />
                 <NavBar />
                 <div className="wrapper">
                     <div className="content-page">
@@ -135,7 +136,7 @@ const TicketDetail = () => {
     if (!ticket) {
         return (
             <>
-                <SideBar />
+                  <TutorSideBar />
                 <NavBar />
                 <div className="wrapper">
                     <div className="content-page">
@@ -158,14 +159,15 @@ const TicketDetail = () => {
                         </div>
                     </div>
                 </div>
-               
+
             </>
         );
     }
 
     return (
         <>
-            <SideBar />
+              <TutorSideBar />
+            <TutorSideBar />
             <NavBar />
             <div className="wrapper">
                 <div className="content-page">

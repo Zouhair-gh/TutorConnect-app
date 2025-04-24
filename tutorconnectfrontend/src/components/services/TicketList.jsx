@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import TicketService from "./TicketService";
-import SideBar from "../../layouts/SideBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 import NavBar from "../../layouts/NavBar";
 
 const TicketList = () => {
@@ -80,7 +80,7 @@ const TicketList = () => {
     if (loading) {
         return (
             <>
-                <SideBar />
+                  <TutorSideBar />
                 <NavBar />
                 <div className="wrapper">
                     <div className="content-page">
@@ -107,7 +107,7 @@ const TicketList = () => {
 
     return (
         <>
-            <SideBar />
+              <TutorSideBar />
             <NavBar />
             <div className="wrapper">
                 <div className="content-page">

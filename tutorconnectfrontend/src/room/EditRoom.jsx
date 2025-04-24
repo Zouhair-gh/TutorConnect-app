@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
-import SideBar from "../layouts/SideBar";
+import SideBar from "../layouts/SideBars/SideBar";
 import Navbar from "../layouts/NavBar";
 import Footer from "../layouts/footer";
 
