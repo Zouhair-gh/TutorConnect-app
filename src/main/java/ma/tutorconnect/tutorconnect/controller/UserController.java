@@ -17,6 +17,7 @@ public class UserController {
 
     private UserService userService;
     public UserController(UserService userService) {
+
         this.userService = userService;
     }
 
@@ -27,6 +28,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
+
         return userService.getUserById(id);
     }
 
