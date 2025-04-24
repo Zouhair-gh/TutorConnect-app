@@ -1,36 +1,21 @@
-package ma.tutorconnect.tutorconnect.entity;
+package ma.tutorconnect.tutorconnect.dto;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 
-@Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class Room {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@NoArgsConstructor
+public class CreateRoomDto {
     private String name;
     private int capacity;
     private Date startDate;
     private Date endDate;
     private Long amount ;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

@@ -16,11 +16,11 @@ public class TutorConnectApplication {
         SpringApplication.run(TutorConnectApplication.class, args);
     }
 
-  //  @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-      //@Bean
+
+    @Bean
     public CommandLineRunner addInitialAdmin(UserRepository userRepository, BCryptPasswordEncoder encoder) {
         return args -> {
             String tutorEmail = "tutor@gmail.com";
