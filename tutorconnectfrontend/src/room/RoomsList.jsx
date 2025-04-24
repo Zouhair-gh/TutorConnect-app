@@ -1,6 +1,6 @@
 import Footer from "../layouts/footer";
 import Navbar from "../layouts/NavBar";
-import SideBar from "../layouts/SideBar";
+import SideBar from "../layouts/SideBars/SideBar";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axiosClient";

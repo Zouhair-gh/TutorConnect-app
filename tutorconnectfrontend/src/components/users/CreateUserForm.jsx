@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import axiosClient from "../../api/axiosClient";
 import { useNavigate } from "react-router-dom";
 
-import SideBar from "../../layouts/SideBar";
+
 import NavBar from "../../layouts/NavBar";
 import Footer from "../../layouts/footer";
+import AdminSideBar from "../../layouts/SideBars/AdminSideBar";
 
 const CreateUserForm = () => {
   const navigate = useNavigate();
@@ -77,7 +78,8 @@ const CreateUserForm = () => {
 
   return (
     <>
-      <SideBar />
+       <AdminSideBar />
+      <AdminSideBar />
       <NavBar />
       <div class="wrapper">
         <div className="content-page">

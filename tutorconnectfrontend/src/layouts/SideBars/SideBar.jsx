@@ -222,6 +222,67 @@ const SideBar = ({ role }) => {
                             <path d="M4 4h7a4 4 0 0 1 4 4v12"/>
                           </svg>
                         </a>
+
+                      </li>
+
+                      <li className=" ">
+                        <a
+                            href="#tickets"
+                            className="collapsed"
+                            data-toggle="collapse"
+                            aria-expanded="false"
+                        >
+                          <svg
+                              className="svg-icon"
+                              id="p-dash5"
+                              width={20}
+                              height={20}
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                          >
+                            <path d="M3 3h18v18H3z" />
+                            <path d="M8 8h8v8H8z" />
+                          </svg>
+                          <span className="ml-4">Tickets</span>
+                          <svg
+                              className="svg-icon iq-arrow-right arrow-active"
+                              width={20}
+                              height={20}
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                          >
+                            <polyline points="10 15 15 20 20 15" />
+                            <path d="M4 4h7a4 4 0 0 1 4 4v12" />
+                          </svg>
+                        </a>
+                        <ul
+                            id="tickets"
+                            className="iq-submenu collapse"
+                            data-parent="#iq-sidebar-toggle"
+                        >
+                          <li className="list-tickets">
+                            <a onClick={() => navigate("/tutor/tickets")}>
+                              <i className="las la-list" />
+                              <span>List Tickets</span>
+                            </a>
+                          </li>
+                          <li className="create-ticket">
+                            <a onClick={() => navigate("/tutor/tickets/create")}>
+                              <i className="las la-plus" />
+                              <span>Create Ticket</span>
+                            </a>
+                          </li>
+                        </ul>
                       </li>
 
                       {/* students info*/}

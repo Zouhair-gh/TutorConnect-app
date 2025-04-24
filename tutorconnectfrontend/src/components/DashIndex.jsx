@@ -1,16 +1,15 @@
 import React from 'react';
 
-import SideBar from '../layouts/SideBar';
 import Navbar from '../layouts/NavBar';
 import Order from './Order';
 import Footer from '../layouts/footer';
-import Loader from "../layouts/loader";
+import AdminSideBar from "../layouts/SideBars/AdminSideBar";
 
 const DashIndex = () => {
     return (
         <>
 
-            <SideBar />
+             <AdminSideBar />
             <Navbar />
             <Order />
 

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 
 
-import SideBar from '../../layouts/SideBar';
+import AdminSideBar from "../../layouts/SideBars/AdminSideBar";
 import NavBar from '../../layouts/NavBar';
 import Footer from '../../layouts/footer';
 
@@ -56,7 +56,7 @@ const UserManagement = () => {
 
     return (
         <>
-            <SideBar/>
+            <AdminSideBar />
             <NavBar />
             <div className="wrapper">
                 <div className="content-page">
