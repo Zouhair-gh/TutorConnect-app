@@ -52,9 +52,9 @@ export default function Header() {
                                     <a href="/services" className="nav-item nav-link">Services</a>
                                     <a href="/portfolio" className="nav-item nav-link">Portfolio</a>
                                     <a href="/single" className="nav-item nav-link">Single Page</a>
-                                    <a href="/contact" className="nav-item nav-link">Contact Us</a>
-                                    <a href="https://htmlcodex.com/bootstrap-agency-template" className="btn">
-                                        <i className="fa fa-download"></i>Download Now
+                                    <a href="/join-as-tutor" className="nav-item nav-link">Become a Tutor</a>
+                                    <a href="/login" className="btn">
+                                        <i className="fa fa-user"></i>Login
                                     </a>
                                 </div>
                             </div>

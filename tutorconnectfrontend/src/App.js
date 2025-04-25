@@ -25,6 +25,9 @@ import EditRoom from "./room/EditRoom";
 import TicketList from "./components/services/TicketList";
 import TicketDetail from "./components/services/TicketDetail";
 import TicketForm from "./components/services/TicketForm";
+import SubscriptionForm from "./Website/SubscriptionForm";
+import DemandsList from "./components/Demands/DemandsList";
+import DemandDetail from "./components/Demands/DemandDetail";
 
 const AuthContext = React.createContext();
 
@@ -188,6 +191,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/join-as-tutor" element={<SubscriptionForm />} />
           <Route
             path="/admin/dashboard"
             element={
@@ -196,6 +200,23 @@ function App() {
               </ProtectedAdminRoute>
             }
           />
+          <Route
+              path="/admin/demands"
+              element={
+                <ProtectedAdminRoute>
+                  <DemandsList />
+                </ProtectedAdminRoute>
+              }
+          />
+          <Route
+              path="/admin/demands/:id"
+              element={
+                <ProtectedAdminRoute>
+                  <DemandDetail />
+                </ProtectedAdminRoute>
+              }
+          />
+
           <Route
             path="/admin/createuser"
             element={
