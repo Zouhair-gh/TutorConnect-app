@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import BaseSideBar from "./BaseSideBar";
+import { Link } from "react-router-dom";
 
 const TutorSideBar = () => {
     const navigate = useNavigate();
@@ -131,6 +132,7 @@ const TutorSideBar = () => {
                 </ul>
             </li>
 
+
             <li className=" ">
                 <a
                     href=""
@@ -214,6 +216,68 @@ const TutorSideBar = () => {
                     </svg>
                 </a>
             </li>
+
+            <li className=" ">
+                <a
+                    href="#rooms"
+                    className="collapsed"
+                    data-toggle="collapse"
+                    aria-expanded="false"
+                >
+                    <svg
+                        className="svg-icon"
+                        id="p-dash3"
+                        width={20}
+                        height={20}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    <span className="ml-4">Rooms</span>
+                    <svg
+                        className="svg-icon iq-arrow-right arrow-active"
+                        width={20}
+                        height={20}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <polyline points="10 15 15 20 20 15"/>
+                        <path d="M4 4h7a4 4 0 0 1 4 4v12"/>
+                    </svg>
+                </a>
+                <ul
+                    id="rooms"
+                    className="iq-submenu collapse"
+                    data-parent="#iq-sidebar-toggle"
+                >
+                    <li className="list-rooms">
+                        <a onClick={() => navigate("/tutor/rooms")}>
+                            <i className="las la-list" />
+                            <span>List Rooms</span>
+                        </a>
+                    </li>
+
+                    <li className="add-room">
+                        <a onClick={() => navigate("/rooms/create")}>
+                            <i className="las la-plus"/>
+                            <span>Add Room</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
         </BaseSideBar>
     );
 };

@@ -22,6 +22,8 @@ import RoomsList from "./room/RoomsList";
 import AddRoom from "./room/AddRoom";
 import RoomView from "./room/RoomView";
 import EditRoom from "./room/EditRoom";
+import TutorRoomsList from "./room/TutorRoomsList";
+
 import TicketList from "./components/services/TicketList";
 import TicketDetail from "./components/services/TicketDetail";
 import TicketForm from "./components/services/TicketForm";
@@ -265,6 +267,22 @@ function App() {
               element={
                 <ProtectedTutorRoute>
                   <TicketForm />
+                </ProtectedTutorRoute>
+              }
+          />
+          <Route
+              path="/tutor/rooms"
+              element={
+                <ProtectedTutorRoute>
+                  <TutorRoomsList /> {/* new component */}
+                </ProtectedTutorRoute>
+              }
+          />
+          <Route
+              path="/tutor/rooms/create"
+              element={
+                <ProtectedTutorRoute>
+                  <AddRoom /> {/* This allows the tutor to access the AddRoom page */}
                 </ProtectedTutorRoute>
               }
           />

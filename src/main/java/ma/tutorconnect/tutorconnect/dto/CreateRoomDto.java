@@ -10,6 +10,7 @@ import java.sql.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateRoomDto {
+    private Long id;
     private String name;
     private int capacity;
     private Date startDate;
