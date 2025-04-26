@@ -1,6 +1,8 @@
 package ma.tutorconnect.tutorconnect.controller;
 
 
+import ma.tutorconnect.tutorconnect.dto.RoomWithParticipantsDTO;
+import ma.tutorconnect.tutorconnect.dto.TutorDashboardDto;
 import ma.tutorconnect.tutorconnect.entity.Tutor;
 import ma.tutorconnect.tutorconnect.service.TutorService;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +40,21 @@ public class TutorController {
 
    // Get the dashboard data for the tutor
    // added by maaroufi
-    @GetMapping("/dashboard/{id}")
-    public Tutor getTutorDashboard(@PathVariable Long id) {
-        Tutor tutor = tutorService.getTutorById(id);
-        return tutor;
-    }
+   @GetMapping("/{id}/dashboard")
+   public TutorDashboardDto getTutorDashboard(@PathVariable Long id) {
+       Tutor tutor = tutorService.getTutorById(id);
+       List<RoomWithParticipantsDTO> roomsWithParticipants = tutorService.getRoomsWithParticipantsByTutor(id);
+
+       TutorDashboardDto dashboardDto = new TutorDashboardDto(
+               tutor.getId(),
+               tutor.getFirstName(),
+               tutor.getLastName(),
+               tutor.getEmail(),
+               tutor.getSpecialites(),
+               roomsWithParticipants
+       );
+
+       return dashboardDto;
+   }
 }
 
