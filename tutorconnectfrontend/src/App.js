@@ -224,28 +224,28 @@ function App() {
             }
           />
           <Route
-              path="/tutor/tickets"
-              element={
-                <ProtectedTutorRoute>
-                  <TicketList />
-                </ProtectedTutorRoute>
-              }
+            path="/tutor/tickets"
+            element={
+              <ProtectedTutorRoute>
+                <TicketList />
+              </ProtectedTutorRoute>
+            }
           />
           <Route
-              path="/tutor/tickets/:id"
-              element={
-                <ProtectedTutorRoute>
-                  <TicketDetail />
-                </ProtectedTutorRoute>
-              }
+            path="/tutor/tickets/:id"
+            element={
+              <ProtectedTutorRoute>
+                <TicketDetail />
+              </ProtectedTutorRoute>
+            }
           />
           <Route
-              path="/tutor/tickets/create"
-              element={
-                <ProtectedTutorRoute>
-                  <TicketForm />
-                </ProtectedTutorRoute>
-              }
+            path="/tutor/tickets/create"
+            element={
+              <ProtectedTutorRoute>
+                <TicketForm />
+              </ProtectedTutorRoute>
+            }
           />
 
           <Route path="/unauthorized" element={<UnauthorizedPage />} />

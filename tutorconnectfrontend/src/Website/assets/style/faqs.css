@@ -1,0 +1,164 @@
+/* .faqs {
+  padding: 70px 0;
+  background-color: #f7f9fc;
+}
+
+.faqs .container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.faqs h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.faq-accordion {
+  margin-bottom: 40px;
+}
+
+.faq-item {
+  margin-bottom: 15px;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.faq-question {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+  background-color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.faq-question:hover {
+  background-color: #f0f5ff;
+}
+
+.faq-icon {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0078d4;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.faq-answer.show {
+  max-height: 300px;
+  padding: 0 20px 20px;
+}
+
+.faq-answer p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.faq-cta {
+  text-align: center;
+}
+
+.btn-ask {
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-ask:hover {
+  background-color: #005ea6;
+}
+
+@media (max-width: 768px) {
+  .faqs {
+    padding: 50px 0;
+  }
+
+  .faqs h2 {
+    font-size: 1.7rem;
+  }
+
+  .faq-question {
+    padding: 15px;
+    font-size: 0.95rem;
+  }
+} */
+
+.contact-form {
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.contact-form h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 1rem;
+  color: #555;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-group textarea {
+  min-height: 120px;
+}
+
+.form-submit button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #0078d4;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.form-submit button:hover {
+  background-color: #0078d4;
+}
+
+.submission-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #0078d4;
+}
