@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import SideBar from "../layouts/SideBars/SideBar";
+import TutorSideBar from "../layouts/SideBars/TutorSideBar"
+
 import Navbar from "../layouts/NavBar";
 import Footer from "../layouts/footer";
 import axiosClient from "../api/axiosClient";
@@ -75,7 +76,7 @@ const RoomView = () => {
   if (loading) {
     return (
         <>
-          <SideBar />
+          <TutorSideBar />
           <Navbar />
           <div className="wrapper">
             <div className="content-page">
@@ -98,7 +99,7 @@ const RoomView = () => {
 
   const renderError = () => (
       <>
-        <SideBar />
+        <TutorSideBar />
         <Navbar />
         <div className="wrapper">
           <div className="content-page">
@@ -131,7 +132,7 @@ const RoomView = () => {
 
   const renderNotFound = () => (
       <>
-        <SideBar />
+        <TutorSideBar />
         <Navbar />
         <div className="wrapper">
           <div className="content-page">
@@ -172,7 +173,7 @@ const RoomView = () => {
 
   return (
       <>
-        <SideBar />
+        <TutorSideBar />
         <Navbar />
         <div className="wrapper">
           <div className="content-page">

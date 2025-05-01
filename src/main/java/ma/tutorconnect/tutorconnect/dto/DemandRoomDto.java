@@ -2,7 +2,7 @@ package ma.tutorconnect.tutorconnect.dto;
 
 import java.sql.Date;
 
-public class CreateRoomDto {
+public class DemandRoomDto {
     private Long id;
     private String name;
     private int capacity;
@@ -10,18 +10,14 @@ public class CreateRoomDto {
     private Date endDate;
     private Long amount;
     private Long tutorId;
+    private boolean isRenewal;
+    private Long originalRoomId;
 
-    // Default constructor
-    public CreateRoomDto() {
-    }
+    public DemandRoomDto() {}
 
-    // Constructor without tutorId (for backward compatibility)
-    public CreateRoomDto(Long id, String name, int capacity, Date startDate, Date endDate, Long amount) {
-        this(id, name, capacity, startDate, endDate, amount, null);
-    }
-
-    // Full constructor with all parameters
-    public CreateRoomDto(Long id, String name, int capacity, Date startDate, Date endDate, Long amount, Long tutorId) {
+    public DemandRoomDto(Long id, String name, int capacity, Date startDate,
+                         Date endDate, Long amount, Long tutorId,
+                         boolean isRenewal, Long originalRoomId) {
         this.id = id;
         this.name = name;
         this.capacity = capacity;
@@ -29,9 +25,11 @@ public class CreateRoomDto {
         this.endDate = endDate;
         this.amount = amount;
         this.tutorId = tutorId;
+        this.isRenewal = isRenewal;
+        this.originalRoomId = originalRoomId;
     }
 
-    // Getters and setters...
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
@@ -46,4 +44,8 @@ public class CreateRoomDto {
     public void setAmount(Long amount) { this.amount = amount; }
     public Long getTutorId() { return tutorId; }
     public void setTutorId(Long tutorId) { this.tutorId = tutorId; }
+    public boolean isRenewal() { return isRenewal; }
+    public void setRenewal(boolean renewal) { isRenewal = renewal; }
+    public Long getOriginalRoomId() { return originalRoomId; }
+    public void setOriginalRoomId(Long originalRoomId) { this.originalRoomId = originalRoomId; }
 }
