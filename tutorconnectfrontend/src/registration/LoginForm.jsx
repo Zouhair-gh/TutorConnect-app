@@ -33,11 +33,14 @@ const LoginForm = () => {
                 navigate('/admin/dashboard');
             } else if (userRole === 'TUTOR') {
                 navigate('/tutor/TutorDashboard');
+            }
+            else if (userRole === 'PARTICIPANT') {
+                navigate('/participant/dashboard');
             } else {
                 navigate('/unauthorized', {
                     state: {
                         from: location.pathname,
-                        requiredRole: 'ADMIN or TUTOR',
+                        requiredRole: 'ADMIN or TUTOR or PARTICIPANT',
                         userRole
                     }
                 });
