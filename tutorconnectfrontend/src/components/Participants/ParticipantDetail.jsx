@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiCalendar, FiCreditCard } from 'react-icons/fi';
 import { Card, Alert, Spinner, Tab, Tabs } from 'react-bootstrap';
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 const ParticipantDetail = () => {
     const { id } = useParams();
@@ -10,23 +12,76 @@ const ParticipantDetail = () => {
     const [participant, setParticipant] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [rooms, setRooms] = useState([]);
+    const [selectedRoom, setSelectedRoom] = useState(null);
 
+    // First, get all rooms that the tutor has access to
+    useEffect(() => {
+        const fetchTutorRooms = async () => {
+            try {
+                const response = await axiosClient.get('/rooms/my-rooms');
+                setRooms(response.data);
+                // If rooms are found, use the first one for the participant lookup
+                if (response.data && response.data.length > 0) {
+                    setSelectedRoom(response.data[0].id);
+                }
+            } catch (err) {
+                console.error('Error fetching tutor rooms:', err);
+                if (err.response?.status === 401 || err.response?.status === 403) {
+                    localStorage.removeItem('authToken');
+                    navigate('/login', { state: { from: `/tutor/participants/${id}` } });
+                }
+            }
+        };
+
+        fetchTutorRooms();
+    }, [id, navigate]);
+
+    // Once we have a selected room, find the participant
     useEffect(() => {
         const fetchParticipant = async () => {
+            if (!selectedRoom) return;
+
             try {
                 setLoading(true);
-                // Verify token first
-                await axiosClient.get('/verifyToken');
+                // Use the correct endpoint with roomId
+                const response = await axiosClient.get(`/rooms/${selectedRoom}/participants`);
 
-                // Then fetch participant
-                const response = await axiosClient.get(`/participants/${id}`);
-                setParticipant(response.data);
-                setError('');
+                // Find the participant with the matching ID in the list
+                const foundParticipant = response.data.find(p => p.id.toString() === id.toString());
+
+                if (foundParticipant) {
+                    setParticipant(foundParticipant);
+                    setError('');
+                } else {
+                    // If not found in this room, check other rooms
+                    let found = false;
+                    for (const room of rooms) {
+                        if (room.id === selectedRoom) continue; // Skip the one we just checked
+
+                        try {
+                            const roomResponse = await axiosClient.get(`/rooms/${room.id}/participants`);
+                            const participantInRoom = roomResponse.data.find(p => p.id.toString() === id.toString());
+
+                            if (participantInRoom) {
+                                setParticipant(participantInRoom);
+                                setSelectedRoom(room.id);
+                                found = true;
+                                break;
+                            }
+                        } catch (e) {
+                            console.error(`Error checking room ${room.id}:`, e);
+                        }
+                    }
+
+                    if (!found) {
+                        setError('Participant not found in any of your rooms');
+                    }
+                }
             } catch (err) {
                 console.error('Error fetching participant:', err);
                 // Check if the error is authentication related
                 if (err.response?.status === 401 || err.response?.status === 403) {
-                    // If token verification failed, navigate to login
                     localStorage.removeItem('authToken');
                     navigate('/login', { state: { from: `/tutor/participants/${id}` } });
                 } else {
@@ -38,10 +93,10 @@ const ParticipantDetail = () => {
             }
         };
 
-        if (id) {
+        if (selectedRoom) {
             fetchParticipant();
         }
-    }, [id, navigate]);
+    }, [id, selectedRoom, navigate, rooms]);
 
     if (loading) {
         return (
@@ -77,12 +132,20 @@ const ParticipantDetail = () => {
                 <Link to="/tutor/rooms" className="btn btn-outline-secondary mb-4">
                     <FiArrowLeft className="me-2" /> Back to Rooms
                 </Link>
-                <Alert variant="warning">Participant not found</Alert>
+                <Alert variant="warning">
+                    {rooms.length > 0
+                        ? "Participant not found in any of your rooms"
+                        : "You don't have access to any rooms yet"}
+                </Alert>
             </div>
         );
     }
 
     return (
+
+        <>
+            <NavBar />
+            <TutorSideBar />
         <div className="container py-4">
             <Link to="/tutor/rooms" className="btn btn-outline-secondary mb-4">
                 <FiArrowLeft className="me-2" /> Back to Rooms
@@ -187,6 +250,8 @@ const ParticipantDetail = () => {
                 </div>
             </div>
         </div>
+
+        </>
     );
 };
 

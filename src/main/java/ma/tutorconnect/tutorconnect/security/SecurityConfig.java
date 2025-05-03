@@ -21,8 +21,8 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Bean
-    public JwtAuthFilter jwtAuthFilter() {
-        return new JwtAuthFilter();
+    public JwtAuthenticationFilter jwtAuthFilter() {
+        return new JwtAuthenticationFilter();
     }
 
     @Bean
@@ -33,12 +33,27 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/login", "/api/register", "/api/logout").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                        //  permissions for room endpoints
+                        .requestMatchers("/api/rooms/create", "/api/rooms/all").hasRole("ADMIN")
+                        .requestMatchers("/api/rooms/my-rooms").hasRole("TUTOR")
+                        .requestMatchers("/api/rooms/request-room").hasRole("TUTOR")
+                        .requestMatchers("/api/rooms/request-renewal/*").hasRole("TUTOR")
+                        // Explicit permission for participant endpoints within rooms
+                        .requestMatchers("/api/rooms/*/participants/**").hasRole("TUTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/rooms/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/tickets").hasRole("TUTOR")
                         .requestMatchers("/api/demands").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/participants/**").hasRole("TUTOR")
                         .requestMatchers(HttpMethod.GET, "/api/tickets").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/tickets/*/status").hasAnyRole("STAFF", "ADMIN")
+
+                        // permissions for delivrable endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/deliverables/room/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/deliverables").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/deliverables").hasAnyAuthority("TUTOR", "ROLE_TUTOR")
+
+                        .requestMatchers(HttpMethod.POST, "/api/deliverables/submit").hasRole("PARTICIPANT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/deliverables/**").hasRole("TUTOR")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);

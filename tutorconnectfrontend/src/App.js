@@ -34,6 +34,7 @@ import RoomRequestForm from "./room/RoomRequestForm";
 import RoomManagement from "./room/RoomManagement";
 import ParticipantList from "./components/Participants/ParticipantList";
 import ParticipantDetail from "./components/Participants/ParticipantDetail";
+import DeliverableManagement from "./components/Deliverable/DeliverableManagement";
 
 const AuthContext = React.createContext();
 const ProtectedAdminRoute = ({ children }) => {
@@ -359,6 +360,15 @@ function App() {
                     </ProtectedTutorRoute>
                 }
             />
+            <Route
+                path="/tutor/rooms/:roomId/assignments"
+                element={
+                    <ProtectedTutorRoute>
+                        <DeliverableManagement />
+                    </ProtectedTutorRoute>
+                }
+            />
+
         </Routes>
       </Router>
     </AuthContext.Provider>

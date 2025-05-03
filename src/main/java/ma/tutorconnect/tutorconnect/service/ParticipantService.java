@@ -10,5 +10,5 @@ public interface ParticipantService {
     ParticipantDTO addParticipantToRoom(Long roomId, AddParticipantRequest request) ;
     void removeParticipantFromRoom(Long roomId, Long participantId);
     List<ParticipantDTO> getAvailableParticipants(Long roomId);
-
+    ParticipantDTO getParticipantInRoom(Long roomId, Long participantId);
 }

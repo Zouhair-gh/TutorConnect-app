@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import { FiUser, FiUserPlus, FiUserX, FiArrowLeft } from 'react-icons/fi';
 import { Modal, Button, Table, Alert, Badge } from 'react-bootstrap';
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 const ParticipantList = () => {
     const { roomId } = useParams();
@@ -85,6 +87,9 @@ const ParticipantList = () => {
     }
 
     return (
+
+        <>
+
         <div className="container py-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <Link to={`/tutor/rooms/${roomId}/manage`} className="btn btn-outline-secondary">
@@ -201,6 +206,8 @@ const ParticipantList = () => {
                 </Modal.Footer>
             </Modal>
         </div>
+        </>
+
     );
 };
 

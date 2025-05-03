@@ -139,11 +139,18 @@ const RoomManagement = () => {
                                 </div>
                             </div>
 
+
                             <div className="card border-0 shadow-sm mt-4">
                                 <div className="card-header bg-white border-0">
                                     <h5 className="mb-0">Quick Actions</h5>
                                 </div>
                                 <div className="card-body">
+                                    <Link
+                                        to={`/tutor/rooms/${room.id}/assignments`}
+                                        className="btn btn-sm btn-secondary rounded-pill px-3 me-2"
+                                    >
+                                        <FiFileText className="me-1" /> Assignments
+                                    </Link>
                                     <div className="d-flex flex-wrap gap-2">
                                         <button className="btn btn-outline-primary rounded-pill px-4">
                                             Schedule Session

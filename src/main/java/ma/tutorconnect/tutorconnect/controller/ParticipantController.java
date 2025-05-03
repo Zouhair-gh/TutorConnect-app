@@ -25,6 +25,15 @@ public class ParticipantController {
         return ResponseEntity.ok(participants);
     }
 
+    @GetMapping("/{participantId}")
+    public ResponseEntity<ParticipantDTO> getParticipantDetails(
+            @PathVariable Long roomId,
+            @PathVariable Long participantId) {
+
+        ParticipantDTO participant = participantService.getParticipantInRoom(roomId, participantId);
+        return ResponseEntity.ok(participant);
+    }
+
     @PostMapping
     public ResponseEntity<?> addParticipantToRoom(
             @PathVariable Long roomId,

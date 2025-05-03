@@ -88,4 +88,16 @@ public class ParticipantServiceImpl implements ParticipantService {
         );
     }
 
+    @Override
+    public ParticipantDTO getParticipantInRoom(Long roomId, Long participantId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        return room.getParticipants().stream()
+                .filter(p -> p.getId().equals(participantId))
+                .findFirst()
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new RuntimeException("Participant not found in this room"));
+    }
+
 }
