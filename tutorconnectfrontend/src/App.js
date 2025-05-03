@@ -35,6 +35,10 @@ import RoomManagement from "./room/RoomManagement";
 import ParticipantList from "./components/Participants/ParticipantList";
 import ParticipantDetail from "./components/Participants/ParticipantDetail";
 import DeliverableManagement from "./components/Deliverable/DeliverableManagement";
+import DeliverableForm from "./components/Deliverable/DeliverableFormWrapper";
+import DeliverableListWrapper from "./components/Deliverable/DeliverableListWrapper";
+import GradeDeliverablePage from "./components/Deliverable/GradeDeliverablePage";
+
 
 const AuthContext = React.createContext();
 const ProtectedAdminRoute = ({ children }) => {
@@ -360,14 +364,52 @@ function App() {
                     </ProtectedTutorRoute>
                 }
             />
+            {/* Deliverable Routes for Tutors */}
+            <Route path="tutor/rooms/:roomId/assignments" element={
+                <ProtectedTutorRoute>
+                    <DeliverableManagement />
+                </ProtectedTutorRoute>
+            } />
             <Route
-                path="/tutor/rooms/:roomId/assignments"
+                path="tutor/rooms/:roomId/assignments/create"
                 element={
                     <ProtectedTutorRoute>
-                        <DeliverableManagement />
+                        <DeliverableForm />
                     </ProtectedTutorRoute>
                 }
             />
+
+
+            <Route
+                path="tutor/rooms/:roomId/assignments/:assignmentId/edit"
+                element={
+                    <ProtectedTutorRoute>
+                        <DeliverableForm />
+                    </ProtectedTutorRoute>
+                }
+            />
+            <Route
+                path="/rooms/:roomId/deliverables"
+                element={
+                    <ProtectedTutorRoute>
+                        <DeliverableListWrapper />
+                    </ProtectedTutorRoute>
+                }
+            />
+
+
+            <Route
+                path="/rooms/:roomId/deliverables/:deliverableId/grade/:submissionId"
+                element={
+                    <ProtectedTutorRoute>
+                        <GradeDeliverablePage />
+                    </ProtectedTutorRoute>
+                }
+            />
+
+
+
+
 
         </Routes>
       </Router>

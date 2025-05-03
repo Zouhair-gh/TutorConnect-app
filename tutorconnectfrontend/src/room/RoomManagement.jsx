@@ -2,14 +2,12 @@ import React from "react";
 import { useParams , Link } from "react-router-dom";
 import TutorSideBar from "../layouts/SideBars/TutorSideBar";
 import Navbar from "../layouts/NavBar";
-import Footer from "../layouts/footer";
 import { FiUsers, FiFileText, FiBook, FiPlus, FiUpload, FiEye } from "react-icons/fi";
 import { ProgressBar } from "react-bootstrap";
 
 const RoomManagement = () => {
     const { id } = useParams();
 
-    // Sample data - in a real app, this would come from an API
     const room = {
         id: id,
         name: "Advanced Mathematics",
@@ -106,9 +104,12 @@ const RoomManagement = () => {
                                             <button className="btn btn-outline-warning flex-grow-1 rounded-pill">
                                                 <FiEye className="me-2" /> View All
                                             </button>
-                                            <button className="btn btn-warning flex-grow-1 rounded-pill">
+                                            <Link
+                                                to={`/tutor/rooms/${room.id}/assignments`}
+                                                className="btn btn-warning flex-grow-1 rounded-pill d-flex align-items-center justify-content-center"
+                                            >
                                                 <FiPlus className="me-2" /> Create New
-                                            </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
@@ -145,12 +146,7 @@ const RoomManagement = () => {
                                     <h5 className="mb-0">Quick Actions</h5>
                                 </div>
                                 <div className="card-body">
-                                    <Link
-                                        to={`/tutor/rooms/${room.id}/assignments`}
-                                        className="btn btn-sm btn-secondary rounded-pill px-3 me-2"
-                                    >
-                                        <FiFileText className="me-1" /> Assignments
-                                    </Link>
+
                                     <div className="d-flex flex-wrap gap-2">
                                         <button className="btn btn-outline-primary rounded-pill px-4">
                                             Schedule Session
@@ -171,7 +167,7 @@ const RoomManagement = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
+
         </>
     );
 };

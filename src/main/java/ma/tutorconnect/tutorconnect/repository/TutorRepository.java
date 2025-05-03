@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface TutorRepository extends JpaRepository<Tutor, Long> {
     Optional<Tutor> findByEmail(String email);
+    boolean existsByEmail(String email);
 
     @Query("SELECT t FROM Tutor t WHERE t.username = :username")
     Optional<Tutor> findByUsername(@Param("username") String username);

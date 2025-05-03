@@ -7,5 +7,16 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant , Long> {
+    boolean existsByEmail(String email);
+
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    boolean existsByUsername(String username);
+
+    Participant findByEmail(String email);
+
+    Participant findByPhoneNumber(String phoneNumber);
+
+    Participant findByUsername(String username);
 
 }
