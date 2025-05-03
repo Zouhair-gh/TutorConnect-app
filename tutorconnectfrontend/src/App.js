@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
   useNavigate,
+    useLocation
 } from "react-router-dom";
 import axiosClient from "./api/axiosClient";
 // Pages & Components
@@ -30,6 +31,8 @@ import TicketForm from "./components/services/TicketForm";
 import SubscriptionForm from "./Website/SubscriptionForm";
 import DemandsList from "./components/Demands/DemandsList";
 import DemandDetail from "./components/Demands/DemandDetail";
+import ParticipantDashboard from "./components/ParticipantDashboard";
+
 
 const AuthContext = React.createContext();
 
@@ -98,12 +101,54 @@ const ProtectedTutorRoute = ({ children }) => {
     verifyToken();
   }, [navigate]);
 
+    if (auth.loading) return <div>Loading...</div>;
+    if (!auth.isValid) return <Navigate to="/TutorDashboard" />;
+    if (!auth.isTutor) return <Navigate to="/unauthorized" />;
+
+    return children;
+};
+
+
+const ProtectedParticipantRoute = ({ children }) => {
+  const [auth, setAuth] = useState({
+    loading: true,
+    isValid: false,
+    isParticipant: false,
+    userRole: null,
+  });
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      try {
+        const response = await axiosClient.get("/verifyToken");
+        console.log("ROLE FROM BACKEND:", response.data.role); // DEBUG
+
+        const role = response.data.role?.trim().toUpperCase();
+
+        setAuth({
+          loading: false,
+          isValid: true,
+          isParticipant: role === "PARTICIPANT",
+          userRole: role,
+        });
+      } catch (error) {
+        localStorage.removeItem("authToken");
+        setAuth({ loading: false, isValid: false, isParticipant: false, userRole: null });
+        navigate("/login");
+      }
+    };
+
+    verifyToken();
+  }, [navigate]);
+
   if (auth.loading) return <div>Loading...</div>;
-  if (!auth.isValid) return <Navigate to="/TutorDashboard" />;
-  if (!auth.isTutor) return <Navigate to="/unauthorized" />;
+  if (!auth.isValid) return <Navigate to="/login" />;
 
   return children;
 };
+
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -286,6 +331,19 @@ function App() {
                 </ProtectedTutorRoute>
               }
           />
+
+          {/* participant dashboard route */}
+
+
+          <Route
+              path="/participant/ParticipantDashboard"
+              element={
+                <ProtectedParticipantRoute>
+                  <ParticipantDashboard />
+                </ProtectedParticipantRoute>
+              }
+          />
+
 
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
