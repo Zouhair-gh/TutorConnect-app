@@ -1,6 +1,5 @@
 package ma.tutorconnect.tutorconnect.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +20,7 @@ public class Room {
     private int capacity;
     private Date startDate;
     private Date endDate;
-    private Long amount ;
+    private Long amount;
 
     @ManyToOne
     @JoinColumn(name = "tutor_id")
@@ -34,7 +33,6 @@ public class Room {
             inverseJoinColumns = @JoinColumn(name = "participant_id")
     )
     private List<Participant> participants = new ArrayList<>();
-
 
     public Long getId() {
         return id;
@@ -82,5 +80,21 @@ public class Room {
 
     public void setAmount(Long amount) {
         this.amount = amount;
+    }
+
+    public Tutor getTutor() {
+        return tutor;
+    }
+
+    public void setTutor(Tutor tutor) {
+        this.tutor = tutor;
+    }
+
+    public List<Participant> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<Participant> participants) {
+        this.participants = participants;
     }
 }

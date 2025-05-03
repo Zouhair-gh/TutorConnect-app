@@ -10,6 +10,7 @@ import java.util.List;
 public interface RoomRepository extends JpaRepository<Room, Long> {
     Room findByName(String name);
     List<Room> findByTutorId(Long tutorId);
+    Room findAllById(Long id);
 
 
 }

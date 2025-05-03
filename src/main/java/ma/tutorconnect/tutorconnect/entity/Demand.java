@@ -31,11 +31,20 @@ public class Demand {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime processedAt;
 
+    // Add demand type for better categorization
+    private String demandType; // "ROOM_CREATION", "ROOM_RENEWAL", "TUTOR_ACCOUNT"
+
     // Relations can be added here if needed
     // For example, if a demand is approved and a user account is created:
     // @OneToOne(mappedBy = "demand")
     // private User user;
+    public String getDemandType() {
+        return demandType;
+    }
 
+    public void setDemandType(String demandType) {
+        this.demandType = demandType;
+    }
     public Long getId() {
         return id;
     }

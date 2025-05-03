@@ -21,4 +21,5 @@ public class Participant extends User{
     @OneToMany(mappedBy = "participant")
     private List<Payment> payments;
 
+
 }

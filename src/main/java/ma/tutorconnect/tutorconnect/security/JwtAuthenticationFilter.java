@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ma.tutorconnect.tutorconnect.entity.User;
 import ma.tutorconnect.tutorconnect.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +20,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 @Component
-public class JwtAuthFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -30,28 +33,41 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        final String authorizationHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
+        logger.debug("Request to path: {}, Authorization header exists: {}",
+                request.getRequestURI(),
+                authorizationHeader != null);
+
+        String email = null;
+        String jwt = null;
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwt = authorizationHeader.substring(7);
+            try {
+                email = jwtUtil.extractEmail(jwt);
+                logger.debug("Extracted email from token: {}", email);
+            } catch (Exception e) {
+                logger.error("Error extracting email from token", e);
+            }
         }
 
-        final String token = authHeader.substring(7);
-        final String email = jwtUtil.extractEmail(token);
-
+        // If we found a valid token, authenticate the user
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             User user = userRepository.findByEmail(email);
 
-            if (user != null && jwtUtil.validateToken(token)) {
+            if (user != null && jwtUtil.validateToken(jwt)) {
+                // Create authentication token with user's role
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        email,
-                        null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-                );
+                        email, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+
+
+                logger.info("Authenticated user: {} with role: {}", email, user.getRole());
+            } else {
+                logger.warn("Authentication failed for email: {}", email);
             }
         }
 

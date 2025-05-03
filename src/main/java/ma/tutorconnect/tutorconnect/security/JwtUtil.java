@@ -1,49 +1,103 @@
 package ma.tutorconnect.tutorconnect.security;
-import io.jsonwebtoken.JwtException;
+
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
-@Service
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Component
 public class JwtUtil {
-    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final long EXPIRATION = 86400000; // 1 day in ms
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
-    public String generateToken(String email) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours validity
-                .signWith(key)
-                .compact();
-    }
+    @Value("${jwt.secret}")
+    private String secretStr;
 
-    public String extractEmail(String token) {
+    @Value("${jwt.expiration}")
+    private long expiration;
+
+    private Key signingKey;
+
+    @PostConstruct
+    public void init() {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (JwtException e) {
-            return null;
+            // Ensure the secret is at least 256 bits (32 characters) long
+            if (secretStr.length() < 32) {
+                throw new IllegalArgumentException("JWT secret key must be at least 32 characters long");
+            }
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedSecret = digest.digest(secretStr.getBytes(StandardCharsets.UTF_8));
+
+            // Use the hashed secret to create the signing key
+            this.signingKey = Keys.hmacShaKeyFor(hashedSecret);
+
+            logger.info("JWT signing key initialized successfully");
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("Failed to initialize JWT signing key", e);
+            throw new RuntimeException("Failed to initialize JWT signing key", e);
         }
     }
 
-    public boolean validateToken(String token) {
+    public String extractEmail(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(signingKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    public String generateToken(String email) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, email);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(signingKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public Boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException e) {
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            logger.error("Error validating token", e);
             return false;
         }
     }

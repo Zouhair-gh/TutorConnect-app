@@ -13,11 +13,26 @@ const AddRoom = () => {
     capacity: "",
     startDate: "",
     endDate: "",
+    tutorId: "" // Added tutorId field
   });
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tutors, setTutors] = useState([]);
+
+  // Fetch tutors on component mount
+  useEffect(() => {
+    const fetchTutors = async () => {
+      try {
+        const response = await axiosClient.get("/users/tutors");
+        setTutors(response.data);
+      } catch (err) {
+        console.error("Failed to fetch tutors", err);
+      }
+    };
+    fetchTutors();
+  }, []);
 
   useEffect(() => {
     if (formData.startDate && formData.endDate) {
@@ -25,17 +40,13 @@ const AddRoom = () => {
       const end = new Date(formData.endDate);
 
       if (end >= start) {
-        // Calculate difference in days
         const diffTime = Math.abs(end - start);
-        // +1 to include both
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-        //  20 * nbr_days
         const calculatedAmount = diffDays * 20;
 
-        setFormData((prev) => ({
+        setFormData(prev => ({
           ...prev,
-          amount: calculatedAmount,
+          amount: calculatedAmount
         }));
       }
     }
@@ -57,30 +68,39 @@ const AddRoom = () => {
 
     try {
       if (new Date(formData.endDate) < new Date(formData.startDate)) {
-        throw new Error("La date de fin doit être après la date de début");
+        throw new Error("End date must be after start date");
+      }
+
+      if (!formData.tutorId) {
+        throw new Error("Please select a tutor");
       }
 
       const payload = {
-        ...formData,
+        name: formData.name,
         capacity: parseInt(formData.capacity),
         amount: parseInt(formData.amount),
-        startDate: new Date(formData.startDate).toISOString().split("T")[0],
-        endDate: new Date(formData.endDate).toISOString().split("T")[0],
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        tutorId: parseInt(formData.tutorId)
       };
 
-      await axiosClient.post("/rooms/create", payload);
-      setSuccess("Salle créée avec succès");
-      setTimeout(() => navigate("/rooms"), 1500);
+      const response = await axiosClient.post("/rooms/create", payload);
+      setSuccess("Room created successfully");
+      setTimeout(() => navigate("/admin/rooms"), 1500);
     } catch (err) {
-      if (err.response?.status === 400) {
-        const errors = err.response.data
-          .map((e) => e.defaultMessage)
-          .join(", ");
-        setError(`Erreurs : ${errors}`);
+      if (err.response?.status === 401) {
+        // Handle unauthorized (likely token expired)
+        setError("Session expired. Please login again.");
+        setTimeout(() => {
+          localStorage.removeItem("authToken");
+          navigate("/login");
+        }, 2000);
       } else if (err.response?.status === 403) {
-        setError("Action non autorisée.");
+        setError("You don't have permission to perform this action");
+      } else if (err.response?.data) {
+        setError(err.response.data.message || "Error creating room");
       } else {
-        setError(err.message || "Erreur lors de la création");
+        setError(err.message || "Error creating room");
       }
     } finally {
       setIsSubmitting(false);
@@ -88,129 +108,153 @@ const AddRoom = () => {
   };
 
   return (
-    <>
-      <SideBar />
-      <Navbar />
-      <div className="wrapper">
-        <div className="content-page">
-          <div className="container-fluid">
-            <div className="container p-4">
-              <h2 className="mb-4">Create a New Room </h2>
+      <>
+        <SideBar />
+        <Navbar />
+        <div className="wrapper">
+          <div className="content-page">
+            <div className="container-fluid">
+              <div className="container p-4">
+                <h2 className="mb-4">Create a New Room</h2>
 
-              {error && <div className="alert alert-danger">{error}</div>}
-              {success && <div className="alert alert-success">{success}</div>}
+                {error && <div className="alert alert-danger">{error}</div>}
+                {success && <div className="alert alert-success">{success}</div>}
 
-              <form onSubmit={handleSubmit}>
-                <div className="row">
-                  <div className="col-md-12 mb-3">
-                    <label htmlFor="name" className="form-label">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      maxLength={255}
-                    />
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="capacity" className="form-label">
-                      Capacity
-                    </label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      id="capacity"
-                      name="capacity"
-                      value={formData.capacity}
-                      onChange={handleChange}
-                      required
-                      min="1"
-                    />
+                <form onSubmit={handleSubmit}>
+                  <div className="row">
+                    <div className="col-md-12 mb-3">
+                      <label htmlFor="name" className="form-label">
+                        Name
+                      </label>
+                      <input
+                          type="text"
+                          className="form-control"
+                          id="name"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          required
+                          maxLength={255}
+                      />
+                    </div>
                   </div>
 
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="amount" className="form-label">
-                      Amount
-                    </label>
-                    <input
-                      readOnly
-                      type="number"
-                      className="form-control"
-                      id="amount"
-                      name="amount"
-                      value={formData.amount}
-                      min="0"
-                    />
-                    <small className="text-muted">
-                      Automatically calculated based on selected dates
-                    </small>
-                  </div>
-                </div>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="capacity" className="form-label">
+                        Capacity
+                      </label>
+                      <input
+                          type="number"
+                          className="form-control"
+                          id="capacity"
+                          name="capacity"
+                          value={formData.capacity}
+                          onChange={handleChange}
+                          required
+                          min="1"
+                      />
+                    </div>
 
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="startDate" className="form-label">
-                      Start Date
-                    </label>
-                    <input
-                      type="date"
-                      className="form-control"
-                      id="startDate"
-                      name="startDate"
-                      value={formData.startDate}
-                      onChange={handleChange}
-                      required
-                    />
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="amount" className="form-label">
+                        Amount (DH)
+                      </label>
+                      <input
+                          readOnly
+                          type="number"
+                          className="form-control"
+                          id="amount"
+                          name="amount"
+                          value={formData.amount}
+                          min="0"
+                      />
+                      <small className="text-muted">
+                        Automatically calculated (20 DH per day)
+                      </small>
+                    </div>
                   </div>
 
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="endDate" className="form-label">
-                      End Date
-                    </label>
-                    <input
-                      type="date"
-                      className="form-control"
-                      id="endDate"
-                      name="endDate"
-                      value={formData.endDate}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="startDate" className="form-label">
+                        Start Date
+                      </label>
+                      <input
+                          type="date"
+                          className="form-control"
+                          id="startDate"
+                          name="startDate"
+                          value={formData.startDate}
+                          onChange={handleChange}
+                          required
+                          min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
 
-                <div className="mt-4">
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "In progress " : "Create"}
-                  </button>
-                  <button
-                    style={{ marginLeft: "40px" }}
-                    type="button"
-                    className="btn btn-secondary ms-2"
-                    onClick={() => navigate(-1)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="endDate" className="form-label">
+                        End Date
+                      </label>
+                      <input
+                          type="date"
+                          className="form-control"
+                          id="endDate"
+                          name="endDate"
+                          value={formData.endDate}
+                          onChange={handleChange}
+                          required
+                          min={formData.startDate || new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-md-12 mb-3">
+                      <label htmlFor="tutorId" className="form-label">
+                        Assign to Tutor
+                      </label>
+                      <select
+                          className="form-control"
+                          id="tutorId"
+                          name="tutorId"
+                          value={formData.tutorId}
+                          onChange={handleChange}
+                          required
+                      >
+                        <option value="">Select a tutor</option>
+                        {tutors.map(tutor => (
+                            <option key={tutor.id} value={tutor.id}>
+                              {tutor.firstName} {tutor.lastName} ({tutor.email})
+                            </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Creating..." : "Create Room"}
+                    </button>
+                    <button
+                        type="button"
+                        className="btn btn-secondary ms-3"
+                        onClick={() => navigate(-1)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <Footer />
-    </>
+        <Footer />
+      </>
   );
 };
 

@@ -1,7 +1,7 @@
 package ma.tutorconnect.tutorconnect.entity;
 
-
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tutor extends User{
+public class Tutor extends User {
     private String specialites;
 
     @OneToMany(mappedBy = "tutor")

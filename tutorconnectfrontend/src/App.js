@@ -30,41 +30,55 @@ import TicketForm from "./components/services/TicketForm";
 import SubscriptionForm from "./Website/SubscriptionForm";
 import DemandsList from "./components/Demands/DemandsList";
 import DemandDetail from "./components/Demands/DemandDetail";
+import RoomRequestForm from "./room/RoomRequestForm";
+import RoomManagement from "./room/RoomManagement";
+import ParticipantList from "./components/Participants/ParticipantList";
+import ParticipantDetail from "./components/Participants/ParticipantDetail";
+import DeliverableManagement from "./components/Deliverable/DeliverableManagement";
+import DeliverableForm from "./components/Deliverable/DeliverableFormWrapper";
+import DeliverableListWrapper from "./components/Deliverable/DeliverableListWrapper";
+import GradeDeliverablePage from "./components/Deliverable/GradeDeliverablePage";
+
 
 const AuthContext = React.createContext();
-
 const ProtectedAdminRoute = ({ children }) => {
-  const [auth, setAuth] = useState({
-    loading: true,
-    isValid: false,
-    isAdmin: false,
-  });
-  const navigate = useNavigate();
+    const [auth, setAuth] = useState({
+        loading: true,
+        isValid: false,
+        isAdmin: false,
+    });
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      try {
-        const response = await axiosClient.get("/verifyToken");
-        setAuth({
-          loading: false,
-          isValid: true,
-          isAdmin: response.data.role === "ADMIN",
-        });
-      } catch (error) {
-        localStorage.removeItem("authToken");
-        setAuth({ loading: false, isValid: false, isAdmin: false });
-        console.log("Error verifying token:", error);
-        navigate("/login");
-      }
-    };
+    useEffect(() => {
+        const verifyToken = async () => {
+            try {
+                const response = await axiosClient.get("/verifyToken");
+                console.log("ROLE FROM BACKEND:", response.data.role); // Add debug log
 
-    verifyToken();
-  }, [navigate]);
-  if (auth.loading) return <div>Loading...</div>;
-  if (!auth.isValid) return <Navigate to="/login" />;
-  if (!auth.isAdmin) return <Navigate to="/" />;
+                // Normalize the role to handle case sensitivity
+                const role = response.data.role?.trim().toUpperCase();
 
-  return children;
+                setAuth({
+                    loading: false,
+                    isValid: true,
+                    isAdmin: role === "ADMIN",
+                });
+            } catch (error) {
+                console.error("Token verification error:", error);
+                localStorage.removeItem("authToken");
+                setAuth({ loading: false, isValid: false, isAdmin: false });
+                navigate("/login");
+            }
+        };
+
+        verifyToken();
+    }, [navigate]);
+
+    if (auth.loading) return <div>Loading...</div>;
+    if (!auth.isValid) return <Navigate to="/login" />;
+    if (!auth.isAdmin) return <Navigate to="/unauthorized" />;
+
+    return children;
 };
 
 const ProtectedTutorRoute = ({ children }) => {
@@ -235,8 +249,42 @@ function App() {
               </ProtectedAdminRoute>
             }
           />
+            {/* Admin dashboard rooms  */}
+            <Route
+                path="/admin/rooms"
+                element={
+                    <ProtectedAdminRoute>
+                        <RoomsList />
+                    </ProtectedAdminRoute>
+                }
+            />
+            <Route
+                path="/admin/rooms/create"
+                element={
+                    <ProtectedAdminRoute>
+                        <AddRoom />
+                    </ProtectedAdminRoute>
+                }
+            />
+            <Route
+                path="/admin/rooms/:id"
+                element={
+                    <ProtectedAdminRoute>
+                        <RoomView />
+                    </ProtectedAdminRoute>
+                }
+            />
+            <Route
+                path="/admin/rooms/edit/:id"
+                element={
+                    <ProtectedAdminRoute>
+                        <EditRoom />
+                    </ProtectedAdminRoute>
+                }
+            />
 
-          {/* tutor dashboard route */}
+
+            {/* tutor dashboard route */}
 
           <Route
             path="/tutor/TutorDashboard"
@@ -270,66 +318,99 @@ function App() {
                 </ProtectedTutorRoute>
               }
           />
+
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+
+
+          {/* Tutor Room Management Routes */}
           <Route
               path="/tutor/rooms"
               element={
                 <ProtectedTutorRoute>
-                  <TutorRoomsList /> {/* new component */}
+                  <TutorRoomsList />
                 </ProtectedTutorRoute>
               }
           />
           <Route
-              path="/tutor/rooms/create"
+              path="/tutor/rooms/request"
               element={
                 <ProtectedTutorRoute>
-                  <AddRoom /> {/* This allows the tutor to access the AddRoom page */}
+                  <RoomRequestForm />
                 </ProtectedTutorRoute>
               }
           />
+          <Route
+              path="/tutor/rooms/:id/manage"
+              element={
+                <ProtectedTutorRoute>
+                  <RoomManagement />
+                </ProtectedTutorRoute>
+              }
+          />
+            <Route
+                path="/tutor/rooms/:roomId/participants"
+                element={
+                    <ProtectedTutorRoute>
+                        <ParticipantList />
+                    </ProtectedTutorRoute>
+                }
+            />
+            <Route
+                path="/tutor/participants/:id"
+                element={
+                    <ProtectedTutorRoute>
+                        <ParticipantDetail />
+                    </ProtectedTutorRoute>
+                }
+            />
+            {/* Deliverable Routes for Tutors */}
+            <Route path="tutor/rooms/:roomId/assignments" element={
+                <ProtectedTutorRoute>
+                    <DeliverableManagement />
+                </ProtectedTutorRoute>
+            } />
+            <Route
+                path="tutor/rooms/:roomId/assignments/create"
+                element={
+                    <ProtectedTutorRoute>
+                        <DeliverableForm />
+                    </ProtectedTutorRoute>
+                }
+            />
 
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-          {/* Admin dashboard rooms  */}
-          <Route
-            path="/rooms"
-            element={
-              <ProtectedAdminRoute>
-                <RoomsList />
-              </ProtectedAdminRoute>
-            }
-          />
-          <Route
-            path="/rooms/create"
-            element={
-              <ProtectedAdminRoute>
-                <AddRoom />
-              </ProtectedAdminRoute>
-            }
-          />
-          <Route
-            path="/rooms"
-            element={
-              <ProtectedAdminRoute>
-                <RoomsList />
-              </ProtectedAdminRoute>
-            }
-          />
-          <Route
-            path="/rooms/:id"
-            element={
-              <ProtectedAdminRoute>
-                <RoomView />
-              </ProtectedAdminRoute>
-            }
-          />
-          <Route
-            path="/rooms/edit/:id"
-            element={
-              <ProtectedAdminRoute>
-                <EditRoom />
-              </ProtectedAdminRoute>
-            }
-          />
+            <Route
+                path="tutor/rooms/:roomId/assignments/:assignmentId/edit"
+                element={
+                    <ProtectedTutorRoute>
+                        <DeliverableForm />
+                    </ProtectedTutorRoute>
+                }
+            />
+            <Route
+                path="/rooms/:roomId/deliverables"
+                element={
+                    <ProtectedTutorRoute>
+                        <DeliverableListWrapper />
+                    </ProtectedTutorRoute>
+                }
+            />
+
+
+            <Route
+                path="/rooms/:roomId/deliverables/:deliverableId/grade/:submissionId"
+                element={
+                    <ProtectedTutorRoute>
+                        <GradeDeliverablePage />
+                    </ProtectedTutorRoute>
+                }
+            />
+
+
+
+
+
         </Routes>
       </Router>
     </AuthContext.Provider>
