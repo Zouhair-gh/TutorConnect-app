@@ -2,6 +2,7 @@ package ma.tutorconnect.tutorconnect.repository;
 
 import ma.tutorconnect.tutorconnect.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,6 +11,10 @@ import java.util.List;
 public interface RoomRepository extends JpaRepository<Room, Long> {
     Room findByName(String name);
     List<Room> findByTutorId(Long tutorId);
+
+    @Query("SELECT COUNT(r) FROM Room r")
+    long countRooms();
+
 
 
 }
