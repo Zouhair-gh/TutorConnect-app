@@ -11,6 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface TutorRepository extends JpaRepository<Tutor, Long> {
+
+    @Query("SELECT COUNT(t) FROM Tutor t")
+    long countTutors();
     Optional<Tutor> findByEmail(String email);
     boolean existsByEmail(String email);
 
