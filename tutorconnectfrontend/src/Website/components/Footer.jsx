@@ -68,7 +68,7 @@ import {
 // export default Footer;
 
 //v2 :
-import "../assets/style/footer.css"; // Import the CSS file
+import "../assets/landingpagestyle/footer.css"; // Import the CSS file
 const Footer = () => {
   return (
     <footer className="footer">

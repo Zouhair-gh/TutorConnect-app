@@ -1,6 +1,6 @@
 import React from "react";
 import heroImage from "../assets/img/hero.png"; // Import the image
-import "../assets/style/hero.css"; // Import the CSS file
+import "../assets/landingpagestyle/hero.css"; // Import the CSS file
 // const Hero = () => {
 //     return (
 //         <div className="hero">

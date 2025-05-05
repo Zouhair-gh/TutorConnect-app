@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import faqs from "../assets/img/faqs.jpg"; // Import the image
-import "../assets/style/faqs.css"; // Import the CSS file
+import "../assets/landingpagestyle/faqs.css"; // Import the CSS file
 // const Faqs = () => {
 //     const [activeIndex, setActiveIndex] = useState(null);
 

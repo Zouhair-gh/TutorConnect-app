@@ -1,5 +1,5 @@
 import React from "react";
-import "../assets/style/services.css"; // Import the CSS file
+import "../assets/landingpagestyle/services.css"; // Import the CSS file
 // import icon1 from "../assets/img/icon-service-1.png";
 // import icon2 from "../assets/img/icon-service-2.png";
 // import icon3 from "../assets/img/icon-service-3.png";

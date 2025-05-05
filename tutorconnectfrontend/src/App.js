@@ -36,12 +36,13 @@ import RoomRequestForm from "./room/RoomRequestForm";
 import RoomManagement from "./room/RoomManagement";
 import ParticipantList from "./components/Participants/ParticipantList";
 import ParticipantDetail from "./components/Participants/ParticipantDetail";
-import DeliverableManagement from "./components/Deliverable/DeliverableManagement";
-import DeliverableForm from "./components/Deliverable/DeliverableFormWrapper";
-import DeliverableListWrapper from "./components/Deliverable/DeliverableListWrapper";
-import GradeDeliverablePage from "./components/Deliverable/GradeDeliverablePage";
-import ParticipantDeliverables from "./components/Deliverable/ParticipantDeliverables";
 import ParticipantRoomsList from "./room/ParticipantRoomsList";
+import DeliverableList from "./components/Deliverable/DeliverableList";
+import CreateDeliverableForm from "./components/Deliverable/CreateDeliverableForm";
+import DeliverableDetail from "./components/Deliverable/DeliverableDetail";
+import GradeDeliverableForm from "./components/Deliverable/GradeDeliverableForm";
+import ParticipantDeliverables from "./components/Deliverable/ParticipantDeliverables";
+import DeliverableView from "./components/Deliverable/DeliverableView";
 
 
 const AuthContext = React.createContext();
@@ -411,43 +412,40 @@ function App() {
                 }
             />
             {/* Deliverable Routes for Tutors */}
-            <Route path="tutor/rooms/:roomId/assignments" element={
-              <ProtectedTutorRoute>
-                <DeliverableManagement />
-              </ProtectedTutorRoute>
-            } />
-            <Route
-                path="tutor/rooms/:roomId/assignments/create"
-                element={
-                  <ProtectedTutorRoute>
-                    <DeliverableForm />
-                  </ProtectedTutorRoute>
-                }
-            />
-            <Route
-                path="tutor/rooms/:roomId/assignments/:assignmentId/edit"
-                element={
-                  <ProtectedTutorRoute>
-                    <DeliverableForm />
-                  </ProtectedTutorRoute>
-                }
-            />
-            <Route
-                path="/rooms/:roomId/deliverables"
-                element={
-                  <ProtectedTutorRoute>
-                    <DeliverableListWrapper />
-                  </ProtectedTutorRoute>
-                }
-            />
-            <Route
-                path="/rooms/:roomId/deliverables/:deliverableId/grade/:submissionId"
-                element={
-                  <ProtectedTutorRoute>
-                    <GradeDeliverablePage />
-                  </ProtectedTutorRoute>
-                }
-            />
+              <Route
+                  path="/tutor/rooms/:roomId/deliverables"
+                  element={
+                      <ProtectedTutorRoute>
+                          <DeliverableList />
+                      </ProtectedTutorRoute>
+                  }
+              />
+              <Route
+                  path="/tutor/rooms/:roomId/deliverables/create"
+                  element={
+                      <ProtectedTutorRoute>
+                          <CreateDeliverableForm />
+                      </ProtectedTutorRoute>
+                  }
+              />
+              <Route
+                  path="/tutor/deliverables/:id"
+                  element={
+                      <ProtectedTutorRoute>
+                          <DeliverableDetail />
+                      </ProtectedTutorRoute>
+                  }
+              />
+              <Route
+                  path="/tutor/deliverables/:id/grade"
+                  element={
+                      <ProtectedTutorRoute>
+                          <GradeDeliverableForm />
+                      </ProtectedTutorRoute>
+                  }
+              />
+
+
 
             {/* Participant Routes */}
             <Route
@@ -467,15 +465,32 @@ function App() {
                   </ProtectedParticipantRoute>
                 }
             />
-            <Route
-                path="/participant/deliverables"
-                element={
-                  <ProtectedParticipantRoute>
+              {/* Deliverable Routes for Participants */}
+              <Route
+                  path="/participant/deliverables"
+                  element={
+                      <ProtectedParticipantRoute>
+                          <ParticipantDeliverables />
+                      </ProtectedParticipantRoute>
+                  }
+              />
+              <Route
+                  path="/participant/deliverables/:id"
+                  element={
+                      <ProtectedParticipantRoute>
+                          <DeliverableView />
+                      </ProtectedParticipantRoute>
+                  }
+              />
+              <Route
+                  path="/participant/deliverables/:id/submit"
+                  element={
+                      <ProtectedParticipantRoute>
 
-                    <ParticipantDeliverables />
-                  </ProtectedParticipantRoute>
-                }
-            />
+                      </ProtectedParticipantRoute>
+                  }
+              />
+
           </Routes>
         </Router>
       </AuthContext.Provider>

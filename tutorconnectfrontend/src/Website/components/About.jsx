@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "../assets/style/about.css"; // Import the CSS file
+import "../assets/landingpagestyle/about.css"; // Import the CSS file
 // const About = () => {
 
 //     useEffect(() => {

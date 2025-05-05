@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import logo from "../assets/img/logo.png";
-import "../assets/style/header.css";
+import "../assets/landingpagestyle/header.css";
 
 
 const Header = () => {

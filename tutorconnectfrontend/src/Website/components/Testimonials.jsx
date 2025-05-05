@@ -51,7 +51,7 @@ import testimonial4 from "../assets/img/testimonial-4.jpg";
 // export default Testimonials;
 
 //version 2 :
-import "../assets/style/testimonial.css"; // Import the CSS file
+import "../assets/landingpagestyle/testimonial.css"; // Import the CSS file
 const Testimonials = () => {
   const testimonials = [
     {
