@@ -4,6 +4,8 @@ import axiosClient from "../../api/axiosClient";
 
 import { FiUpload, FiSave, FiArrowLeft } from "react-icons/fi";
 import { Button, Form, ProgressBar } from "react-bootstrap";
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 
 const SubmitDeliverableForm = () => {
@@ -76,6 +78,8 @@ const SubmitDeliverableForm = () => {
     return (
         <>
 
+            <NavBar/>
+            <TutorSideBar/>
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">

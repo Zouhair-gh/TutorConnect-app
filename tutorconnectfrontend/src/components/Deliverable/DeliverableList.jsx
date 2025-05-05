@@ -13,6 +13,8 @@ import {
     FiTrash2
 } from "react-icons/fi";
 import { Badge, ProgressBar } from "react-bootstrap";
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 
 
@@ -102,6 +104,8 @@ const DeliverableList = () => {
     return (
         <>
 
+            <NavBar/>
+            <TutorSideBar/>
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">

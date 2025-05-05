@@ -2,8 +2,10 @@ import React from "react";
 import { useParams , Link } from "react-router-dom";
 import TutorSideBar from "../layouts/SideBars/TutorSideBar";
 import Navbar from "../layouts/NavBar";
-import { FiUsers, FiFileText, FiBook, FiPlus, FiUpload, FiEye } from "react-icons/fi";
+import { FiUsers, FiFileText, FiBook, FiPlus, FiUpload, FiEye , FiCalendar} from "react-icons/fi";
 import { ProgressBar } from "react-bootstrap";
+import NavBar from "../layouts/NavBar";
+
 
 const RoomManagement = () => {
     const { id } = useParams();
@@ -31,6 +33,7 @@ const RoomManagement = () => {
         <>
             <TutorSideBar />
             <Navbar />
+
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
@@ -124,23 +127,29 @@ const RoomManagement = () => {
                                     <div className="card h-100 border-0 shadow-sm">
                                         <div className="card-header bg-white border-0">
                                             <div className="d-flex align-items-center">
-                                                <div className="bg-info-light rounded p-2 me-3">
-                                                    <FiBook className="text-info" size={24} />
+                                                <div className="bg-primary-light rounded p-2 me-3">
+                                                    <FiCalendar className="text-primary" size={24}/>
                                                 </div>
-                                                <h5 className="mb-0">Materials</h5>
+                                                <h5 className="mb-0">Sessions</h5>
                                             </div>
                                         </div>
                                         <div className="card-body text-center py-4">
-                                            <h2 className="display-5 fw-bold text-info">{room.materials}</h2>
-                                            <p className="text-muted">uploaded resources</p>
+                                            <h2 className="display-5 fw-bold text-primary">{room.sessions?.length || 0}</h2>
+                                            <p className="text-muted">scheduled sessions</p>
                                         </div>
                                         <div className="card-footer bg-white border-0 d-flex gap-2">
-                                            <button className="btn btn-outline-info flex-grow-1 rounded-pill">
-                                                <FiEye className="me-2" /> View All
-                                            </button>
-                                            <button className="btn btn-info flex-grow-1 rounded-pill">
-                                                <FiUpload className="me-2" /> Upload New
-                                            </button>
+                                            <Link
+                                                to={`/tutor/rooms/${room.id}/sessions`}
+                                                className="btn btn-outline-primary flex-grow-1 rounded-pill d-flex align-items-center justify-content-center"
+                                            >
+                                                <FiEye className="me-2"/> View All
+                                            </Link>
+                                            <Link
+                                                to={`/tutor/rooms/${room.id}/sessions/create`}
+                                                className="btn btn-primary flex-grow-1 rounded-pill d-flex align-items-center justify-content-center"
+                                            >
+                                                <FiPlus className="me-2"/> Create New
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
@@ -154,9 +163,13 @@ const RoomManagement = () => {
                                 <div className="card-body">
 
                                     <div className="d-flex flex-wrap gap-2">
-                                        <button className="btn btn-outline-primary rounded-pill px-4">
+
+                                        <Link
+                                            to={`/tutor/rooms/${id}/sessions/create`}
+                                            className="btn btn-outline-primary rounded-pill px-4"
+                                        >
                                             Schedule Session
-                                        </button>
+                                        </Link>
                                         <button className="btn btn-outline-success rounded-pill px-4">
                                             Send Announcement
                                         </button>

@@ -4,6 +4,8 @@ import axiosClient from "../../api/axiosClient";
 
 import { FiFileText, FiUser, FiCalendar, FiCheckCircle, FiArrowRight } from "react-icons/fi";
 import { Badge, Table } from "react-bootstrap";
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 
 const ParticipantDeliverablesList = () => {
@@ -56,6 +58,8 @@ const ParticipantDeliverablesList = () => {
     return (
         <>
 
+            <NavBar/>
+            <TutorSideBar/>
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">

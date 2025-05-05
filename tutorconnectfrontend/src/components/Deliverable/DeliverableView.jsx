@@ -14,6 +14,8 @@ import {
 import { Badge, ListGroup, Button } from "react-bootstrap";
 
 import CommentsSection from "./CommentsSection";
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 const DeliverableView = () => {
     const { id } = useParams();
@@ -58,6 +60,8 @@ const DeliverableView = () => {
     return (
         <>
 
+            <NavBar/>
+            <TutorSideBar/>
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">

@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
 
 import { FiSave, FiArrowLeft, FiCheckCircle } from "react-icons/fi";
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 
 const GradeDeliverableForm = () => {
@@ -70,6 +72,9 @@ const GradeDeliverableForm = () => {
 
     return (
         <>
+
+            <NavBar/>
+            <TutorSideBar/>
 
             <div className="wrapper">
                 <div className="content-page">

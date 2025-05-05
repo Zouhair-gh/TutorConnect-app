@@ -45,6 +45,9 @@ import ParticipantDeliverables from "./components/Deliverable/ParticipantDeliver
 import DeliverableView from "./components/Deliverable/DeliverableView";
 import SubmitDeliverableForm from "./components/Deliverable/SubmitDeliverableForm";
 import ParticipantDeliverablesList from "./components/Deliverable/ParticipantDeliverablesList";
+import SessionManagement from "./components/Sessions/SessionManagement";
+import SessionForm from "./components/Sessions/SessionForm";
+import SessionDetail from "./components/Sessions/SessionDetail";
 
 
 const AuthContext = React.createContext();
@@ -454,6 +457,40 @@ function App() {
                       </ProtectedTutorRoute>
                   }
               />
+              {/* sessions Routes for Tutors */}
+
+              <Route
+                  path="/tutor/rooms/:roomId/sessions"
+                  element={
+                      <ProtectedTutorRoute>
+                          <SessionManagement />
+                      </ProtectedTutorRoute>
+                  }
+              />
+              <Route
+                  path="/tutor/rooms/:roomId/sessions/create"
+                  element={
+                      <ProtectedTutorRoute>
+                          <SessionForm />
+                      </ProtectedTutorRoute>
+                  }
+              />
+              <Route
+                  path="/tutor/rooms/:roomId/sessions/:id"
+                  element={
+                      <ProtectedTutorRoute>
+                          <SessionDetail />
+                      </ProtectedTutorRoute>
+                  }
+              />
+              <Route
+                  path="/tutor/rooms/:roomId/sessions/:id/edit"
+                  element={
+                      <ProtectedTutorRoute>
+                          <SessionForm editMode={true} />
+                      </ProtectedTutorRoute>
+                  }
+              />
 
 
 
@@ -497,6 +534,22 @@ function App() {
                   element={
                       <ProtectedParticipantRoute>
                           <SubmitDeliverableForm />
+                      </ProtectedParticipantRoute>
+                  }
+              />
+              <Route
+                  path="/participant/rooms/:roomId/sessions"
+                  element={
+                      <ProtectedParticipantRoute>
+                          <SessionManagement />
+                      </ProtectedParticipantRoute>
+                  }
+              />
+              <Route
+                  path="/participant/rooms/:roomId/sessions/:id"
+                  element={
+                      <ProtectedParticipantRoute>
+                          <SessionDetail />
                       </ProtectedParticipantRoute>
                   }
               />

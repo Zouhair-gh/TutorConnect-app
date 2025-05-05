@@ -14,6 +14,8 @@ import {
 } from "react-icons/fi";
 import { Badge, ListGroup, Button } from "react-bootstrap";
 import CommentsSection from "./CommentsSection";
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 
 const DeliverableDetail = () => {
@@ -62,6 +64,8 @@ const DeliverableDetail = () => {
 
     return (
         <>
+            <NavBar/>
+            <TutorSideBar/>
 
             <div className="wrapper">
                 <div className="content-page">

@@ -5,6 +5,8 @@ import axiosClient from "../../api/axiosClient";
 import { FiSave, FiArrowLeft, FiUser, FiCalendar, FiFileText } from "react-icons/fi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
 
 const CreateDeliverableForm = () => {
@@ -80,6 +82,9 @@ const CreateDeliverableForm = () => {
 
     return (
         <>
+
+            <NavBar/>
+            <TutorSideBar/>
 
             <div className="wrapper">
                 <div className="content-page">
@@ -220,6 +225,7 @@ const CreateDeliverableForm = () => {
                     </div>
                 </div>
             </div>
+
 
         </>
     );
