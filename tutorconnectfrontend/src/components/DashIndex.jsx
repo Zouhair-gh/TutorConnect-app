@@ -1,372 +1,213 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
+
 
 import Navbar from '../layouts/NavBar';
 import Order from './Order';
-import Footer from '../layouts/footer';
 import AdminSideBar from "../layouts/SideBars/AdminSideBar";
 
+import {
+    PieChart,
+    Pie,
+    Cell,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend
+} from 'recharts';
+
+
 const DashIndex = () => {
+    const [dashboardStats, setDashboardStats] = useState({
+        totalParticipants: 0,
+        totalTutors: 0,
+        totalUsers: 0,
+        totalPayments: 0,
+        totalRooms: 0
+    });
+
+    const [tutors, setTutors] = useState([]);
+    const [participants, setParticipants] = useState([]);
+    const [rooms, setRooms] = useState([]);
+    const [payments, setPayments] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [activeTab, setActiveTab] = useState(0);
+
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+
+    useEffect(() => {
+        fetch('/api/admin/dashboard-stats')
+            .then(response => response.json())
+            .then(data => setDashboardStats(data))
+            .catch(error => console.error('Error fetching dashboard stats:', error));
+
+        fetch('/api/admin/tutors')
+            .then(response => response.json())
+            .then(data => setTutors(data))
+            .catch(error => console.error('Error fetching tutors:', error));
+
+        fetch('/api/admin/participants')
+            .then(response => response.json())
+            .then(data => setParticipants(data))
+            .catch(error => console.error('Error fetching participants:', error));
+
+        fetch('/api/admin/rooms')
+            .then(response => response.json())
+            .then(data => setRooms(data))
+            .catch(error => console.error('Error fetching rooms:', error));
+
+        fetch('/api/admin/payments')
+            .then(response => response.json())
+            .then(data => setPayments(data))
+            .catch(error => console.error('Error fetching payments:', error));
+
+        fetch('/api/admin/users')
+            .then(response => response.json())
+            .then(data => setUsers(data))
+            .catch(error => console.error('Error fetching users:', error));
+    }, []);
+
+    const chartData = [
+        { name: 'Tutors', value: dashboardStats.totalTutors },
+        { name: 'Participants', value: dashboardStats.totalParticipants },
+        { name: 'Rooms', value: dashboardStats.totalRooms },
+        { name: 'Payments', value: dashboardStats.totalPayments },
+        { name: 'Users', value: dashboardStats.totalUsers }
+    ];
+
+    const tabs = ['Tutors', 'Participants', 'Rooms', 'Payments', 'Users'];
+
+    const getCurrentData = () => {
+        switch (activeTab) {
+            case 0: return tutors;
+            case 1: return participants;
+            case 2: return rooms;
+            case 3: return payments;
+            case 4: return users;
+            default: return [];
+        }
+    };
+
+    const renderTableHeaders = () => {
+        const currentData = getCurrentData();
+        if (currentData.length === 0) return <tr><th>No data</th></tr>;
+        return (
+            <tr>
+                {Object.keys(currentData[0]).map(key => (
+                    <th key={key} className="border px-4 py-2 capitalize">{key}</th>
+                ))}
+            </tr>
+        );
+    };
+
+    const renderTableRows = () => {
+        const currentData = getCurrentData();
+        if (currentData.length === 0) return <tr><td colSpan="100%">No data available</td></tr>;
+        return currentData.map((item, index) => (
+            <tr key={index} className="hover:bg-gray-100">
+                {Object.values(item).map((value, i) => (
+                    <td key={i} className="border px-4 py-2">{value}</td>
+                ))}
+            </tr>
+        ));
+    };
+
     return (
         <>
-
-             <AdminSideBar />
+            <AdminSideBar />
             <Navbar />
             <Order />
+            <div style={{ display: 'flex', height: '100vh' }}>
+                <AdminSideBar />
 
-            <div class="wrapper">
-                <div className="content-page">
-                    <div className="container-fluid">
-                        <div className="row">
-                            <div className="col-lg-4">
-                                <div className="card card-transparent card-block card-stretch card-height border-none">
-                                    <div className="card-body p-0 mt-lg-2 mt-0">
-                                        <h3 className="mb-3">Hi Graham, Good Morning</h3>
-                                        <p className="mb-0 mr-4">Your dashboard gives you views of key performance or business process.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-8">
-                                <div className="row">
-                                    <div className="col-lg-4 col-md-4">
-                                        <div className="card card-block card-stretch card-height">
-                                            <div className="card-body">
-                                                <div className="d-flex align-items-center mb-4 card-total-sale">
-                                                    <div className="icon iq-icon-box-2 bg-info-light">
-                                                        <img src="../assets/images/product/1.png" className="img-fluid" alt="image" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="mb-2">Total Sales</p>
-                                                        <h4>31.50</h4>
-                                                    </div>
-                                                </div>
-                                                <div className="iq-progress-bar mt-2">
-                  <span className="bg-info iq-progress progress-1" data-percent={85}>
-                  </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="col-lg-4 col-md-4">
-                                        <div className="card card-block card-stretch card-height">
-                                            <div className="card-body">
-                                                <div className="d-flex align-items-center mb-4 card-total-sale">
-                                                    <div className="icon iq-icon-box-2 bg-danger-light">
-                                                        <img src="../assets/images/product/2.png" className="img-fluid" alt="image" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="mb-2">Total Cost</p>
-                                                        <h4>$ 4598</h4>
-                                                    </div>
-                                                </div>
-                                                <div className="iq-progress-bar mt-2">
-                  <span className="bg-danger iq-progress progress-1" data-percent={70}>
-                  </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="col-lg-4 col-md-4">
-                                        <div className="card card-block card-stretch card-height">
-                                            <div className="card-body">
-                                                <div className="d-flex align-items-center mb-4 card-total-sale">
-                                                    <div className="icon iq-icon-box-2 bg-success-light">
-                                                        <img src="../assets/images/product/3.png" className="img-fluid" alt="image" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="mb-2">Product Sold</p>
-                                                        <h4>4589 M</h4>
-                                                    </div>
-                                                </div>
-                                                <div className="iq-progress-bar mt-2">
-                  <span className="bg-success iq-progress progress-1" data-percent={75}>
-                  </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-6">
-                                <div className="card card-block card-stretch card-height">
-                                    <div className="card-header d-flex justify-content-between">
-                                        <div className="header-title">
-                                            <h4 className="card-title">Overview</h4>
-                                        </div>
-                                        <div className="card-header-toolbar d-flex align-items-center">
-                                            <div className="dropdown">
-                <span className="dropdown-toggle dropdown-bg btn" id="dropdownMenuButton001" data-toggle="dropdown">
-                  This Month<i className="ri-arrow-down-s-line ml-1" />
-                </span>
-                                                <div className="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton001">
-                                                    <a className="dropdown-item" href="#">Year</a>
-                                                    <a className="dropdown-item" href="#">Month</a>
-                                                    <a className="dropdown-item" href="#">Week</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card-body">
-                                        <div id="layout1-chart1" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-6">
-                                <div className="card card-block card-stretch card-height">
-                                    <div className="card-header d-flex align-items-center justify-content-between">
-                                        <div className="header-title">
-                                            <h4 className="card-title">Revenue Vs Cost</h4>
-                                        </div>
-                                        <div className="card-header-toolbar d-flex align-items-center">
-                                            <div className="dropdown">
-                <span className="dropdown-toggle dropdown-bg btn" id="dropdownMenuButton002" data-toggle="dropdown">
-                  This Month<i className="ri-arrow-down-s-line ml-1" />
-                </span>
-                                                <div className="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton002">
-                                                    <a className="dropdown-item" href="#">Yearly</a>
-                                                    <a className="dropdown-item" href="#">Monthly</a>
-                                                    <a className="dropdown-item" href="#">Weekly</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card-body">
-                                        <div id="layout1-chart-2" style={{minHeight: 360}} />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-8">
-                                <div className="card card-block card-stretch card-height">
-                                    <div className="card-header d-flex align-items-center justify-content-between">
-                                        <div className="header-title">
-                                            <h4 className="card-title">Top Products</h4>
-                                        </div>
-                                        <div className="card-header-toolbar d-flex align-items-center">
-                                            <div className="dropdown">
-                <span className="dropdown-toggle dropdown-bg btn" id="dropdownMenuButton006" data-toggle="dropdown">
-                  This Month<i className="ri-arrow-down-s-line ml-1" />
-                </span>
-                                                <div className="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton006">
-                                                    <a className="dropdown-item" href="#">Year</a>
-                                                    <a className="dropdown-item" href="#">Month</a>
-                                                    <a className="dropdown-item" href="#">Week</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card-body">
-                                        <ul className="list-unstyled row top-product mb-0">
-                                            <li className="col-lg-3">
-                                                <div className="card card-block card-stretch card-height mb-0">
-                                                    <div className="card-body">
-                                                        <div className="bg-warning-light rounded">
-                                                            <img src="../assets/images/product/01.png" className="style-img img-fluid m-auto p-3" alt="image" />
-                                                        </div>
-                                                        <div className="style-text text-left mt-3">
-                                                            <h5 className="mb-1">Organic Cream</h5>
-                                                            <p className="mb-0">789 Item</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li className="col-lg-3">
-                                                <div className="card card-block card-stretch card-height mb-0">
-                                                    <div className="card-body">
-                                                        <div className="bg-danger-light rounded">
-                                                            <img src="../assets/images/product/02.png" className="style-img img-fluid m-auto p-3" alt="image" />
-                                                        </div>
-                                                        <div className="style-text text-left mt-3">
-                                                            <h5 className="mb-1">Rain Umbrella</h5>
-                                                            <p className="mb-0">657 Item</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li className="col-lg-3">
-                                                <div className="card card-block card-stretch card-height mb-0">
-                                                    <div className="card-body">
-                                                        <div className="bg-info-light rounded">
-                                                            <img src="../assets/images/product/03.png" className="style-img img-fluid m-auto p-3" alt="image" />
-                                                        </div>
-                                                        <div className="style-text text-left mt-3">
-                                                            <h5 className="mb-1">Serum Bottle</h5>
-                                                            <p className="mb-0">489 Item</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li className="col-lg-3">
-                                                <div className="card card-block card-stretch card-height mb-0">
-                                                    <div className="card-body">
-                                                        <div className="bg-success-light rounded">
-                                                            <img src="../assets/images/product/02.png" className="style-img img-fluid m-auto p-3" alt="image" />
-                                                        </div>
-                                                        <div className="style-text text-left mt-3">
-                                                            <h5 className="mb-1">Organic Cream</h5>
-                                                            <p className="mb-0">468 Item</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-4">
-                                <div className="card card-transparent card-block card-stretch mb-4">
-                                    <div className="card-header d-flex align-items-center justify-content-between p-0">
-                                        <div className="header-title">
-                                            <h4 className="card-title mb-0">Best Item All Time</h4>
-                                        </div>
-                                        <div className="card-header-toolbar d-flex align-items-center">
-                                            <div><a href="#" className="btn btn-primary view-btn font-size-14">View All</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="card card-block card-stretch card-height-helf">
-                                    <div className="card-body card-item-right">
-                                        <div className="d-flex align-items-top">
-                                            <div className="bg-warning-light rounded">
-                                                <img src="../assets/images/product/04.png" className="style-img img-fluid m-auto" alt="image" />
-                                            </div>
-                                            <div className="style-text text-left">
-                                                <h5 className="mb-2">Coffee Beans Packet</h5>
-                                                <p className="mb-2">Total Sell : 45897</p>
-                                                <p className="mb-0">Total Earned : $45,89 M</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="card card-block card-stretch card-height-helf">
-                                    <div className="card-body card-item-right">
-                                        <div className="d-flex align-items-top">
-                                            <div className="bg-danger-light rounded">
-                                                <img src="../assets/images/product/05.png" className="style-img img-fluid m-auto" alt="image" />
-                                            </div>
-                                            <div className="style-text text-left">
-                                                <h5 className="mb-2">Bottle Cup Set</h5>
-                                                <p className="mb-2">Total Sell : 44359</p>
-                                                <p className="mb-0">Total Earned : $45,50 M</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-4">
-                                <div className="card card-block card-stretch card-height-helf">
-                                    <div className="card-body">
-                                        <div className="d-flex align-items-top justify-content-between">
-                                            <div className>
-                                                <p className="mb-0">Income</p>
-                                                <h5>$ 98,7800 K</h5>
-                                            </div>
-                                            <div className="card-header-toolbar d-flex align-items-center">
-                                                <div className="dropdown">
-                  <span className="dropdown-toggle dropdown-bg btn" id="dropdownMenuButton003" data-toggle="dropdown">
-                    This Month<i className="ri-arrow-down-s-line ml-1" />
-                  </span>
-                                                    <div className="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton003">
-                                                        <a className="dropdown-item" href="#">Year</a>
-                                                        <a className="dropdown-item" href="#">Month</a>
-                                                        <a className="dropdown-item" href="#">Week</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="layout1-chart-3" className="layout-chart-1" />
-                                    </div>
-                                </div>
-                                <div className="card card-block card-stretch card-height-helf">
-                                    <div className="card-body">
-                                        <div className="d-flex align-items-top justify-content-between">
-                                            <div className>
-                                                <p className="mb-0">Expenses</p>
-                                                <h5>$ 45,8956 K</h5>
-                                            </div>
-                                            <div className="card-header-toolbar d-flex align-items-center">
-                                                <div className="dropdown">
-                  <span className="dropdown-toggle dropdown-bg btn" id="dropdownMenuButton004" data-toggle="dropdown">
-                    This Month<i className="ri-arrow-down-s-line ml-1" />
-                  </span>
-                                                    <div className="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton004">
-                                                        <a className="dropdown-item" href="#">Year</a>
-                                                        <a className="dropdown-item" href="#">Month</a>
-                                                        <a className="dropdown-item" href="#">Week</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="layout1-chart-4" className="layout-chart-2" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-8">
-                                <div className="card card-block card-stretch card-height">
-                                    <div className="card-header d-flex justify-content-between">
-                                        <div className="header-title">
-                                            <h4 className="card-title">Order Summary</h4>
-                                        </div>
-                                        <div className="card-header-toolbar d-flex align-items-center">
-                                            <div className="dropdown">
-                <span className="dropdown-toggle dropdown-bg btn" id="dropdownMenuButton005" data-toggle="dropdown">
-                  This Month<i className="ri-arrow-down-s-line ml-1" />
-                </span>
-                                                <div className="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton005">
-                                                    <a className="dropdown-item" href="#">Year</a>
-                                                    <a className="dropdown-item" href="#">Month</a>
-                                                    <a className="dropdown-item" href="#">Week</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card-body">
-                                        <div className="d-flex flex-wrap align-items-center mt-2">
-                                            <div className="d-flex align-items-center progress-order-left">
-                                                <div className="progress progress-round m-0 orange conversation-bar" data-percent={46}>
-                  <span className="progress-left">
-                    <span className="progress-bar" />
-                  </span>
-                                                    <span className="progress-right">
-                    <span className="progress-bar" />
-                  </span>
-                                                    <div className="progress-value text-secondary">46%</div>
-                                                </div>
-                                                <div className="progress-value ml-3 pr-5 border-right">
-                                                    <h5>$12,6598</h5>
-                                                    <p className="mb-0">Average Orders</p>
-                                                </div>
-                                            </div>
-                                            <div className="d-flex align-items-center ml-5 progress-order-right">
-                                                <div className="progress progress-round m-0 primary conversation-bar" data-percent={46}>
-                  <span className="progress-left">
-                    <span className="progress-bar" />
-                  </span>
-                                                    <span className="progress-right">
-                    <span className="progress-bar" />
-                  </span>
-                                                    <div className="progress-value text-primary">46%</div>
-                                                </div>
-                                                <div className="progress-value ml-3">
-                                                    <h5>$59,8478</h5>
-                                                    <p className="mb-0">Top Orders</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card-body pt-0">
-                                        <div id="layout1-chart-5" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {/* Page end  */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Navbar />
+
+                    <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>
+                        <h1>Dashboard Overview</h1>
+                        {/* Your charts / tabs / tables here */}
+
                     </div>
                 </div>
             </div>
 
-            <Footer />
+            <div className="wrapper p-6">
+                <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
 
+                {/* Charts section */}
+                <div className="flex flex-col lg:flex-row gap-6 mb-6">
+                    {/* PieChart */}
+                    <div className="bg-white p-4 rounded shadow w-full lg:w-1/2">
+                        <h2 className="text-lg font-semibold mb-2">Data Distribution (Pie)</h2>
+                        <PieChart width={400} height={300}>
+                            <Pie
+                                data={chartData}
+                                dataKey="value"
+                                nameKey="name"
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={100}
+                                label
+                            >
+                                {chartData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend />
+                        </PieChart>
+                    </div>
+
+                    {/* BarChart */}
+                    <div className="bg-white p-4 rounded shadow w-full lg:w-1/2">
+                        <h2 className="text-lg font-semibold mb-2">Data Overview (Bar)</h2>
+                        <BarChart width={400} height={300} data={chartData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis allowDecimals={false} />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="value" fill="#8884d8">
+                                {chartData.map((entry, index) => (
+                                    <Cell key={`cell-bar-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </div>
+                </div>
+
+                {/* Tabs */}
+                <div className="mb-4">
+                    <div className="flex border-b">
+                        {tabs.map((tab, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setActiveTab(index)}
+                                className={`py-2 px-4 ${activeTab === index ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Data Table */}
+                <div className="overflow-x-auto bg-white rounded shadow">
+                    <table className="min-w-full border border-gray-200">
+                        <thead className="bg-gray-50">
+                        {renderTableHeaders()}
+                        </thead>
+                        <tbody>
+                        {renderTableRows()}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </>
     );
-}
+};
 
 export default DashIndex;

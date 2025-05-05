@@ -4,6 +4,7 @@ import ma.tutorconnect.tutorconnect.entity.Tutor;
 import ma.tutorconnect.tutorconnect.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,7 @@ public interface TutorRepository extends JpaRepository<Tutor, Long> {
 
     @Query("SELECT t FROM Tutor t WHERE t.id = :userId")
     Tutor findByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(t) FROM Tutor t")
+    long countTutors();
 }
