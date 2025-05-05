@@ -5,9 +5,7 @@ import axiosClient from "../../api/axiosClient";
 import { FiSave, FiArrowLeft, FiUser, FiCalendar, FiFileText } from "react-icons/fi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
-import NavBar from "../../layouts/NavBar";
-import Footer from "../../layouts/footer";
+
 
 const CreateDeliverableForm = () => {
     const { roomId } = useParams();
@@ -68,11 +66,21 @@ const CreateDeliverableForm = () => {
             return { ...prev, assignedParticipantIds: newParticipants };
         });
     };
+    console.log("Participants:", participants);
+    React.useEffect(() => {
+        const btn = document.querySelector(".btn-primary");
+        if (!btn) {
+            console.warn("No .btn-primary button found!");
+        } else {
+            console.log("Primary button styles computed:", window.getComputedStyle(btn));
+        }
+    }, []);
+
+
 
     return (
         <>
-            <TutorSideBar />
-            <NavBar />
+
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
@@ -212,7 +220,7 @@ const CreateDeliverableForm = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
+
         </>
     );
 };

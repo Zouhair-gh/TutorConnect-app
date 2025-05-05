@@ -43,6 +43,8 @@ import DeliverableDetail from "./components/Deliverable/DeliverableDetail";
 import GradeDeliverableForm from "./components/Deliverable/GradeDeliverableForm";
 import ParticipantDeliverables from "./components/Deliverable/ParticipantDeliverables";
 import DeliverableView from "./components/Deliverable/DeliverableView";
+import SubmitDeliverableForm from "./components/Deliverable/SubmitDeliverableForm";
+import ParticipantDeliverablesList from "./components/Deliverable/ParticipantDeliverablesList";
 
 
 const AuthContext = React.createContext();
@@ -444,6 +446,14 @@ function App() {
                       </ProtectedTutorRoute>
                   }
               />
+              <Route
+                  path="/tutor/participants/:participantId/deliverables"
+                  element={
+                      <ProtectedTutorRoute>
+                          <ParticipantDeliverablesList />
+                      </ProtectedTutorRoute>
+                  }
+              />
 
 
 
@@ -486,7 +496,7 @@ function App() {
                   path="/participant/deliverables/:id/submit"
                   element={
                       <ProtectedParticipantRoute>
-
+                          <SubmitDeliverableForm />
                       </ProtectedParticipantRoute>
                   }
               />

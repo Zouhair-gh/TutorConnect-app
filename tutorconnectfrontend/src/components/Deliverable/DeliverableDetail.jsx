@@ -14,9 +14,7 @@ import {
 } from "react-icons/fi";
 import { Badge, ListGroup, Button } from "react-bootstrap";
 import CommentsSection from "./CommentsSection";
-import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
-import NavBar from "../../layouts/NavBar";
-import Footer from "../../layouts/footer";
+
 
 const DeliverableDetail = () => {
     const { id } = useParams();
@@ -64,8 +62,7 @@ const DeliverableDetail = () => {
 
     return (
         <>
-            <TutorSideBar />
-            <NavBar />
+
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
@@ -218,7 +215,7 @@ const DeliverableDetail = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
+
         </>
     );
 };

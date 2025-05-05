@@ -3,9 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
 
 import { FiSave, FiArrowLeft, FiCheckCircle } from "react-icons/fi";
-import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
-import NavBar from "../../layouts/NavBar";
-import Footer from "../../layouts/footer";
+
 
 const GradeDeliverableForm = () => {
     const { id } = useParams();
@@ -72,8 +70,7 @@ const GradeDeliverableForm = () => {
 
     return (
         <>
-            <TutorSideBar />
-            <NavBar />
+
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
@@ -182,7 +179,7 @@ const GradeDeliverableForm = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
+
         </>
     );
 };

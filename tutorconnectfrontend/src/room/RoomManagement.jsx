@@ -8,6 +8,8 @@ import { ProgressBar } from "react-bootstrap";
 const RoomManagement = () => {
     const { id } = useParams();
 
+
+
     const room = {
         id: id,
         name: "Advanced Mathematics",
@@ -101,11 +103,15 @@ const RoomManagement = () => {
                                             <p className="text-muted">active assignments</p>
                                         </div>
                                         <div className="card-footer bg-white border-0 d-flex gap-2">
-                                            <button className="btn btn-outline-warning flex-grow-1 rounded-pill">
-                                                <FiEye className="me-2" /> View All
-                                            </button>
                                             <Link
-                                                to={`/tutor/rooms/${room.id}/assignments`}
+                                                to={`/tutor/rooms/${id}/deliverables`}
+                                                className="btn btn-outline-warning flex-grow-1 rounded-pill d-flex align-items-center justify-content-center"
+                                            >
+                                                <FiEye className="me-2" /> View All
+                                            </Link>
+
+                                            <Link
+                                                to={`/tutor/rooms/${room.id}/deliverables/create`}
                                                 className="btn btn-warning flex-grow-1 rounded-pill d-flex align-items-center justify-content-center"
                                             >
                                                 <FiPlus className="me-2" /> Create New

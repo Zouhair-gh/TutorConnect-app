@@ -10,9 +10,7 @@ import {
     FiArrowRight
 } from "react-icons/fi";
 import { Badge, ProgressBar } from "react-bootstrap";
-import NavBar from "../../layouts/NavBar";
-import Footer from "../../layouts/footer";
-import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
+
 
 const ParticipantDeliverables = () => {
     const [deliverables, setDeliverables] = useState([]);
@@ -76,8 +74,7 @@ const ParticipantDeliverables = () => {
 
     return (
         <>
-            <TutorSideBar />
-            <NavBar />
+
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
@@ -187,7 +184,7 @@ const ParticipantDeliverables = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
+
         </>
     );
 };

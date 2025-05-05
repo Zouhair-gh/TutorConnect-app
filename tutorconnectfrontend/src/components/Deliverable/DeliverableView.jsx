@@ -12,8 +12,7 @@ import {
     FiUpload
 } from "react-icons/fi";
 import { Badge, ListGroup, Button } from "react-bootstrap";
-import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
-import NavBar from "../../layouts/NavBar";
+
 import CommentsSection from "./CommentsSection";
 
 const DeliverableView = () => {
@@ -58,8 +57,7 @@ const DeliverableView = () => {
 
     return (
         <>
-            <TutorSideBar />
-            <NavBar />
+
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
