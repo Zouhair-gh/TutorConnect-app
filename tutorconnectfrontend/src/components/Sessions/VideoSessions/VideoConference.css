@@ -1,0 +1,60 @@
+/* Video Conference Styles */
+.video-conference-container {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #f8f9fa;
+    margin-bottom: 20px;
+}
+
+.conference-controls {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Rating Stars */
+.rating-stars {
+    margin: 10px 0;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    padding: 0 5px;
+    font-size: 2rem;
+    color: #e4e5e9;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star-btn.active {
+    color: #ffc107;
+}
+
+.star-btn:hover {
+    color: #ffc107;
+}
+
+/* Waiting Room Animation */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.waiting-icon {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .video-conference-container {
+        height: 400px !important;
+    }
+
+    .star-btn {
+        font-size: 1.5rem;
+    }
+}

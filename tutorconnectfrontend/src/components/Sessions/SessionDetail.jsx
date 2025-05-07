@@ -198,7 +198,10 @@ const SessionDetail = () => {
                                     <Button
                                         variant="warning"
                                         className="rounded-pill px-4"
-                                        onClick={() => handleStatusChange('IN_PROGRESS')}
+                                        onClick={async () => {
+                                            await handleStatusChange('IN_PROGRESS');
+                                            navigate(`/sessions/${id}/video`);
+                                        }}
                                     >
                                         Start Session
                                     </Button>
