@@ -53,6 +53,7 @@ import SessionFeedback from "./components/Sessions/VideoSessions/SessionFeedback
 import SessionResources from "./components/Sessions/VideoSessions/SessionResources";
 import VideoConferenceWrapper from "./components/Sessions/VideoSessions/VideoConferenceWrapper";
 import SessionDetail from "./components/Sessions/SessionDetail";
+import ParticipantSessionDetail from "./components/Sessions/ParticipantSessionDetail"
 
 const AuthContext = React.createContext();
 
@@ -595,7 +596,16 @@ function App() {
                   </ProtectedParticipantRoute>
                 }
             />
-              {/* Deliverable Routes for Participants */}
+                    <Route
+                        path="/participant/rooms/:roomId/:id"
+                        element={
+                            <ProtectedParticipantRoute>
+                                <ParticipantSessionDetail />
+                            </ProtectedParticipantRoute>
+                        }
+                    />
+
+                    {/* Deliverable Routes for Participants */}
               <Route
                   path="/participant/deliverables"
                   element={

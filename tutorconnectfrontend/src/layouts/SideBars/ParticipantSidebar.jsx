@@ -31,10 +31,7 @@ const ParticipantSideBar = () => {
 
             <li className=" ">
                 <a
-                    href=""
-                    className="collapsed"
-                    data-toggle="collapse"
-                    aria-expanded="false"
+                    onClick={() => navigate("/participant/rooms")}
                 >
                     <svg
                         className="svg-icon"
