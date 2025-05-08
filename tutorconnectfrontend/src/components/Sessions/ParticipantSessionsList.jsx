@@ -23,6 +23,8 @@ import {
 } from "react-bootstrap";
 import axiosClient from "../../api/axiosClient";
 import ParticipantSessionCalendar from "./ParticipantSessionCalendar";
+import NavBar from "../../layouts/NavBar";
+import ParticipantSideBar from "../../layouts/SideBars/ParticipantSidebar";
 
 const ParticipantSessionsList = () => {
     const { roomId } = useParams();
@@ -37,21 +39,21 @@ const ParticipantSessionsList = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const fetchSessions = async () => {
+            try {
+                setLoading(true);
+                const response = await axiosClient.get(`/api/sessions/room/${roomId}`);
+                setSessions(response.data);
+            } catch (error) {
+                console.error("Error fetching sessions:", error);
+                showToastMessage("Failed to load sessions", "danger");
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchSessions();
     }, [roomId]);
-
-    const fetchSessions = async () => {
-        try {
-            setLoading(true);
-            const response = await axiosClient.get(`/sessions/room/${roomId}`);
-            setSessions(response.data);
-        } catch (error) {
-            console.error("Error fetching sessions:", error);
-            showToastMessage("Failed to load sessions", "danger");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -85,39 +87,16 @@ const ParticipantSessionsList = () => {
 
     const handleConfirmAttendance = async (sessionId) => {
         try {
-            // Include auth token and content-type headers explicitly
-            await axiosClient.post(
-                `/sessions/${sessionId}/confirm-attendance`,
-                {},
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    },
-                    withCredentials: true
-                }
-            );
-
-            // Update the local state to reflect confirmation
+            await axiosClient.post(`/api/sessions/${sessionId}/confirm-attendance`);
             setSessions(sessions.map(session =>
                 session.id === sessionId
                     ? { ...session, isConfirmed: true, confirmedAttendees: session.confirmedAttendees + 1 }
                     : session
             ));
-
             showToastMessage("Attendance confirmed successfully!", "success");
         } catch (error) {
-            console.error("Full error:", {
-                status: error.response?.status,
-                data: error.response?.data,
-                config: error.config
-            });
-
-            if (error.response?.status === 403) {
-                showToastMessage("Authentication error. Please refresh and try again or log out and log back in.", "danger");
-            } else {
-                showToastMessage("Failed to confirm attendance", "danger");
-            }
+            console.error("Error confirming attendance:", error);
+            showToastMessage("Failed to confirm attendance", "danger");
         }
     };
 
@@ -128,18 +107,8 @@ const ParticipantSessionsList = () => {
 
     const handleCancelAttendance = async () => {
         try {
-            await axiosClient.delete(
-                `/sessions/${selectedSession.id}/attend/${selectedSession.participantId}`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    },
-                    withCredentials: true
-                }
-            );
-
-            // Refresh sessions data from server instead of filtering locally
-            await fetchSessions();
+            await axiosClient.delete(`/api/sessions/${selectedSession.id}/attend/${selectedSession.participantId}`);
+            setSessions(sessions.filter(session => session.id !== selectedSession.id));
             showToastMessage("Attendance cancelled successfully", "success");
         } catch (error) {
             console.error("Error cancelling attendance:", error);
@@ -157,6 +126,9 @@ const ParticipantSessionsList = () => {
 
     return (
         <>
+            <NavBar />
+            <ParticipantSideBar />
+
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
@@ -228,10 +200,10 @@ const ParticipantSessionsList = () => {
                                 <div className="row g-4">
                                     {sessions.map((session) => (
                                         <div key={session.id} className="col-md-6 col-lg-4">
-                                            <Card className="h-100 shadow-sm border-0">
+                                            <Card className="h-100 shadow-sm">
                                                 <Card.Header className="bg-white border-bottom-0">
                                                     <div className="d-flex justify-content-between align-items-center">
-                                                        <h5 className="mb-0 fw-bold text-truncate">{session.title}</h5>
+                                                        <h5 className="mb-0">{session.title}</h5>
                                                         {getStatusBadge(session.status)}
                                                     </div>
                                                 </Card.Header>
@@ -260,9 +232,8 @@ const ParticipantSessionsList = () => {
 
                                                     <div className="d-flex justify-content-between">
                                                         <Button
-                                                            variant="outline-primary"
+                                                            variant="info"
                                                             size="sm"
-                                                            className="rounded-pill px-3"
                                                             onClick={() => navigate(`/participant/rooms/${session.roomId}/sessions/${session.id}`)}
                                                         >
                                                             <FiInfo className="me-1" /> Details
@@ -273,7 +244,6 @@ const ParticipantSessionsList = () => {
                                                                 <Button
                                                                     variant="success"
                                                                     size="sm"
-                                                                    className="rounded-pill px-3"
                                                                     onClick={() => handleJoinSession(session.id)}
                                                                 >
                                                                     <FiVideo className="me-1" /> Join
@@ -284,7 +254,6 @@ const ParticipantSessionsList = () => {
                                                                 <Button
                                                                     variant="primary"
                                                                     size="sm"
-                                                                    className="rounded-pill px-3"
                                                                     onClick={() => handleConfirmAttendance(session.id)}
                                                                 >
                                                                     <FiCheckCircle className="me-1" /> Confirm
@@ -295,7 +264,6 @@ const ParticipantSessionsList = () => {
                                                                 <Button
                                                                     variant="danger"
                                                                     size="sm"
-                                                                    className="rounded-pill px-3"
                                                                     onClick={() => handleShowDeleteModal(session)}
                                                                 >
                                                                     <FiTrash2 className="me-1" /> Cancel

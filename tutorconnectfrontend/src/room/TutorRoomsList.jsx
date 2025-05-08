@@ -154,9 +154,9 @@ const TutorRoomsList = () => {
     fetchRooms();
 
     // Option 1: Polling toutes les 30 secondes
-    const interval = setInterval(fetchRooms, 30000);
+    // const interval = setInterval(fetchRooms, 30000);
 
-    return () => clearInterval(interval);
+    //return () => clearInterval(interval);
   }, []);
 
   if (loading) {
