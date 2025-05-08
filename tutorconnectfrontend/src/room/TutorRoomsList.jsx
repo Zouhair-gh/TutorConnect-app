@@ -14,6 +14,7 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import { ProgressBar } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
 
 const TutorRoomsList = () => {
   const [rooms, setRooms] = useState([]);
@@ -21,6 +22,17 @@ const TutorRoomsList = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+
+  // État pour le modal de renouvellement
+  const [showRenewalModal, setShowRenewalModal] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [renewalDuration, setRenewalDuration] = useState(30);
+  const [renewalType, setRenewalType] = useState("days");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [message, setMessage] = useState("");
+  const [purpose, setPurpose] = useState("Extend class duration");
+  const [capacity, setCapacity] = useState(0);
+  const [amount, setAmount] = useState(0);
 
   const fetchRooms = async () => {
     try {
@@ -36,22 +48,77 @@ const TutorRoomsList = () => {
     }
   };
 
-  const handleRequestRenewal = async (roomId) => {
+  const openRenewalModal = (room) => {
+    setSelectedRoom(room);
+    setCapacity(room.capacity);
+    setAmount(room.amount);
+
+    if (room && room.endDate) {
+      const endDate = new Date(room.endDate);
+      const newEndDate = new Date(endDate);
+      newEndDate.setDate(endDate.getDate() + 30);
+
+      const formattedDate = newEndDate.toISOString().split("T")[0];
+      setCustomEndDate(formattedDate);
+    }
+
+    setShowRenewalModal(true);
+  };
+
+  const handleSubmitRenewal = async (e) => {
+    e.preventDefault();
+
+    if (!selectedRoom) return;
+
     try {
+      let newEndDate;
+
+      if (renewalType === "days") {
+        const currentEndDate = new Date(selectedRoom.endDate);
+        newEndDate = new Date(currentEndDate);
+        newEndDate.setDate(
+          currentEndDate.getDate() + parseInt(renewalDuration)
+        );
+      } else {
+        newEndDate = new Date(customEndDate);
+      }
+
+      if (newEndDate < new Date(selectedRoom.endDate)) {
+        throw new Error(
+          "La nouvelle date doit être postérieure à la date de fin actuelle"
+        );
+      }
+
       const renewalData = {
-        endDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-        amount: rooms.find((r) => r.id === roomId).amount,
-        isRenewal: true,
-        originalRoomId: roomId,
+        roomId: selectedRoom.id,
+        demandType: "RENEW",
+        purpose: purpose,
+        message: message || `Renewal request for ${renewalDuration} days`,
+        newEndDate: newEndDate.toISOString().split("T")[0], // Format YYYY-MM-DD
+        amount: amount,
+        capacity: capacity,
       };
 
-      await axiosClient.post(`/rooms/request-renewal/${roomId}`, renewalData);
-      setSuccess("Renewal request submitted successfully!");
+      // Use the existing endpoint for room renewal since tutorService.requestRoomRenewal is not implemented
+      await axiosClient.post(
+        `/rooms/request-renewal/${selectedRoom.id}`,
+        renewalData
+      );
+
+      // Gestion du feedback
+      setSuccess(
+        `Demande de renouvellement pour "${selectedRoom.name}" envoyée !`
+      );
       setTimeout(() => setSuccess(""), 5000);
-      fetchRooms(); // Refresh the list
+      setShowRenewalModal(false);
+      fetchRooms();
     } catch (err) {
-      setError(err.response?.data || "Failed to submit renewal request");
-      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Erreur lors de la demande"
+      );
+      console.error("Renewal error:", err);
     }
   };
 
@@ -85,6 +152,11 @@ const TutorRoomsList = () => {
 
   useEffect(() => {
     fetchRooms();
+
+    // Option 1: Polling toutes les 30 secondes
+    const interval = setInterval(fetchRooms, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -241,7 +313,7 @@ const TutorRoomsList = () => {
                               {canRenew && (
                                 <button
                                   className="btn btn-sm btn-warning rounded-pill px-3"
-                                  onClick={() => handleRequestRenewal(room.id)}
+                                  onClick={() => openRenewalModal(room)}
                                 >
                                   <FiRefreshCw className="me-1" /> Renew
                                 </button>
@@ -276,6 +348,163 @@ const TutorRoomsList = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de renouvellement */}
+      <Modal
+        show={showRenewalModal}
+        onHide={() => setShowRenewalModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Request Classroom Renewal</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedRoom && (
+            <Form onSubmit={handleSubmitRenewal}>
+              <div className="mb-4">
+                <h6 className="fw-bold">Classroom Information</h6>
+                <div className="d-flex flex-column mt-2">
+                  <p className="mb-1">
+                    <strong>Name:</strong> {selectedRoom.name}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Current End Date:</strong>{" "}
+                    {formatDate(selectedRoom.endDate)}
+                  </p>
+                </div>
+              </div>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Purpose</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={purpose}
+                  onChange={(e) => setPurpose(e.target.value)}
+                  required
+                >
+                  <option value="Extend class duration">
+                    Extend class duration
+                  </option>
+                  <option value="Renew expired classroom">
+                    Renew expired classroom
+                  </option>
+                  <option value="Change classroom parameters">
+                    Change classroom parameters
+                  </option>
+                  <option value="Other">Other</option>
+                </Form.Control>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Capacity</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={capacity}
+                  onChange={(e) => setCapacity(Number(e.target.value))}
+                  min="1"
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Amount ($)</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </Form.Group>
+
+              <div className="mb-3">
+                <h6 className="fw-bold">Select Renewal Type</h6>
+                <Form.Check
+                  type="radio"
+                  label="Extend by days"
+                  name="renewalType"
+                  id="renewalTypeDays"
+                  checked={renewalType === "days"}
+                  onChange={() => setRenewalType("days")}
+                  className="mb-2"
+                />
+                <Form.Check
+                  type="radio"
+                  label="Set specific end date"
+                  name="renewalType"
+                  id="renewalTypeCustom"
+                  checked={renewalType === "custom"}
+                  onChange={() => setRenewalType("custom")}
+                />
+              </div>
+
+              {renewalType === "days" ? (
+                <Form.Group className="mb-3">
+                  <Form.Label>Extension Period (Days)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    min="1"
+                    value={renewalDuration}
+                    onChange={(e) => setRenewalDuration(e.target.value)}
+                    required
+                  />
+                  <Form.Text className="text-muted">
+                    Specify how many days you want to extend your classroom.
+                  </Form.Text>
+                </Form.Group>
+              ) : (
+                <Form.Group className="mb-3">
+                  <Form.Label>New End Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    required
+                  />
+                  <Form.Text className="text-muted">
+                    Select the new end date for your classroom.
+                  </Form.Text>
+                </Form.Group>
+              )}
+
+              <Form.Group className="mb-3">
+                <Form.Label>Additional Message (Optional)</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Add any additional information or special requests..."
+                />
+              </Form.Group>
+
+              <div className="alert alert-info">
+                <small>
+                  <strong>Note:</strong> Your renewal request will be sent to an
+                  administrator for approval. You will be notified once your
+                  request is processed.
+                </small>
+              </div>
+
+              <div className="d-flex justify-content-end mt-4">
+                <Button
+                  variant="secondary"
+                  className="me-2"
+                  onClick={() => setShowRenewalModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button variant="primary" type="submit">
+                  Submit Renewal Request
+                </Button>
+              </div>
+            </Form>
+          )}
+        </Modal.Body>
+      </Modal>
+
       <Footer />
     </>
   );
