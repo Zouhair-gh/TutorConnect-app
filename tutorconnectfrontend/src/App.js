@@ -54,6 +54,8 @@ import SessionResources from "./components/Sessions/VideoSessions/SessionResourc
 import VideoConferenceWrapper from "./components/Sessions/VideoSessions/VideoConferenceWrapper";
 import SessionDetail from "./components/Sessions/SessionDetail";
 import ParticipantSessionDetail from "./components/Sessions/ParticipantSessionDetail"
+import ParticipantSessionsList from "./components/Sessions/ParticipantSessionsList";
+import AttendanceConfirmation from "./components/Sessions/AttendanceConfirmation";
 
 const AuthContext = React.createContext();
 
@@ -646,14 +648,32 @@ function App() {
                       </ProtectedParticipantRoute>
                   }
               />
-              <Route
-              path="/participant/rooms/:roomId/sessions/:id/video"
-              element={
-              <ProtectedParticipantRoute>
-                  <JoinSession />
-              </ProtectedParticipantRoute>
-          }
-              />
+
+                    <Route
+                        path="/participant/participantroom/:roomId/sessions"
+                        element={
+                            <ProtectedParticipantRoute>
+                                <ParticipantSessionsList />
+                            </ProtectedParticipantRoute>
+                        }
+                    />
+                    <Route
+                        path="/participant/sessions/:sessionId/video"
+                        element={
+                            <ProtectedParticipantRoute>
+                                <JoinSession />
+                            </ProtectedParticipantRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/participant/participantroom/:roomId/confirm-attendance"
+                        element={
+                            <ProtectedParticipantRoute>
+                                <AttendanceConfirmation />
+                            </ProtectedParticipantRoute>
+                        }
+                    />
 
           </Routes>
         </Router>
