@@ -1,35 +1,16 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Footer from "../layouts/footer";
 import Navbar from "../layouts/NavBar";
 import ParticipantSidebar from "../layouts/SideBars/ParticipantSidebar";
 import { Link } from "react-router-dom";
 
 const ParticipantRoomsList = () => {
-    // Hardcoded static data
-    const error = null;
-    const deleteSuccess = null;
-
-    const rooms = [
-        {
-            id: 1,
-            name: "Room A",
-            capacity: 10,
-            amount: 200,
-            startDate: "2025-05-01",
-            endDate: "2025-05-05"
-        },
-        {
-            id: 2,
-            name: "Room B",
-            capacity: 5,
-            amount: 150,
-            startDate: "2025-06-01",
-            endDate: "2025-06-05"
-        }
-    ];
+    const [rooms, setRooms] = useState([]);
+    const [error, setError] = useState(null);
 
     const colorClasses = ["primary", "success", "danger", "warning", "info"];
 
-    // Simple static helpers
     const getRandomColorClass = (index) => colorClasses[index % colorClasses.length];
 
     const formatDate = (dateString) => {
@@ -37,9 +18,18 @@ const ParticipantRoomsList = () => {
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    const handleDelete = (roomId) => {
-        alert(`Delete room with ID: ${roomId}`);
-    };
+    useEffect(() => {
+        axios.get("/api/participants/my-rooms")
+            .then(response => {
+                // Extract only room info from DTO
+                const roomList = response.data.map(item => item.room);
+                setRooms(roomList);
+            })
+            .catch(error => {
+                console.error("Error fetching rooms:", error);
+                setError("Failed to fetch rooms");
+            });
+    }, []);
 
     return (
         <>
@@ -49,9 +39,7 @@ const ParticipantRoomsList = () => {
                 <div className="content-page">
                     <div className="container-fluid">
                         <div className="container p-4">
-
-
-
+                            {error && <div className="alert alert-danger">{error}</div>}
 
                             <div className="row">
                                 {rooms.length > 0 ? (
@@ -62,31 +50,20 @@ const ParticipantRoomsList = () => {
                                                 <div className="card card-block card-stretch card-height-helf">
                                                     <div className="card-body card-item-right">
                                                         <div className="d-flex align-items-top">
-                                                            <div
-                                                                className={`bg-${colorClass}-light rounded p-3 me-3`}
-                                                            >
-                                                                <i
-                                                                    className={`fa fa-building fa-2x text-${colorClass}`}
-                                                                    aria-hidden="true"
-                                                                ></i>
+                                                            <div className={`bg-${colorClass}-light rounded p-3 me-3`}>
+                                                                <i className={`fa fa-building fa-2x text-${colorClass}`} aria-hidden="true"></i>
                                                             </div>
                                                             <div className="style-text text-left flex-grow-1">
                                                                 <h5 className="mb-2">{room.name}</h5>
-                                                                <p className="mb-1">
-                                                                    Capacity: {room.capacity} people
-                                                                </p>
+                                                                <p className="mb-1">Capacity: {room.capacity} people</p>
                                                                 <p className="mb-1">Amount: {room.amount}</p>
                                                                 <p className="mb-1">
-                                                                    Period: {formatDate(room.startDate)} -{" "}
-                                                                    {formatDate(room.endDate)}
+                                                                    Period: {formatDate(room.startDate)} - {formatDate(room.endDate)}
                                                                 </p>
                                                                 <div className="mt-3">
                                                                     <Link to={`/participant/rooms/${room.id}/1`} className="btn btn-sm btn-info me-2">
                                                                         <i className="fa fa-eye"></i> View
                                                                     </Link>
-
-
-
                                                                 </div>
                                                             </div>
                                                         </div>
