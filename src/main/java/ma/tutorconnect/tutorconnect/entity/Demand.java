@@ -33,6 +33,15 @@ public class Demand {
 
     // Add demand type for better categorization
     private String demandType; // "ROOM_CREATION", "ROOM_RENEWAL", "TUTOR_ACCOUNT"
+    private Long roomId;
+
+    public Long getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
 
     // Relations can be added here if needed
     // For example, if a demand is approved and a user account is created:

@@ -1,10 +1,13 @@
 package ma.tutorconnect.tutorconnect.controller;
 
 
+import ma.tutorconnect.tutorconnect.dto.RoomRenewalRequestDto;
 import ma.tutorconnect.tutorconnect.dto.RoomWithParticipantsDTO;
 import ma.tutorconnect.tutorconnect.dto.TutorDashboardDto;
 import ma.tutorconnect.tutorconnect.entity.Tutor;
 import ma.tutorconnect.tutorconnect.service.TutorService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,5 +59,10 @@ public class TutorController {
 
        return dashboardDto;
    }
+    @PreAuthorize("hasRole('TUTOR')")
+    @PostMapping("/room-renewal")
+    public ResponseEntity<?> requestRoomRenewal(@RequestBody RoomRenewalRequestDto renewalRequest) {
+        return tutorService.requestRoomRenewal(renewalRequest);
+    }
 }
 
