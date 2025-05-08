@@ -89,6 +89,10 @@ const ParticipantList = () => {
     return (
 
         <>
+            <NavBar/>
+            <TutorSideBar/>
+            <div className="wrapper">
+                <div className="content-page">
 
         <div className="container py-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -206,6 +210,8 @@ const ParticipantList = () => {
                 </Modal.Footer>
             </Modal>
         </div>
+                </div>
+            </div>
         </>
 
     );

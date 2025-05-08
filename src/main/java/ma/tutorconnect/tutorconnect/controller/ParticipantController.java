@@ -1,5 +1,6 @@
 package ma.tutorconnect.tutorconnect.controller;
 
+import ma.tutorconnect.tutorconnect.dto.RoomWithParticipantsDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,5 +62,11 @@ public class ParticipantController {
     public ResponseEntity<List<ParticipantDTO>> getAvailableParticipants(@PathVariable Long roomId) {
         List<ParticipantDTO> participants = participantService.getAvailableParticipants(roomId);
         return ResponseEntity.ok(participants);
+    }
+
+    @GetMapping("/my-rooms")
+    public ResponseEntity<List<RoomWithParticipantsDTO>> getRoomsForCurrentParticipant() {
+        List<RoomWithParticipantsDTO> rooms = participantService.getRoomsForCurrentParticipant();
+        return ResponseEntity.ok(rooms);
     }
 }

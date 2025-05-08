@@ -5,6 +5,7 @@ import Services from "./Services";
 import Faqs from "./Faqs";
 import Testimonials from "./Testimonials";
 import Footer from "./Footer";
+import SubscriptionForm from "../SubscriptionForm";
 
 const Index = () => {
     return (
@@ -13,7 +14,7 @@ const Index = () => {
             <Hero />
             <About />
             <Services />
-            <Faqs />
+            <SubscriptionForm />
             <Testimonials />
             <Footer />
         </>

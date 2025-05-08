@@ -40,7 +40,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/rooms/request-room").hasRole("TUTOR")
                         .requestMatchers("/api/rooms/request-renewal/*").hasRole("TUTOR")
                         // Explicit permission for participant endpoints within rooms
-                        .requestMatchers("/api/rooms/*/participants/**").hasRole("TUTOR")
+                        .requestMatchers("/api/rooms/*/participants/**").hasAnyRole("TUTOR", "PARTICIPANT")
+                        .requestMatchers("/api/rooms/*/participants/my-rooms").hasRole("PARTICIPANT")
                         .requestMatchers(HttpMethod.GET, "/api/rooms/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/tickets").hasRole("TUTOR")
                         .requestMatchers("/api/demands").permitAll()
@@ -50,10 +51,17 @@ public class SecurityConfig {
                         // permissions for delivrable endpoints
                         .requestMatchers(HttpMethod.GET, "/api/deliverables/room/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/deliverables").hasAnyRole("TUTOR", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/deliverables").hasAnyAuthority("TUTOR", "ROLE_TUTOR")
-
                         .requestMatchers(HttpMethod.POST, "/api/deliverables/submit").hasRole("PARTICIPANT")
                         .requestMatchers(HttpMethod.DELETE, "/api/deliverables/**").hasRole("TUTOR")
+
+                        // Video session endpoints permissions
+                        .requestMatchers(HttpMethod.GET, "/api/sessions/*/video").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/video").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/video/start").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/video/end").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/sessions/room/*").hasAnyRole("TUTOR", "ADMIN", "PARTICIPANT")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/confirm-attendance")
+                        .hasAnyRole("PARTICIPANT", "TUTOR", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);

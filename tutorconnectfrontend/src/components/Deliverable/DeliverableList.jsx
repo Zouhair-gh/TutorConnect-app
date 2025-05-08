@@ -1,382 +1,251 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import DeliverableDetailModal from './DeliverableDetailModal';
-import GradeDeliverableModal from './GradeDeliverableModal';
+import React, { useEffect, useState } from "react";
+import axiosClient from "../../api/axiosClient";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+    FiFileText,
+    FiCalendar,
+    FiUser,
+    FiCheckCircle,
+    FiClock,
+    FiPlus,
+    FiEye,
+    FiEdit,
+    FiTrash2
+} from "react-icons/fi";
+import { Badge, ProgressBar } from "react-bootstrap";
+import NavBar from "../../layouts/NavBar";
+import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
 
-// Helper function for calculating days difference - moved outside component
-const getDaysDifference = (dateString) => {
-    if (!dateString) return null;
 
-    const deadline = new Date(dateString);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
-    const diffTime = deadline - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+const DeliverableList = () => {
+    const { roomId } = useParams();
+    const [deliverables, setDeliverables] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const navigate = useNavigate();
 
-    return diffDays;
-};
-
-// Helper function for badge styling - moved outside component
-const getStatusBadgeStyle = (deliverable) => {
-    if (deliverable.isSubmitted) {
-        return deliverable.grade
-            ? { backgroundColor: '#28a745', color: 'white' } // Green for graded
-            : { backgroundColor: '#17a2b8', color: 'white' }; // Blue for submitted
-    } else if (deliverable.isPastDeadline) {
-        return { backgroundColor: '#dc3545', color: 'white' }; // Red for late
-    } else {
-        const daysLeft = getDaysDifference(deliverable.deadline);
-        if (daysLeft <= 1) {
-            return { backgroundColor: '#ffc107', color: '#212529' }; // Yellow warning
+    const fetchDeliverables = async () => {
+        try {
+            setLoading(true);
+            const response = await axiosClient.get(`/deliverables/room/${roomId}`);
+            setDeliverables(response.data);
+            setError("");
+        } catch (err) {
+            setError("Failed to fetch deliverables");
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
-        return { backgroundColor: '#007bff', color: 'white' }; // Blue for pending
-    }
-};
-
-const DeliverableList = ({
-                             deliverables,
-                             onDelete,
-                             onEdit,
-                             onGrade,
-                             onToggleVisibility,
-                             isTutor = false
-                         }) => {
-    const [detailModalOpen, setDetailModalOpen] = useState(false);
-    const [gradeModalOpen, setGradeModalOpen] = useState(false);
-    const [selectedDeliverable, setSelectedDeliverable] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState('all');
-
-    const openDetailModal = (deliverable) => {
-        setSelectedDeliverable(deliverable);
-        setDetailModalOpen(true);
     };
 
-    const openGradeModal = (deliverable) => {
-        setSelectedDeliverable(deliverable);
-        setGradeModalOpen(true);
-    };
-
-    const closeDetailModal = () => {
-        setDetailModalOpen(false);
-        setSelectedDeliverable(null);
-    };
-
-    const closeGradeModal = () => {
-        setGradeModalOpen(false);
-        setSelectedDeliverable(null);
-    };
-
-    const handleGradeSubmit = (gradeData) => {
-        onGrade(selectedDeliverable.id, gradeData);
-        closeGradeModal();
-    };
-
-    // Format date for display
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
-
-    // Filter deliverables based on search and status
-    const filteredDeliverables = deliverables.filter(deliverable => {
-        const matchesSearch =
-            deliverable.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            deliverable.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (deliverable.participantName &&
-                deliverable.participantName.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        if (filterStatus === 'all') {
-            return matchesSearch;
-        }
-
-        switch(filterStatus) {
-            case 'pending':
-                return !deliverable.isSubmitted && !deliverable.isPastDeadline && matchesSearch;
-            case 'submitted':
-                return deliverable.isSubmitted && !deliverable.grade && matchesSearch;
-            case 'graded':
-                return deliverable.isSubmitted && !!deliverable.grade && matchesSearch;
-            case 'late':
-                return deliverable.isPastDeadline && !deliverable.isSubmitted && matchesSearch;
-            case 'hidden':
-                return !deliverable.isVisible && matchesSearch;
-            default:
-                return matchesSearch;
-        }
-    });
-
-    // Group deliverables by participant if tutor view
-    const groupedDeliverables = isTutor ?
-        filteredDeliverables.reduce((acc, deliverable) => {
-            const participantId = deliverable.participantId || 'unassigned';
-            if (!acc[participantId]) {
-                acc[participantId] = {
-                    participantName: deliverable.participantName || 'Unassigned',
-                    deliverables: []
-                };
+    const handleDelete = async (deliverableId) => {
+        if (window.confirm("Are you sure you want to delete this deliverable?")) {
+            try {
+                await axiosClient.delete(`/deliverables/${deliverableId}`);
+                setSuccess("Deliverable deleted successfully!");
+                setTimeout(() => setSuccess(""), 5000);
+                fetchDeliverables();
+            } catch (err) {
+                setError(err.response?.data || "Failed to delete deliverable");
+                console.error(err);
             }
-            acc[participantId].deliverables.push(deliverable);
-            return acc;
-        }, {}) : {};
+        }
+    };
 
-    return (
-        <div className="card">
-            <div className="card-header bg-light">
-                <div className="row align-items-center">
-                    <div className="col-md-6 mb-2 mb-md-0">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search assignments..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                    <div className="col-md-6">
-                        <select
-                            className="form-select"
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                        >
-                            <option value="all">All Assignments</option>
-                            <option value="pending">Pending</option>
-                            <option value="submitted">Submitted (Not Graded)</option>
-                            <option value="graded">Graded</option>
-                            <option value="late">Late</option>
-                            {isTutor && <option value="hidden">Hidden</option>}
-                        </select>
-                    </div>
+    const formatDate = (dateString) => {
+        if (!dateString) return "Not submitted";
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    const getStatusBadge = (status) => {
+        switch (status) {
+            case 'SUBMITTED':
+                return <Badge bg="info">Submitted</Badge>;
+            case 'GRADED':
+                return <Badge bg="success">Graded</Badge>;
+            case 'LATE':
+                return <Badge bg="danger">Late</Badge>;
+            default:
+                return <Badge bg="secondary">Pending</Badge>;
+        }
+    };
+
+    const getDaysRemaining = (deadline) => {
+        if (!deadline) return 0;
+        const end = new Date(deadline);
+        const now = new Date();
+        return Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    };
+
+    const getProgressVariant = (days) => {
+        if (days > 7) return "success";
+        if (days > 3) return "info";
+        if (days > 0) return "warning";
+        return "danger";
+    };
+
+    useEffect(() => {
+        fetchDeliverables();
+    }, [roomId]);
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
                 </div>
             </div>
-            <div className="card-body">
-                {isTutor ? (
-                    // Tutor view - grouped by participant
-                    Object.keys(groupedDeliverables).length === 0 ? (
-                        <div className="alert alert-info">
-                            No assignments found matching your criteria.
-                        </div>
-                    ) : (
-                        <div className="accordion" id="participantAccordion">
-                            {Object.entries(groupedDeliverables).map(([participantId, group]) => (
-                                <div className="accordion-item" key={participantId}>
-                                    <h2 className="accordion-header">
-                                        <button
-                                            className="accordion-button collapsed"
-                                            type="button"
-                                            data-bs-toggle="collapse"
-                                            data-bs-target={`#participant-${participantId}`}
-                                        >
-                                            <div className="d-flex justify-content-between w-100 align-items-center pe-3">
-                                                <span>{group.participantName}</span>
-                                                <span className="badge bg-secondary rounded-pill">
-                                                    {group.deliverables.length} Assignment(s)
-                                                </span>
-                                            </div>
-                                        </button>
-                                    </h2>
-                                    <div
-                                        id={`participant-${participantId}`}                                         className="accordion-collapse collapse"
-                                        data-bs-parent="#participantAccordion"
-                                    >
-                                        <div className="accordion-body">
-                                            <div className="list-group">
-                                                {group.deliverables.map(deliverable => (
-                                                    <div key={deliverable.id} className="list-group-item">
-                                                        <div className="d-flex justify-content-between align-items-start">
-                                                            <div className="me-3">
-                                                                <h5 className="mb-1">
-                                                                    <span
-                                                                        className="badge me-2"
-                                                                        style={{
-                                                                            width: '80px',
-                                                                            ...getStatusBadgeStyle(deliverable)
-                                                                        }}
-                                                                    >
-                                                                        {deliverable.status}
-                                                                    </span>
-                                                                    {deliverable.title}
-                                                                </h5>
-                                                                <small className="text-muted">
-                                                                    Deadline: {formatDate(deliverable.deadline)}
-                                                                    {!deliverable.isSubmitted && deliverable.deadline && (
-                                                                        <span className="ms-2">
-                                                                            ({getDaysDifference(deliverable.deadline)} days left)
-                                                                        </span>
-                                                                    )}
-                                                                </small>
-                                                                {deliverable.isSubmitted && (
-                                                                    <div className="mt-2">
-                                                                        <small>
-                                                                            Submitted on: {formatDate(deliverable.submissionDate)}
-                                                                        </small>
-                                                                        {deliverable.grade && (
-                                                                            <span className="ms-3">
-                                                                                Grade: <strong>{deliverable.grade}/{deliverable.maxPoints}</strong>
-                                                                            </span>
-                                                                        )}
+        );
+    }
+
+    return (
+        <>
+
+            <NavBar/>
+            <TutorSideBar/>
+            <div className="wrapper">
+                <div className="content-page">
+                    <div className="container-fluid">
+                        <div className="container p-4">
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h2 className="fw-bold">Classroom Deliverables</h2>
+                                    <p className="text-muted">Manage assignments and submissions</p>
+                                </div>
+                                <Link
+                                    to={`/tutor/rooms/${roomId}/deliverables/create`}
+                                    className="btn btn-primary rounded-pill px-4"
+                                >
+                                    <FiPlus className="me-2" /> Create Deliverable
+                                </Link>
+                            </div>
+
+                            {error && (
+                                <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {error}
+                                    <button type="button" className="btn-close" onClick={() => setError("")}></button>
+                                </div>
+                            )}
+
+                            {success && (
+                                <div className="alert alert-success alert-dismissible fade show" role="alert">
+                                    {success}
+                                    <button type="button" className="btn-close" onClick={() => setSuccess("")}></button>
+                                </div>
+                            )}
+
+                            <div className="row">
+                                {deliverables.length > 0 ? (
+                                    deliverables.map((deliverable) => {
+                                        const daysRemaining = getDaysRemaining(deliverable.deadline);
+                                        const progressPercentage = Math.min(100, Math.max(0, (daysRemaining / 14) * 100));
+
+                                        return (
+                                            <div key={deliverable.id} className="col-md-6 col-lg-4 mb-4">
+                                                <div className="card h-100 border-0 shadow-sm">
+                                                    <div className="card-header bg-white border-0 pb-0">
+                                                        <div className="d-flex justify-content-between align-items-center">
+                                                            <h5 className="mb-0 fw-bold text-truncate">{deliverable.title}</h5>
+                                                            {getStatusBadge(deliverable.status)}
+                                                        </div>
+                                                    </div>
+                                                    <div className="card-body">
+                                                        <div className="mb-3">
+                                                            <p className="text-muted mb-2">{deliverable.description}</p>
+
+                                                            {deliverable.deadline && (
+                                                                <div className="mb-3">
+                                                                    <div className="d-flex justify-content-between mb-1">
+                                                                        <small className="text-muted">Deadline in</small>
+                                                                        <small className="fw-bold">{daysRemaining} days</small>
+                                                                    </div>
+                                                                    <ProgressBar
+                                                                        now={progressPercentage}
+                                                                        variant={getProgressVariant(daysRemaining)}
+                                                                        className="rounded-pill"
+                                                                        style={{ height: '6px' }}
+                                                                    />
+                                                                </div>
+                                                            )}
+
+                                                            <div className="d-flex flex-column gap-2 mb-3">
+                                                                <div className="d-flex align-items-center">
+                                                                    <FiUser className="me-2 text-primary" />
+                                                                    <span>Assigned to: <strong>{deliverable.participantName}</strong></span>
+                                                                </div>
+                                                                <div className="d-flex align-items-center">
+                                                                    <FiCalendar className="me-2 text-info" />
+                                                                    <span>Deadline: <strong>{formatDate(deliverable.deadline)}</strong></span>
+                                                                </div>
+                                                                <div className="d-flex align-items-center">
+                                                                    <FiCheckCircle className="me-2 text-success" />
+                                                                    <span>Max points: <strong>{deliverable.maxPoints || 'N/A'}</strong></span>
+                                                                </div>
+                                                                {deliverable.grade !== null && (
+                                                                    <div className="d-flex align-items-center">
+                                                                        <FiCheckCircle className="me-2 text-warning" />
+                                                                        <span>Grade: <strong>{deliverable.grade}/{deliverable.maxPoints}</strong></span>
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <div className="btn-group">
-                                                                <button
-                                                                    className="btn btn-sm btn-outline-primary"
-                                                                    onClick={() => openDetailModal(deliverable)}
-                                                                >
-                                                                    <i className="bi bi-eye"></i> View
-                                                                </button>
-                                                                <button
-                                                                    className="btn btn-sm btn-outline-secondary"
-                                                                    onClick={() => onEdit(deliverable)}
-                                                                >
-                                                                    <i className="bi bi-pencil"></i> Edit
-                                                                </button>
-                                                                {!deliverable.isSubmitted && (
-                                                                    <button
-                                                                        className="btn btn-sm btn-outline-success"
-                                                                        onClick={() => onToggleVisibility(deliverable.id, deliverable.isVisible)}
-                                                                    >
-                                                                        {deliverable.isVisible ? (
-                                                                            <>
-                                                                                <i className="bi bi-eye-slash"></i> Hide
-                                                                            </>
-                                                                        ) : (
-                                                                            <>
-                                                                                <i className="bi bi-eye"></i> Publish
-                                                                            </>
-                                                                        )}
-                                                                    </button>
-                                                                )}
-                                                                {deliverable.isSubmitted && !deliverable.grade && (
-                                                                    <button
-                                                                        className="btn btn-sm btn-warning"
-                                                                        onClick={() => openGradeModal(deliverable)}
-                                                                    >
-                                                                        <i className="bi bi-check-circle"></i> Grade
-                                                                    </button>
-                                                                )}
-                                                                <button
-                                                                    className="btn btn-sm btn-outline-danger"
-                                                                    onClick={() => onDelete(deliverable.id)}
-                                                                >
-                                                                    <i className="bi bi-trash"></i> Delete
-                                                                </button>
-                                                            </div>
                                                         </div>
                                                     </div>
-                                                ))}
+                                                    <div className="card-footer bg-white border-0 pt-0">
+                                                        <div className="d-flex justify-content-between">
+                                                            <Link
+                                                                to={`/tutor/deliverables/${deliverable.id}`}
+                                                                className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                                            >
+                                                                <FiEye className="me-1" /> View
+                                                            </Link>
+                                                            {deliverable.status === 'SUBMITTED' && (
+                                                                <Link
+                                                                    to={`/tutor/deliverables/${deliverable.id}/grade`}
+                                                                    className="btn btn-sm btn-warning rounded-pill px-3"
+                                                                >
+                                                                    <FiEdit className="me-1" /> Grade
+                                                                </Link>
+                                                            )}
+                                                            <button
+                                                                className="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                                                onClick={() => handleDelete(deliverable.id)}
+                                                            >
+                                                                <FiTrash2 className="me-1" /> Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="col-12">
+                                        <div className="card border-0 shadow-sm">
+                                            <div className="card-body text-center py-5">
+                                                <FiFileText className="display-4 text-muted mb-3" />
+                                                <h4 className="fw-bold mb-2">No Deliverables Found</h4>
+                                                <p className="text-muted mb-4">This classroom doesn't have any deliverables yet</p>
+                                                <Link
+                                                    to={`/tutor/rooms/${roomId}/deliverables/create`}
+                                                    className="btn btn-primary rounded-pill px-4"
+                                                >
+                                                    Create First Deliverable
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                )}
+                            </div>
                         </div>
-                    )
-                ) : (
-                    // Student view - simple list
-                    filteredDeliverables.length === 0 ? (
-                        <div className="alert alert-info">
-                            No assignments found matching your criteria.
-                        </div>
-                    ) : (
-                        <div className="list-group">
-                            {filteredDeliverables.map(deliverable => (
-                                <div key={deliverable.id} className="list-group-item">
-                                    <div className="d-flex justify-content-between align-items-start">
-                                        <div className="me-3">
-                                            <h5 className="mb-1">
-                                                <span
-                                                    className="badge me-2"
-                                                    style={{
-                                                        width: '80px',
-                                                        ...getStatusBadgeStyle(deliverable)
-                                                    }}
-                                                >
-                                                    {deliverable.status}
-                                                </span>
-                                                {deliverable.title}
-                                            </h5>
-                                            <small className="text-muted">
-                                                Deadline: {formatDate(deliverable.deadline)}
-                                                {!deliverable.isSubmitted && deliverable.deadline && (
-                                                    <span className="ms-2">
-                                                        ({getDaysDifference(deliverable.deadline)} days left)
-                                                    </span>
-                                                )}
-                                            </small>
-                                            {deliverable.isSubmitted && (
-                                                <div className="mt-2">
-                                                    <small>
-                                                        Submitted on: {formatDate(deliverable.submissionDate)}
-                                                    </small>
-                                                    {deliverable.grade && (
-                                                        <span className="ms-3">
-                                                            Grade: <strong>{deliverable.grade}/{deliverable.maxPoints}</strong>
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="btn-group">
-                                            <button
-                                                className="btn btn-sm btn-outline-primary"
-                                                onClick={() => openDetailModal(deliverable)}
-                                            >
-                                                <i className="bi bi-eye"></i> View
-                                            </button>
-                                            {!deliverable.isSubmitted && deliverable.isVisible && (
-                                                <Link
-                                                    to={`/submit-deliverable/${deliverable.id}`}
-                                                    className="btn btn-sm btn-primary"
-                                                >
-                                                    <i className="bi bi-upload"></i> Submit
-                                                </Link>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )
-                )}
+                    </div>
+                </div>
             </div>
 
-            {/* Detail Modal */}
-            <DeliverableDetailModal
-                isOpen={detailModalOpen}
-                onClose={closeDetailModal}
-                deliverable={selectedDeliverable}
-                formatDate={formatDate}
-                isTutor={isTutor}
-            />
-
-            {/* Grade Modal (for tutors only) */}
-            {isTutor && (
-                <GradeDeliverableModal
-                    isOpen={gradeModalOpen}
-                    onClose={closeGradeModal}
-                    deliverable={selectedDeliverable}
-                    onSubmit={handleGradeSubmit}
-                />
-            )}
-        </div>
+        </>
     );
-};
-
-DeliverableList.propTypes = {
-    deliverables: PropTypes.array.isRequired,
-    onDelete: PropTypes.func.isRequired,
-    onEdit: PropTypes.func.isRequired,
-    onGrade: PropTypes.func.isRequired,
-    onToggleVisibility: PropTypes.func.isRequired,
-    isTutor: PropTypes.bool
 };
 
 export default DeliverableList;

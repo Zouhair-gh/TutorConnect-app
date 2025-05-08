@@ -23,15 +23,15 @@ public class TutorConnectApplication {
     @Bean
     public CommandLineRunner addInitialAdmin(UserRepository userRepository, BCryptPasswordEncoder encoder) {
         return args -> {
-            String tutorEmail = "tutor@gmail.com";
+            String tutorEmail = "participant@gmail.com";
             if (userRepository.findByEmail(tutorEmail) == null) {
                 User Tutor = new User();
 
                 Tutor.setEmail(tutorEmail);
                 Tutor.setPassword(encoder.encode("123456789"));
-                Tutor.setFirstName("Tutor");
+                Tutor.setFirstName("Participant");
                 Tutor.setLastName("Root");
-                Tutor.setRole(RoleEnum.TUTOR);
+                Tutor.setRole(RoleEnum.PARTICIPANT);
 
                 userRepository.save(Tutor);
                 System.out.println("✅ Tutor user created!");
