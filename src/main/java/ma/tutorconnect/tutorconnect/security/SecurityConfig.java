@@ -51,9 +51,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/deliverables/room/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/deliverables").hasAnyRole("TUTOR", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/deliverables").hasAnyAuthority("TUTOR", "ROLE_TUTOR")
-
                         .requestMatchers(HttpMethod.POST, "/api/deliverables/submit").hasRole("PARTICIPANT")
                         .requestMatchers(HttpMethod.DELETE, "/api/deliverables/**").hasRole("TUTOR")
+
+                        // Video session endpoints permissions
+                        .requestMatchers(HttpMethod.GET, "/api/sessions/*/video").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/video").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/video/start").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/video/end").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/sessions/room/*").hasAnyRole("TUTOR", "ADMIN", "PARTICIPANT")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/confirm-attendance")
+                        .hasAnyRole("PARTICIPANT", "TUTOR", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);

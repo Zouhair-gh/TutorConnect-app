@@ -1,6 +1,7 @@
 package ma.tutorconnect.tutorconnect.service;
 
 import ma.tutorconnect.tutorconnect.dto.SessionDTO;
+import ma.tutorconnect.tutorconnect.dto.SessionVideoDTO;
 import ma.tutorconnect.tutorconnect.entity.Participant;
 import ma.tutorconnect.tutorconnect.entity.Room;
 import ma.tutorconnect.tutorconnect.entity.Session;
@@ -13,8 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +28,8 @@ public class SessionService {
 
     @Autowired
     private ParticipantRepository participantRepository;
+
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SessionService.class);
 
     public List<SessionDTO> getAllSessions() {
         return sessionRepository.findAll().stream()
@@ -218,4 +220,120 @@ public class SessionService {
 
         return session;
     }
+
+
+    public boolean isUserSessionOwner(Long sessionId, String userEmail) {
+        try {
+            Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
+            if (!sessionOpt.isPresent()) {
+                return false;
+            }
+
+            Session session = sessionOpt.get();
+
+            if (session.getRoom() != null && session.getRoom().getTutor() != null) {
+                return session.getRoom().getTutor().getEmail().equals(userEmail);
+            }
+
+            if (session.isTutorCreated() && !session.getAttendees().isEmpty()) {
+                return session.getAttendees().get(0).getEmail().equals(userEmail);
+            }
+
+            return false;
+        } catch (Exception e) {
+            logger.error("Error checking if user is session owner: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public boolean isUserAllowedInSession(Long sessionId, String userEmail) {
+        try {
+            Optional<Session> sessionOpt = sessionRepository.findById(sessionId);
+            if (!sessionOpt.isPresent()) {
+                logger.warn("Session with ID {} not found", sessionId);
+                return false;
+            }
+
+            Session session = sessionOpt.get();
+
+            // Log for debugging
+            logger.info("Checking if user {} is allowed in session {}", userEmail, sessionId);
+            logger.info("Session has {} attendees", session.getAttendees().size());
+
+            boolean isAttendee = session.getAttendees().stream()
+                    .anyMatch(p -> p.getEmail().equals(userEmail));
+
+            boolean isRoomOwner = false;
+            if (session.getRoom() != null && session.getRoom().getTutor() != null) {
+                isRoomOwner = session.getRoom().getTutor().getEmail().equals(userEmail);
+            }
+
+            logger.info("User {} is attendee: {}, is room owner: {}", userEmail, isAttendee, isRoomOwner);
+
+            return isAttendee || isRoomOwner;
+        } catch (Exception e) {
+            logger.error("Error checking if user is allowed in session: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+    public String getSessionRoomName(Long sessionId) {
+        // Generate consistent room name based on session ID
+        return "tutorconnect-session-" + sessionId;
+    }
+
+    public Map<String, String> startVideoSession(Long sessionId) {
+        Map<String, String> response = new HashMap<>();
+        response.put("roomName", "tutorconnect-" + sessionId + "-" + UUID.randomUUID().toString().substring(0, 8));
+        return response;
+    }
+
+    public Map<String, String> getVideoSessionInfo(Long sessionId) {
+        Map<String, String> response = new HashMap<>();
+        response.put("roomName", getSessionRoomName(sessionId));
+        response.put("status", "AVAILABLE");
+        return response;
+    }
+    public SessionVideoDTO endVideoSession(Long sessionId) {
+        SessionVideoDTO videoDTO = new SessionVideoDTO();
+        videoDTO.setSessionId(sessionId);
+        videoDTO.setStatus("ENDED");
+        return videoDTO;
+    }
+
+    public SessionVideoDTO createVideoRoom(Long sessionId) {
+        SessionVideoDTO videoDTO = new SessionVideoDTO();
+        videoDTO.setSessionId(sessionId);
+        videoDTO.setRoomName("tutor-connect-" + UUID.randomUUID().toString().substring(0, 8));
+        videoDTO.setStatus("CREATED");
+        return videoDTO;
+    }
+
+    public SessionVideoDTO getVideoRoomDetails(Long sessionId) {
+        SessionVideoDTO videoDTO = new SessionVideoDTO();
+        videoDTO.setSessionId(sessionId);
+        videoDTO.setRoomName("tutor-connect-session-" + sessionId);
+        videoDTO.setStatus("AVAILABLE");
+        videoDTO.setJoinUrl("https://meet.jit.si/" + videoDTO.getRoomName());
+        return videoDTO;
+    }
+
+    @Transactional
+    public SessionDTO confirmAttendance(Long sessionId, String participantEmail) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        Participant participant = participantRepository.findByEmail(participantEmail);
+
+        if (!session.getRoom().getParticipants().contains(participant)) {
+            throw new RuntimeException("Participant not in this room");
+        }
+        if (!session.getAttendees().contains(participant)) {
+            session.getAttendees().add(participant);
+            sessionRepository.save(session);
+        }
+
+        return convertToDTO(session);
+    }
+
+
 }
