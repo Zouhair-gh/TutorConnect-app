@@ -63,16 +63,4 @@ public class ParticipantController {
         List<ParticipantDTO> participants = participantService.getAvailableParticipants(roomId);
         return ResponseEntity.ok(participants);
     }
-    @GetMapping("/my-rooms")
-    public ResponseEntity<List<RoomWithParticipantsDTO>> getMyRooms() {
-        List<RoomWithParticipantsDTO> rooms = participantService.getRoomsForCurrentParticipant();
-        return ResponseEntity.ok(rooms);
-    }
-    @GetMapping("/my-rooms")
-    public ResponseEntity<List<RoomWithParticipantsDTO>> getRoomsForCurrentParticipant() {
-        List<RoomWithParticipantsDTO> rooms = participantService.getRoomsForCurrentParticipant();
-        return ResponseEntity.ok(rooms);
-    }
-
-
 }

@@ -37,6 +37,8 @@ const SessionCalendar = ({ sessions, roomId }) => {
 
     return (
 
+
+
         <div className="card border-0 shadow-sm">
             <div className="card-body p-0">
                 <Calendar

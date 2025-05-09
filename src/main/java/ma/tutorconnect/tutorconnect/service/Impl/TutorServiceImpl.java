@@ -2,14 +2,21 @@ package ma.tutorconnect.tutorconnect.service.Impl;
 
 import ma.tutorconnect.tutorconnect.dto.CreateRoomDto;
 import ma.tutorconnect.tutorconnect.dto.ParticipantDTO;
+import ma.tutorconnect.tutorconnect.dto.RoomRenewalRequestDto;
 import ma.tutorconnect.tutorconnect.dto.RoomWithParticipantsDTO;
+import ma.tutorconnect.tutorconnect.entity.Demand;
 import ma.tutorconnect.tutorconnect.entity.Room;
 import ma.tutorconnect.tutorconnect.entity.Tutor;
+import ma.tutorconnect.tutorconnect.enums.DemandStatus;
+import ma.tutorconnect.tutorconnect.repository.DemandRepository;
 import ma.tutorconnect.tutorconnect.repository.RoomRepository;
 import ma.tutorconnect.tutorconnect.repository.TutorRepository;
 import ma.tutorconnect.tutorconnect.service.TutorService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,13 +24,14 @@ import java.util.stream.Collectors;
 public class TutorServiceImpl implements TutorService {
 
     private final TutorRepository tutorRepository;
-    private final RoomRepository roomRepository; // Inject RoomRepository
+    private final RoomRepository roomRepository;
+    private final DemandRepository demandRepository;
 
 
-    public TutorServiceImpl(TutorRepository tutorRepository , RoomRepository roomRepository)
-    {
+    public TutorServiceImpl(TutorRepository tutorRepository, RoomRepository roomRepository, DemandRepository demandRepository) {
         this.tutorRepository = tutorRepository;
         this.roomRepository = roomRepository;
+        this.demandRepository = demandRepository;
     }
 
     @Override
@@ -78,4 +86,43 @@ public class TutorServiceImpl implements TutorService {
             return new RoomWithParticipantsDTO(roomDTO, participantDTOS);
         }).collect(Collectors.toList());
     }
+    public ResponseEntity<?> requestRoomRenewal(RoomRenewalRequestDto renewalRequest) {
+        try {
+            // Vérifier que la salle existe et appartient au tuteur
+            Room room = roomRepository.findById(renewalRequest.getRoomId())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+
+            Tutor currentTutor = getCurrentTutor();
+            if (!room.getTutor().getId().equals(currentTutor.getId())) {
+                return ResponseEntity.status(403).body("You don't own this room");
+            }
+
+            // Créer la demande
+            Demand demand = new Demand();
+            demand.setDemandType("ROOM_RENEWAL");
+            demand.setPurpose(renewalRequest.getPurpose());
+            demand.setMessage(renewalRequest.getMessage());
+            demand.setStatus(DemandStatus.PENDING);
+            demand.setCreatedAt(LocalDateTime.now());
+
+            // Remplir les infos du tuteur
+            demand.setFullName(currentTutor.getFirstName() + " " + currentTutor.getLastName());
+            demand.setEmail(currentTutor.getEmail());
+
+            // Sauvegarder la demande
+            Demand savedDemand = demandRepository.save(demand);
+
+            return ResponseEntity.ok(savedDemand);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    private Tutor getCurrentTutor() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return tutorRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Tutor not found"));
+    }
+
+
 }

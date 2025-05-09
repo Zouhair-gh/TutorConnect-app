@@ -13,8 +13,6 @@ public interface RoomService {
     Room saveRoom(CreateRoomDto createRoomDto);
     Room updateRoom(Long id, Room room);
     void deleteRoom(Long id);
-
-
     List<Room> getRoomsByCurrentTutor();
     RoomWithParticipantsDTO getRoomWithParticipants(Long id);
     ResponseEntity<?> requestRoomCreation(DemandRoomDto demandRoomDto);

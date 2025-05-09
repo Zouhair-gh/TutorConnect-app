@@ -1,0 +1,24 @@
+.rbc-calendar {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.rbc-header {
+    padding: 10px;
+    background: #f8f9fa;
+}
+
+.rbc-today {
+    background-color: #e6f7ff;
+}
+
+.rbc-event {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rbc-event:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
