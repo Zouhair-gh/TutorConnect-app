@@ -51,6 +51,7 @@ import SessionDetail from "./components/Sessions/SessionDetail";
 import ParticipantSessionDetail from "./components/Sessions/ParticipantSessionDetail"
 import ParticipantSessionsList from "./components/Sessions/ParticipantSessionsList";
 import AttendanceConfirmation from "./components/Sessions/AttendanceConfirmation";
+import JoinSession from "./components/Sessions/VideoSessions/JoinSession";
 
 
 const AuthContext = React.createContext();

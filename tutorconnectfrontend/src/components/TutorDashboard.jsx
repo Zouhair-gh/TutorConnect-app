@@ -4,7 +4,7 @@ import NavBar from "../layouts/NavBar";
 
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosClient from '../api/axiosClient';
 import {
     LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -39,7 +39,7 @@ const TutorDashboard = () => {
             try {
                 // Replace with your actual tutorId and API endpoint
                 const tutorId = 1;
-                const response = await axios.get(`/api/tutor/dashboard/stats/${tutorId}`);
+                const response = await axiosClient.get(`/tutor/dashboard/stats/${tutorId}`);
                 setDashboardStats(response.data);
                 setLoading(false);
             } catch (error) {
