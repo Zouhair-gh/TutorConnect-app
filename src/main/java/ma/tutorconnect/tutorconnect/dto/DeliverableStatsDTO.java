@@ -1,5 +1,6 @@
 package ma.tutorconnect.tutorconnect.dto;
 
+
 public class DeliverableStatsDTO {
     private int completed;
     private int inProgress;
@@ -15,4 +16,7 @@ public class DeliverableStatsDTO {
     public void setOverdue(int overdue) { this.overdue = overdue; }
     public int getNotStarted() { return notStarted; }
     public void setNotStarted(int notStarted) { this.notStarted = notStarted; }
+
+
+
 }

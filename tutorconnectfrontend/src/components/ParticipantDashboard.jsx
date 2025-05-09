@@ -19,6 +19,8 @@ const ParticipantDashboard = () => {
     const [payments, setPayments] = useState([]);
     const [assignments, setAssignments] = useState([]);
     const [error, setError] = useState(null);
+    const [dashboardSummary, setDashboardSummary] = useState(null);
+
 
     // Utility functions
     const getRandomColorClass = () => {
