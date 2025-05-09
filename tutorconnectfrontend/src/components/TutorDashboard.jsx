@@ -41,43 +41,12 @@ const TutorDashboard = () => {
                 const tutorId = 1;
                 const response = await axios.get(`/api/tutor/dashboard/stats/${tutorId}`);
                 setDashboardStats(response.data);
-                setLoading(false);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
+                // Optionally show an error message (optional)
+                // You can add a separate state like setError(true)
+            } finally {
                 setLoading(false);
-
-                // For development/demo: use mock data if API fails
-                setDashboardStats({
-                    upcomingSessions: 6,
-                    pendingDeliverables: 3,
-                    activeStudents: 12,
-                    sessionChartData: [
-                        { period: 'Dec', count: 4 },
-                        { period: 'Jan', count: 3 },
-                        { period: 'Feb', count: 6 },
-                        { period: 'Mar', count: 8 },
-                        { period: 'Apr', count: 7 },
-                        { period: 'May', count: 9 }
-                    ],
-                    mostActiveStudents: [
-                        "Sarah Johnson (12 sessions)",
-                        "Mark Allen (10 sessions)",
-                        "Emma Brooks (8 sessions)"
-                    ],
-                    deliverableStats: {
-                        completed: 24,
-                        inProgress: 7,
-                        overdue: 3,
-                        notStarted: 5
-                    },
-                    attendanceStats: [
-                        { sessionName: "Advanced Math", totalParticipants: 10, attended: 8 },
-                        { sessionName: "Physics Review", totalParticipants: 12, attended: 10 },
-                        { sessionName: "Chemistry Lab", totalParticipants: 8, attended: 7 },
-                        { sessionName: "Literature", totalParticipants: 15, attended: 12 },
-                        { sessionName: "History", totalParticipants: 9, attended: 9 }
-                    ]
-                });
             }
         };
 

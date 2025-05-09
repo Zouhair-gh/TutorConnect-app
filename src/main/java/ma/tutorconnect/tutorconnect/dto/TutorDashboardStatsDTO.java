@@ -1,5 +1,6 @@
 package ma.tutorconnect.tutorconnect.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TutorDashboardStatsDTO {
@@ -11,9 +12,19 @@ public class TutorDashboardStatsDTO {
     private DeliverableStatsDTO deliverableStats;
     private List<AttendanceStatsDTO> attendanceStats;
 
-    // Getters and setters
-    // ... (add all getters and setters)
+    // Default constructor
+    public TutorDashboardStatsDTO() {
+        // Initialize default values to prevent null pointer exceptions
+        this.upcomingSessions = 0;
+        this.pendingDeliverables = 0;
+        this.activeStudents = 0;
+        this.sessionChartData = new ArrayList<>();
+        this.mostActiveStudents = new ArrayList<>();
+        this.deliverableStats = new DeliverableStatsDTO();
+        this.attendanceStats = new ArrayList<>();
+    }
 
+    // Getters and setters
     public int getUpcomingSessions() {
         return upcomingSessions;
     }
@@ -70,4 +81,3 @@ public class TutorDashboardStatsDTO {
         this.attendanceStats = attendanceStats;
     }
 }
-

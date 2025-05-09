@@ -3,21 +3,29 @@ package ma.tutorconnect.tutorconnect.dto;
 import java.util.List;
 
 public class SessionChartDTO {
-    private String period; // date or month label
-    private Long count;    // number of sessions
+    private String period;
+    private long count;
 
-    public SessionChartDTO(String period, Long count) {
+    public SessionChartDTO(String period, long count) {
         this.period = period;
         this.count = count;
     }
 
-    // Getters and setters
-    public String getPeriod() { return period; }
-    public void setPeriod(String period) { this.period = period; }
-    public Long getCount() { return count; }
-    public void setCount(Long count) { this.count = count; }
+    public String getPeriod() {
+        return period;
+    }
 
+    public void setPeriod(String period) {
+        this.period = period;
+    }
 
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
 }
 
 

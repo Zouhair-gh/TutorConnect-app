@@ -1,5 +1,6 @@
 package ma.tutorconnect.tutorconnect.service;
 
+
 import ma.tutorconnect.tutorconnect.dto.AttendanceStatsDTO;
 import ma.tutorconnect.tutorconnect.dto.DeliverableStatsDTO;
 import ma.tutorconnect.tutorconnect.dto.SessionChartDTO;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Service
 public class TutorDashboardService {
@@ -141,53 +143,49 @@ public class TutorDashboardService {
     }
 
     private DeliverableStatsDTO getDeliverableStats(Long tutorId) {
-        DeliverableStatsDTO stats = new DeliverableStatsDTO();
         List<Deliverable> deliverables = deliverableRepository.findByTutorId(tutorId);
+        int completed = 0;
+        int inProgress = 0;
+        int overdue = 0;
+        int notStarted = 0;  // Optional
+
         Date now = new Date();
 
-        for (Deliverable deliverable : deliverables) {
-            if (deliverable.isSubmitted()) {
-                stats.setCompleted(stats.getCompleted() + 1);
-            } else if (deliverable.getDeadline().before(now)) {
-                stats.setOverdue(stats.getOverdue() + 1);
-            } else if (deliverable.getStartDate().before(now)) {
-                stats.setInProgress(stats.getInProgress() + 1);
+        for (Deliverable d : deliverables) {
+            if (d.isSubmitted()) {
+                completed++;
             } else {
-                stats.setNotStarted(stats.getNotStarted() + 1);
+                if (d.getDeadline().after(now)) {
+                    inProgress++;
+                } else {
+                    overdue++;
+                }
             }
         }
+
+        DeliverableStatsDTO stats = new DeliverableStatsDTO();
+        stats.setCompleted(completed);
+        stats.setInProgress(inProgress);
+        stats.setOverdue(overdue);
+        stats.setNotStarted(notStarted);  // Optional (always zero here)
 
         return stats;
     }
 
     private List<AttendanceStatsDTO> getAttendanceStats(Long tutorId) {
-        List<AttendanceStatsDTO> stats = new ArrayList<>();
-        List<Session> recentSessions = sessionRepository.findSessionsByTutorId(tutorId).stream()
-                .filter(session -> session.getEndTime().isBefore(LocalDateTime.now())) // Only completed sessions
-                .sorted(Comparator.comparing(Session::getStartTime).reversed()) // Most recent first
-                .limit(5) // Last 5 sessions
-                .collect(Collectors.toList());
+        List<Session> sessions = sessionRepository.findSessionsByTutorId(tutorId);
+        List<AttendanceStatsDTO> statsList = new ArrayList<>();
 
-        for (Session session : recentSessions) {
-            AttendanceStatsDTO sessionStat = new AttendanceStatsDTO();
-            sessionStat.setSessionName(session.getTitle());
+        for (Session session : sessions) {
+            AttendanceStatsDTO stats = new AttendanceStatsDTO();
+            stats.setSessionName(session.getTitle());  // Assuming session has title
+            int totalParticipants = session.getAttendees() != null ? session.getAttendees().size() : 0;
+            stats.setTotalParticipants(totalParticipants);
+            stats.setAttended(totalParticipants);  // Assuming all attended
 
-            if (session.getRoom() != null && session.getRoom().getParticipants() != null) {
-                sessionStat.setTotalParticipants(session.getRoom().getParticipants().size());
-
-                if (session.getAttendees() != null) {
-                    sessionStat.setAttended(session.getAttendees().size());
-                } else {
-                    sessionStat.setAttended(0);
-                }
-            } else {
-                sessionStat.setTotalParticipants(0);
-                sessionStat.setAttended(0);
-            }
-
-            stats.add(sessionStat);
+            statsList.add(stats);
         }
 
-        return stats;
+        return statsList;
     }
 }
