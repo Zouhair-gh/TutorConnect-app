@@ -44,7 +44,7 @@ public class DemandController {
         List<DemandDto.Response> demands = demandService.getDemandsByStatus(status);
         return ResponseEntity.ok(demands);
     }
-
+    // to approve or reject
     @PutMapping("/{id}/status")
     public ResponseEntity<DemandDto.Response> updateDemandStatus(
             @PathVariable Long id,

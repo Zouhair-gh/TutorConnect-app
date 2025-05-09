@@ -15,10 +15,11 @@ const DemandsList = () => {
   useEffect(() => {
     fetchDemands();
   }, [activeTab]);
-  // fonctionnel
+
   const fetchDemands = async () => {
     try {
       setLoading(true);
+      //get just pending requests
       const response = await axiosClient.get(`/demands/status/${activeTab}`);
       setDemands(response.data);
       setError(null);
@@ -32,9 +33,21 @@ const DemandsList = () => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await axiosClient.put(`/demands/${id}/status`, { status: newStatus });
-      // Refresh the list
-      fetchDemands();
+      const statusUpdate = { status: newStatus };
+
+      const response = await axiosClient.put(`/demands/${id}/status`, statusUpdate);
+      console.log("Status updated successfully:", response.data);
+
+      const actionText = newStatus === 'APPROVED' ? 'approved' :
+                         newStatus === 'REJECTED' ? 'rejected' : 'updated to pending';
+      setError(`Demand successfully ${actionText}`);
+
+      if (newStatus !== activeTab) {
+        setActiveTab(newStatus);
+      } else {
+        // If staying on the same tab, just refresh the current list
+        fetchDemands();
+      }
     } catch (err) {
       console.error("Error updating demand status:", err);
       setError("Failed to update status. Please try again.");
@@ -163,7 +176,7 @@ const DemandsList = () => {
                     </ul>
 
                     {error && (
-                      <div className="alert alert-danger" role="alert">
+                      <div className={`alert ${error.includes('successfully') ? 'alert-success' : 'alert-danger'}`} role="alert">
                         {error}
                       </div>
                     )}
@@ -220,6 +233,7 @@ const DemandsList = () => {
                                         navigate(`/admin/demands/${demand.id}`)
                                       }
                                       className="btn btn-sm btn-outline-primary me-2"
+                                      title="View Details"
                                     >
                                       <i className="ri-eye-line"></i>
                                     </button>

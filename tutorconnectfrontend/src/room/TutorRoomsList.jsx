@@ -64,64 +64,67 @@ const TutorRoomsList = () => {
 
     setShowRenewalModal(true);
   };
+const handleSubmitRenewal = async (e) => {
+  e.preventDefault();
 
-  const handleSubmitRenewal = async (e) => {
-    e.preventDefault();
+  if (!selectedRoom) return;
 
-    if (!selectedRoom) return;
+  try {
+    let newEndDate;
 
-    try {
-      let newEndDate;
-
-      if (renewalType === "days") {
-        const currentEndDate = new Date(selectedRoom.endDate);
-        newEndDate = new Date(currentEndDate);
-        newEndDate.setDate(
-          currentEndDate.getDate() + parseInt(renewalDuration)
-        );
-      } else {
-        newEndDate = new Date(customEndDate);
+    // Validate and calculate new end date
+    if (renewalType === "days") {
+      if (!renewalDuration || renewalDuration <= 0) {
+        throw new Error("Please enter a valid number of days");
       }
-
-      if (newEndDate < new Date(selectedRoom.endDate)) {
-        throw new Error(
-          "La nouvelle date doit être postérieure à la date de fin actuelle"
-        );
+      const currentEndDate = new Date(selectedRoom.endDate);
+      newEndDate = new Date(currentEndDate);
+      newEndDate.setDate(currentEndDate.getDate() + parseInt(renewalDuration));
+    } else {
+      if (!customEndDate) {
+        throw new Error("Please select an end date");
       }
-
-      const renewalData = {
-        roomId: selectedRoom.id,
-        demandType: "RENEW",
-        purpose: purpose,
-        message: message || `Renewal request for ${renewalDuration} days`,
-        newEndDate: newEndDate.toISOString().split("T")[0], // Format YYYY-MM-DD
-        amount: amount,
-        capacity: capacity,
-      };
-
-      // Use the existing endpoint for room renewal since tutorService.requestRoomRenewal is not implemented
-      await axiosClient.post(
-        `/rooms/request-renewal/${selectedRoom.id}`,
-        renewalData
-      );
-
-      // Gestion du feedback
-      setSuccess(
-        `Demande de renouvellement pour "${selectedRoom.name}" envoyée !`
-      );
-      setTimeout(() => setSuccess(""), 5000);
-      setShowRenewalModal(false);
-      fetchRooms();
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Erreur lors de la demande"
-      );
-      console.error("Renewal error:", err);
+      newEndDate = new Date(customEndDate);
     }
-  };
 
+    // Validate new end date is in the future
+    if (newEndDate <= new Date(selectedRoom.endDate)) {
+      throw new Error("New end date must be after current end date");
+    }
+
+    // Prepare the request payload matching DemandRoomDto
+    const renewalData = {
+      name: selectedRoom.name,
+      capacity: capacity,
+      startDate: selectedRoom.startDate, // or new Date().toISOString() if you want current date
+      endDate: newEndDate.toISOString().split("T")[0],
+      amount: amount,
+      tutorId: selectedRoom.tutor.id, // assuming tutor info is in selectedRoom
+      isRenewal: true,
+      originalRoomId: selectedRoom.id
+    };
+
+    // Send the request
+    await axiosClient.post(
+      `/rooms/request-renewal/${selectedRoom.id}`,
+      renewalData
+    );
+
+    // Handle success
+    setSuccess(`Renewal request for "${selectedRoom.name}" submitted successfully!`);
+    setTimeout(() => setSuccess(""), 5000);
+    setShowRenewalModal(false);
+    fetchRooms(); // Refresh the rooms list
+
+  } catch (err) {
+    console.error("Renewal error:", err);
+    setError(
+      err.response?.data?.message ||
+      err.message ||
+      "Error submitting renewal request"
+    );
+  }
+};
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -152,11 +155,6 @@ const TutorRoomsList = () => {
 
   useEffect(() => {
     fetchRooms();
-
-    // Option 1: Polling toutes les 30 secondes
-    // const interval = setInterval(fetchRooms, 30000);
-
-    //return () => clearInterval(interval);
   }, []);
 
   if (loading) {
