@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant , Long> {
@@ -17,7 +15,6 @@ public interface ParticipantRepository extends JpaRepository<Participant , Long>
     boolean existsByUsername(String username);
 
     Participant findByEmail(String email);
-    Optional<Participant> findOptionalByEmail(String email);
 
     Participant findByPhoneNumber(String phoneNumber);
 

@@ -3,11 +3,99 @@ import TutorSideBar from "../layouts/SideBars/TutorSideBar";
 import NavBar from "../layouts/NavBar";
 
 
+import { useState, useEffect } from 'react';
+import axiosClient from '../api/axiosClient';
+import {
+    LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+    XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
+
 const TutorDashboard = () => {
+    const [dashboardStats, setDashboardStats] = useState({
+        upcomingSessions: 0,
+        pendingDeliverables: 0,
+        activeStudents: 0,
+        sessionChartData: [],
+        mostActiveStudents: [],
+        deliverableStats: { completed: 0, inProgress: 0, overdue: 0, notStarted: 0 },
+        attendanceStats: []
+    });
+    const [loading, setLoading] = useState(true);
+    const [tutorName, setTutorName] = useState('Graham');
+    const [timeOfDay, setTimeOfDay] = useState('');
+
+    // Colors for charts
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+    useEffect(() => {
+        // Set greeting based on time of day
+        const hour = new Date().getHours();
+        if (hour < 12) setTimeOfDay('Morning');
+        else if (hour < 18) setTimeOfDay('Afternoon');
+        else setTimeOfDay('Evening');
+
+        // Fetch dashboard stats from API
+        const fetchDashboardStats = async () => {
+            try {
+                // Replace with your actual tutorId and API endpoint
+                const tutorId = 1;
+                const response = await axiosClient.get(`/tutor/dashboard/stats/${tutorId}`);
+                setDashboardStats(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                setLoading(false);
+
+                // For development/demo: use mock data if API fails
+                setDashboardStats({
+                    upcomingSessions: 6,
+                    pendingDeliverables: 3,
+                    activeStudents: 12,
+                    sessionChartData: [
+                        { period: 'Dec', count: 4 },
+                        { period: 'Jan', count: 3 },
+                        { period: 'Feb', count: 6 },
+                        { period: 'Mar', count: 8 },
+                        { period: 'Apr', count: 7 },
+                        { period: 'May', count: 9 }
+                    ],
+                    mostActiveStudents: [
+                        "Sarah Johnson (12 sessions)",
+                        "Mark Allen (10 sessions)",
+                        "Emma Brooks (8 sessions)"
+                    ],
+                    deliverableStats: {
+                        completed: 24,
+                        inProgress: 7,
+                        overdue: 3,
+                        notStarted: 5
+                    },
+                    attendanceStats: [
+                        { sessionName: "Advanced Math", totalParticipants: 10, attended: 8 },
+                        { sessionName: "Physics Review", totalParticipants: 12, attended: 10 },
+                        { sessionName: "Chemistry Lab", totalParticipants: 8, attended: 7 },
+                        { sessionName: "Literature", totalParticipants: 15, attended: 12 },
+                        { sessionName: "History", totalParticipants: 9, attended: 9 }
+                    ]
+                });
+            }
+        };
+
+        fetchDashboardStats();
+    }, []);
+
+    // Format deliverable stats for pie chart
+    const deliverableChartData = [
+        { name: 'Completed', value: dashboardStats.deliverableStats.completed },
+        { name: 'In Progress', value: dashboardStats.deliverableStats.inProgress },
+        { name: 'Overdue', value: dashboardStats.deliverableStats.overdue },
+        { name: 'Not Started', value: dashboardStats.deliverableStats.notStarted }
+    ];
+
     return (
-    <>
-        <TutorSideBar />
-        <NavBar />
+        <>
+            <TutorSideBar />
+            <NavBar />
 
             <div className="wrapper">
                 <div className="content-page">
@@ -17,8 +105,8 @@ const TutorDashboard = () => {
                             <div className="col-lg-4">
                                 <div className="card card-transparent card-block card-stretch card-height border-none">
                                     <div className="card-body p-0 mt-lg-2 mt-0">
-                                        <h3 className="mb-3">Hi Graham, Good Morning</h3>
-                                        <p className="mb-0 mr-4">Here’s an overview of your tutoring performance and activities.</p>
+                                        <h3 className="mb-3">Hi {tutorName}, Good {timeOfDay}</h3>
+                                        <p className="mb-0 mr-4">Here's an overview of your tutoring performance and activities.</p>
                                     </div>
                                 </div>
                             </div>
@@ -35,7 +123,7 @@ const TutorDashboard = () => {
                                                     </div>
                                                     <div>
                                                         <p className="mb-2">Upcoming Sessions</p>
-                                                        <h4>6</h4>
+                                                        <h4>{dashboardStats.upcomingSessions}</h4>
                                                     </div>
                                                 </div>
                                                 <div className="iq-progress-bar mt-2">
@@ -53,8 +141,8 @@ const TutorDashboard = () => {
                                                         <i className="ri-file-list-3-line text-danger h4"></i>
                                                     </div>
                                                     <div>
-                                                        <p className="mb-2">Pending Assignments</p>
-                                                        <h4>3</h4>
+                                                        <p className="mb-2">Pending Deliverables</p>
+                                                        <h4>{dashboardStats.pendingDeliverables}</h4>
                                                     </div>
                                                 </div>
                                                 <div className="iq-progress-bar mt-2">
@@ -73,7 +161,7 @@ const TutorDashboard = () => {
                                                     </div>
                                                     <div>
                                                         <p className="mb-2">Active Students</p>
-                                                        <h4>12</h4>
+                                                        <h4>{dashboardStats.activeStudents}</h4>
                                                     </div>
                                                 </div>
                                                 <div className="iq-progress-bar mt-2">
@@ -94,9 +182,9 @@ const TutorDashboard = () => {
                                         </div>
                                         <div className="card-header-toolbar d-flex align-items-center">
                                             <div className="dropdown">
-                                    <span className="dropdown-toggle dropdown-bg btn" id="sessionDropdown" data-toggle="dropdown">
-                                        This Month<i className="ri-arrow-down-s-line ml-1" />
-                                    </span>
+                                                <span className="dropdown-toggle dropdown-bg btn" id="sessionDropdown" data-toggle="dropdown">
+                                                    This Month<i className="ri-arrow-down-s-line ml-1" />
+                                                </span>
                                                 <div className="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="sessionDropdown">
                                                     <a className="dropdown-item" href="#">Year</a>
                                                     <a className="dropdown-item" href="#">Month</a>
@@ -106,13 +194,79 @@ const TutorDashboard = () => {
                                         </div>
                                     </div>
                                     <div className="card-body">
-                                        <div id="session-chart" />
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <LineChart data={dashboardStats.sessionChartData}>
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis dataKey="period" />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Line type="monotone" dataKey="count" name="Sessions" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Deliverable Stats Pie Chart */}
+                            <div className="col-lg-6">
+                                <div className="card card-block card-stretch card-height">
+                                    <div className="card-header d-flex justify-content-between">
+                                        <div className="header-title">
+                                            <h4 className="card-title">Deliverable Status</h4>
+                                        </div>
+                                    </div>
+                                    <div className="card-body">
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <PieChart>
+                                                <Pie
+                                                    data={deliverableChartData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    labelLine={false}
+                                                    outerRadius={80}
+                                                    fill="#8884d8"
+                                                    dataKey="value"
+                                                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                                >
+                                                    {deliverableChartData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                    ))}
+                                                </Pie>
+                                                <Tooltip />
+                                                <Legend />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Attendance Bar Chart */}
+                            <div className="col-lg-8">
+                                <div className="card card-block card-stretch card-height">
+                                    <div className="card-header d-flex justify-content-between">
+                                        <div className="header-title">
+                                            <h4 className="card-title">Recent Session Attendance</h4>
+                                        </div>
+                                    </div>
+                                    <div className="card-body">
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <BarChart data={dashboardStats.attendanceStats}>
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis dataKey="sessionName" />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Bar dataKey="totalParticipants" name="Total Participants" fill="#8884d8" />
+                                                <Bar dataKey="attended" name="Attended" fill="#82ca9d" />
+                                            </BarChart>
+                                        </ResponsiveContainer>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Most Active Students */}
-                            <div className="col-lg-6">
+                            <div className="col-lg-4">
                                 <div className="card card-block card-stretch card-height">
                                     <div className="card-header d-flex justify-content-between">
                                         <div className="header-title">
@@ -121,21 +275,20 @@ const TutorDashboard = () => {
                                     </div>
                                     <div className="card-body">
                                         <ul className="list-unstyled mb-0">
-                                            <li className="d-flex justify-content-between align-items-center mb-3">
-                                                <span>Sarah Johnson</span><span className="badge badge-success">12 Sessions</span>
-                                            </li>
-                                            <li className="d-flex justify-content-between align-items-center mb-3">
-                                                <span>Mark Allen</span><span className="badge badge-info">10 Sessions</span>
-                                            </li>
-                                            <li className="d-flex justify-content-between align-items-center">
-                                                <span>Emma Brooks</span><span className="badge badge-warning">8 Sessions</span>
-                                            </li>
+                                            {dashboardStats.mostActiveStudents.map((student, index) => (
+                                                <li key={index} className="d-flex justify-content-between align-items-center mb-3">
+                                                    <span>{student.split('(')[0]}</span>
+                                                    <span className={`badge badge-${index === 0 ? 'success' : index === 1 ? 'info' : 'warning'}`}>
+                                                        {student.split('(')[1]?.replace(')', '')}
+                                                    </span>
+                                                </li>
+                                            ))}
                                         </ul>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Assignment Stats */}
+                            {/* Assignment Completion Rate */}
                             <div className="col-lg-12">
                                 <div className="card card-block card-stretch card-height">
                                     <div className="card-header d-flex justify-content-between">
@@ -144,33 +297,58 @@ const TutorDashboard = () => {
                                         </div>
                                     </div>
                                     <div className="card-body">
-                                        <div className="progress" style={{ height: "20px" }}>
-                                            <div
-                                                className="progress-bar bg-success"
-                                                role="progressbar"
-                                                style={{ width: "76%" }}
-                                                aria-valuenow="76"
-                                                aria-valuemin="0"
-                                                aria-valuemax="100"
-                                            >
-                                                76%
-                                            </div>
-                                        </div>
+                                        {dashboardStats.deliverableStats.completed + dashboardStats.deliverableStats.inProgress +
+                                        dashboardStats.deliverableStats.overdue + dashboardStats.deliverableStats.notStarted > 0 ? (
+                                            <>
+                                                <div className="progress" style={{ height: "20px" }}>
+                                                    <div
+                                                        className="progress-bar bg-success"
+                                                        role="progressbar"
+                                                        style={{
+                                                            width: `${(dashboardStats.deliverableStats.completed /
+                                                                (dashboardStats.deliverableStats.completed +
+                                                                    dashboardStats.deliverableStats.inProgress +
+                                                                    dashboardStats.deliverableStats.overdue +
+                                                                    dashboardStats.deliverableStats.notStarted)) * 100}%`
+                                                        }}
+                                                        aria-valuenow={dashboardStats.deliverableStats.completed}
+                                                        aria-valuemin="0"
+                                                        aria-valuemax={dashboardStats.deliverableStats.completed +
+                                                            dashboardStats.deliverableStats.inProgress +
+                                                            dashboardStats.deliverableStats.overdue +
+                                                            dashboardStats.deliverableStats.notStarted}
+                                                    >
+                                                        {Math.round((dashboardStats.deliverableStats.completed /
+                                                            (dashboardStats.deliverableStats.completed +
+                                                                dashboardStats.deliverableStats.inProgress +
+                                                                dashboardStats.deliverableStats.overdue +
+                                                                dashboardStats.deliverableStats.notStarted)) * 100)}%
+                                                    </div>
+                                                </div>
+                                                <div className="mt-3">
+                                                    <p>
+                                                        <span className="font-weight-bold">{dashboardStats.deliverableStats.completed}</span> out of
+                                                        <span className="font-weight-bold"> {dashboardStats.deliverableStats.completed +
+                                                            dashboardStats.deliverableStats.inProgress +
+                                                            dashboardStats.deliverableStats.overdue +
+                                                            dashboardStats.deliverableStats.notStarted}</span> assignments completed
+                                                    </p>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <p>No assignment data available</p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Other useful widgets can go here */}
                         </div>
                     </div>
                 </div>
             </div>
-    </>
-
-
-
+        </>
     );
 };
+
 export default TutorDashboard;
 
 
