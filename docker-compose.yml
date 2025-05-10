@@ -1,42 +1,34 @@
 version: "3.8"
 
 services:
-  # (Spring Boot)
   backend:
     build:
-      context: ../
-      dockerfile: C:\studies\EMSI\4IIR G4 S2\Genie Logiciel\Projet\TutorConnect-app\DockerFile
+      context: ./TutorConnect-app
     ports:
-      - "8080:8080"
+      - "8080:8080" # Adjust the port as needed based on your Spring Boot app
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_NAME=tutor_connect
-      - DB_USER=root
-      - DB_PASSWORD=pass
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: tutor_connect
+      MYSQL_USER: root
+      MYSQL_PASSWORD: pass
     depends_on:
-      - db
+      - mysql
 
   frontend:
     build:
-      context: ./TutorConnect-app/tutorconnectfrontend
-      dockerfile: ./Dockerfile
+      context: ./tutorconnectfrontend
     ports:
-      - "3000:3000" # Expose le port 3000 pour React
-    environment:
-      - REACT_APP_API_URL=http://localhost:8080
+      - "3000:3000"
     depends_on:
       - backend
 
-  db:
+  mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: tutor_connect
       MYSQL_USER: root
-      MYSQL_PASSWORD: ""
-    volumes:
-      - ./data/db:/var/lib/mysql # Répertoire local dans votre projet
+      MYSQL_PASSWORD: pass
     ports:
       - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password

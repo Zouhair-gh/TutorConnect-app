@@ -16,10 +16,10 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: pass
+          MYSQL_ROOT_PASSWORD: ""
           MYSQL_DATABASE: tutor_connect
           MYSQL_USER: root
-          MYSQL_PASSWORD: pass
+          MYSQL_PASSWORD: ""
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -35,13 +35,13 @@ jobs:
         with:
           java-version: "17"
 
-      # Build Spring Boot Application (Backend)
-      - name: Build Backend (Spring Boot)
+      # Build Spring Boot Application
+      - name: Build Backend
         run: |
           cd TutorConnect-app
           mvn clean install
 
-      # Run Tests for Backend (Spring Boot)
+      # Run Tests for Backend
       - name: Run Backend Tests
         run: mvn test
 
