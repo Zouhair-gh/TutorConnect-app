@@ -113,7 +113,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // Find the participant by email
-        Optional<Participant> participantOptional = participantRepository.findOptionalByEmail(email);
+        Optional<Participant> participantOptional = participantRepository.findByEmail(email);
         Participant participant = participantOptional.orElseThrow(() -> new RuntimeException("Participant not found with email: " + email));
 
         // Get all rooms where this participant is a member using the custom query

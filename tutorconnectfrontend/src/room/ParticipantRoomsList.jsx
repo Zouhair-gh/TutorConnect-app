@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
+import axios from "axios";
 import {
     Card,
     Button,
@@ -19,6 +20,7 @@ import {
 } from "react-icons/fi";
 import NavBar from "../layouts/NavBar";
 import ParticipantSidebar from "../layouts/SideBars/ParticipantSidebar";
+import Footer from "../layouts/footer";
 
 const ParticipantRoomsList = () => {
     const [rooms, setRooms] = useState([]);
@@ -26,15 +28,27 @@ const ParticipantRoomsList = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    // Color classes from the second implementation
+    const colorClasses = ["primary", "success", "danger", "warning", "info"];
+    const getRandomColorClass = (index) => colorClasses[index % colorClasses.length];
+
     useEffect(() => {
         const fetchRooms = async () => {
             try {
-                // Updated endpoint to match the controller path
+                // Try both API endpoints - first implementation endpoint
                 const response = await axiosClient.get("/rooms/1/participants/my-rooms");
                 setRooms(response.data);
             } catch (error) {
-                console.error("Error fetching rooms:", error);
-                setError("Failed to load rooms. Please try again later.");
+                try {
+                    // Fallback to second implementation endpoint if first fails
+                    const altResponse = await axios.get("/api/participants/my-rooms");
+                    // Extract only room info from DTO as in second implementation
+                    const roomList = altResponse.data.map(item => item.room);
+                    setRooms(roomList);
+                } catch (fallbackError) {
+                    console.error("Error fetching rooms:", error);
+                    setError("Failed to load rooms. Please try again later.");
+                }
             } finally {
                 setLoading(false);
             }
@@ -55,7 +69,7 @@ const ParticipantRoomsList = () => {
             COMPLETED: "primary",
             CANCELLED: "danger"
         };
-        return <Badge bg={variants[status]}>{status}</Badge>;
+        return <Badge bg={variants[status] || "secondary"}>{status}</Badge>;
     };
 
     if (loading) {
@@ -91,39 +105,64 @@ const ParticipantRoomsList = () => {
                                 </Alert>
                             ) : (
                                 <Row className="g-4">
-                                    {rooms.map((roomData) => {
-                                        const room = roomData.room;
+                                    {rooms.map((roomData, index) => {
+                                        // Handle both data structures (from first or second implementation)
+                                        const room = roomData.room || roomData;
+                                        const participants = roomData.participants || [];
+                                        const colorClass = getRandomColorClass(index);
+
                                         return (
                                             <Col key={room.id} md={6} lg={4}>
                                                 <Card className="h-100 shadow-sm">
                                                     <Card.Body>
                                                         <div className="d-flex justify-content-between align-items-start mb-3">
                                                             <Card.Title>{room.name}</Card.Title>
-                                                            {getStatusBadge(room.status)}
+                                                            {room.status && getStatusBadge(room.status)}
                                                         </div>
 
                                                         <div className="mb-3">
-                                                            <p className="mb-1">
-                                                                <FiUsers className="me-2" />
-                                                                {roomData.participants.length} participants
-                                                            </p>
+                                                            {participants.length > 0 && (
+                                                                <p className="mb-1">
+                                                                    <FiUsers className="me-2" />
+                                                                    {participants.length} participants
+                                                                </p>
+                                                            )}
+                                                            {room.capacity && (
+                                                                <p className="mb-1">
+                                                                    <FiUsers className="me-2" />
+                                                                    Capacity: {room.capacity} people
+                                                                </p>
+                                                            )}
+                                                            {room.amount && (
+                                                                <p className="mb-1">
+                                                                    Amount: {room.amount}
+                                                                </p>
+                                                            )}
                                                             <p className="mb-1">
                                                                 <FiCalendar className="me-2" />
                                                                 {formatDate(room.startDate)} - {formatDate(room.endDate)}
                                                             </p>
-                                                            <p className="mb-1">
-                                                                <FiClock className="me-2" />
-                                                                {room.schedule}
-                                                            </p>
+                                                            {room.schedule && (
+                                                                <p className="mb-1">
+                                                                    <FiClock className="me-2" />
+                                                                    {room.schedule}
+                                                                </p>
+                                                            )}
                                                         </div>
 
                                                         <div className="d-flex justify-content-between align-items-center">
+                                                            {/* Primary action button from first implementation */}
                                                             <Button
                                                                 variant="primary"
                                                                 onClick={() => navigate(`/participant/participantroom/${room.id}/sessions`)}
                                                             >
                                                                 View Sessions <FiArrowRight className="ms-2" />
                                                             </Button>
+
+                                                            {/* Alternative view link from second implementation */}
+                                                            <Link to={`/participant/rooms/${room.id}/1`} className="btn btn-sm btn-info">
+                                                                <i className="fa fa-eye"></i> Details
+                                                            </Link>
                                                         </div>
                                                     </Card.Body>
                                                 </Card>
@@ -136,6 +175,7 @@ const ParticipantRoomsList = () => {
                     </div>
                 </div>
             </div>
+            <Footer />
         </>
     );
 };
