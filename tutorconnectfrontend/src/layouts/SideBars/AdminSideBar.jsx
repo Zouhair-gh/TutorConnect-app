@@ -75,13 +75,13 @@ const AdminSideBar = () => {
                     data-parent="#iq-sidebar-toggle"
                 >
                     <li className="list-rooms">
-                        <a onClick={() => navigate("/rooms")}>
+                        <a onClick={() => navigate("/admin/rooms")}>
                             <i className="las la-list"/>
                             <span>List Rooms</span>
                         </a>
                     </li>
                     <li className="add-room">
-                        <a onClick={() => navigate("/rooms/create")}>
+                        <a onClick={() => navigate("admin/rooms/create")}>
                             <i className="las la-plus"/>
                             <span>Add Room</span>
                         </a>

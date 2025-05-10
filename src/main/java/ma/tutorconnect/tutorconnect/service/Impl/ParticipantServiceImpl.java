@@ -106,6 +106,11 @@ public class ParticipantServiceImpl implements ParticipantService {
                 .orElseThrow(() -> new RuntimeException("Participant not found in this room"));
     }
 
+    @Override
+    public Optional<Participant> findByEmail(String email) {
+        return Optional.empty();
+    }
+
 
     @Override
     public List<RoomWithParticipantsDTO> getRoomsForCurrentParticipant() {
@@ -113,7 +118,7 @@ public class ParticipantServiceImpl implements ParticipantService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // Find the participant by email
-        Optional<Participant> participantOptional = participantRepository.findByEmail(email);
+        Optional<Participant> participantOptional = findByEmail(email);
         Participant participant = participantOptional.orElseThrow(() -> new RuntimeException("Participant not found with email: " + email));
 
         // Get all rooms where this participant is a member using the custom query

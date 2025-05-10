@@ -1,0 +1,125 @@
+# Azure DevOps Basic CI Pipeline for TutorConnect
+# This version doesn't require any marketplace extensions
+
+trigger:
+  - main
+  - develop
+  - feature/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  backendDirectory: 'TutorConnect'
+  frontendDirectory: 'tutorconnectfrontend'
+
+stages:
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      - job: Backend
+        displayName: 'Build and Test Backend'
+        steps:
+          - task: JavaToolInstaller@0
+            inputs:
+              versionSpec: '17'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+            displayName: 'Install JDK 17'
+            
+          - task: MavenAuthenticate@0
+            displayName: 'Maven Authenticate'
+            inputs:
+              artifactsFeeds: ''
+            
+          - script: |
+              cd $(backendDirectory)
+              ./mvnw clean package
+            displayName: 'Build Spring Boot Backend'
+            
+          - script: |
+              cd $(backendDirectory)
+              ./mvnw test
+            displayName: 'Run Backend Tests'
+            
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/TEST-*.xml'
+              searchFolder: '$(backendDirectory)'
+              mergeTestResults: true
+              testRunTitle: 'Backend Tests'
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'JaCoCo'
+              summaryFileLocation: '$(backendDirectory)/target/site/jacoco/jacoco.xml'
+              reportDirectory: '$(backendDirectory)/target/site/jacoco'
+            displayName: 'Publish Code Coverage'
+            condition: succeededOrFailed()
+            
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(backendDirectory)/target/*.jar'
+              artifactName: 'springboot'
+              publishLocation: 'Container'
+            displayName: 'Publish Spring Boot Artifact'
+            
+      - job: Frontend
+        displayName: 'Build and Test Frontend'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+            displayName: 'Install Node.js'
+            
+          - script: |
+              cd $(frontendDirectory)
+              npm ci
+            displayName: 'Install dependencies'
+            
+          - script: |
+              cd $(frontendDirectory)
+              npm run lint || true
+            displayName: 'Run lint'
+            continueOnError: true
+            
+          - script: |
+              cd $(frontendDirectory)
+              npm test -- --coverage --watchAll=false
+            displayName: 'Run tests'
+            continueOnError: true
+            
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(frontendDirectory)/junit.xml'
+              mergeTestResults: true
+              testRunTitle: 'Frontend Tests'
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            continueOnError: true
+            
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(frontendDirectory)/coverage/cobertura-coverage.xml'
+              reportDirectory: '$(frontendDirectory)/coverage'
+            displayName: 'Publish Code Coverage'
+            condition: succeededOrFailed()
+            continueOnError: true
+            
+          - script: |
+              cd $(frontendDirectory)
+              npm run build
+            displayName: 'Build React app'
+            
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(frontendDirectory)/build'
+              artifactName: 'reactapp'
+              publishLocation: 'Container'
+            displayName: 'Publish React Artifact'

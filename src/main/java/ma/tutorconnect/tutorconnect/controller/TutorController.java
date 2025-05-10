@@ -60,9 +60,10 @@ public class TutorController {
        return dashboardDto;
    }
     @PreAuthorize("hasRole('TUTOR')")
-    @PostMapping("/room-renewal")
+    @PostMapping("/rooms/request")
     public ResponseEntity<?> requestRoomRenewal(@RequestBody RoomRenewalRequestDto renewalRequest) {
         return tutorService.requestRoomRenewal(renewalRequest);
     }
+
 }
 
