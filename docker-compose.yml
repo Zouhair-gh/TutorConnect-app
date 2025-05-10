@@ -1,11 +1,9 @@
-version: "3.8"
-
 services:
   backend:
     build:
       context: ./TutorConnect-app
     ports:
-      - "8080:8080" # Adjust the port as needed based on your Spring Boot app
+      - "8080:8080"
     environment:
       MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: tutor_connect
