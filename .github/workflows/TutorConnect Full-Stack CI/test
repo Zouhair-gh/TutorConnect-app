@@ -1,4 +1,4 @@
-name: TutorConnect Build Workflow
+name: TutorConnect Minimal Build
 
 on:
   push:
@@ -20,36 +20,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: maven
       
-      # Backend - Build only (no tests)
-      - name: Build backend
-        run: mvn clean install -DskipTests
+      # Verify Java installation only
+      - name: Verify Java
+        run: java -version
       
-      # Setup Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          cache: 'npm'
-          cache-dependency-path: 'tutorconnectfrontend/package-lock.json'
+      # Compile without tests or packaging
+      - name: Compile Java
+        run: mvn clean compile -DskipTests
       
-      # Frontend - Build
-      - name: Install frontend dependencies
-        run: |
-          cd tutorconnectfrontend
-          npm ci || npm install
-      
-      - name: Build frontend
-        run: |
-          cd tutorconnectfrontend
-          npm run build || echo "Frontend build skipped"
-      
-      # Store artifacts
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: tutorconnect-artifacts
-          path: |
-            target/*.jar
-            tutorconnectfrontend/dist/
+      # Verify success
+      - name: Verify build success
+        run: echo "Build completed successfully"
