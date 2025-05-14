@@ -39,9 +39,27 @@ steps:
     javaHomeOption: 'JDKVersion'
     jdkVersionOption: '1.$(JAVA_VERSION)'
 
+- task: Maven@3
+  displayName: 'Run Unit Tests'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'test'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.$(JAVA_VERSION)'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+
 - task: PublishPipelineArtifact@1
   displayName: 'Upload JAR artifact'
   inputs:
     targetPath: 'target/*.jar'
     artifact: 'backend-jar'
     publishLocation: 'pipeline'
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish Code Coverage'
+  inputs:
+    codeCoverageTool: 'JaCoCo'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/site/jacoco/jacoco.xml'
+    reportDirectory: '$(System.DefaultWorkingDirectory)/**/site/jacoco'
+    failIfCoverageEmpty: false
