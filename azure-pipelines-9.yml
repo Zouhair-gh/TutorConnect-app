@@ -19,7 +19,7 @@ variables:
   JAVA_VERSION: '17'
 
 steps:
-- task: CheckoutRepo@1
+- checkout: self
   displayName: 'Checkout repository'
 
 - task: JavaToolInstaller@0
