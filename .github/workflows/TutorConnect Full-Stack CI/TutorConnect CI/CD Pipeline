@@ -14,14 +14,12 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: tutorconnect
-          MYSQL_USER: tutoruser
-          MYSQL_PASSWORD: tutorpass
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: tutor_connect
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -u root -prootpassword"
+          --health-cmd="mysqladmin ping -h localhost"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -50,9 +48,9 @@ jobs:
         run: |
           mvn clean package
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/tutor_connect
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/tutor_connect?createDatabaseIfNotExist=true
           SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: 
+          SPRING_DATASOURCE_PASSWORD: ''
       
       # Frontend - Build
       - name: Install frontend dependencies
