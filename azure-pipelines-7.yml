@@ -21,10 +21,11 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          - task: UseJava@1
+          - task: JavaToolInstaller@0
             inputs:
               versionSpec: '$(javaVersion)'
-              jdkArchitecture: 'x64'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
           - task: Maven@3
             displayName: 'Maven Build'
             inputs:
