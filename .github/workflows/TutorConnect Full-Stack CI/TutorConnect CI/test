@@ -1,0 +1,59 @@
+name: TutorConnect CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, dev_maaroufi, dev_marouane, dev_zouhair ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Setup Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      
+      # Backend - Build only (no tests)
+      - name: Build backend
+        run: mvn clean package -DskipTests
+      
+      # Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: 'tutorconnectfrontend/package-lock.json'
+      
+      # Frontend - Build
+      - name: Install frontend dependencies
+        run: |
+          cd tutorconnectfrontend
+          npm ci
+      
+      - name: Build frontend
+        run: |
+          cd tutorconnectfrontend
+          npm run build
+      
+      # Build Docker image without starting services
+      - name: Build Docker image
+        run: docker build -t tutorconnect:latest .
+      
+      # Store artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: tutorconnect-artifacts
+          path: |
+            target/*.jar
+            tutorconnectfrontend/dist/
