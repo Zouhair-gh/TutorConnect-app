@@ -13,15 +13,17 @@ variables:
   nodeVersion: '18.x'
 
 stages:
-  - stage: CI
-    displayName: Build & Test
+  - stage: Build
+    displayName: Build & Test All Components
     jobs:
-      - job: Backend_Build
-        displayName: Backend - Build & Test
+      - job: BuildAll
+        displayName: Build All Components
         pool:
           vmImage: 'ubuntu-latest'
         steps:
+          # Backend Build Steps
           - task: JavaToolInstaller@0
+            displayName: 'Set up Java'
             inputs:
               versionSpec: '$(javaVersion)'
               jdkArchitectureOption: 'x64'
@@ -38,48 +40,34 @@ stages:
               mavenPomFile: '$(backendDir)/pom.xml'
               goals: 'test'
           - task: PublishBuildArtifacts@1
+            displayName: 'Publish Backend Artifact'
             inputs:
               PathtoPublish: '$(backendDir)/target'
               ArtifactName: 'backend-artifact'
               publishLocation: 'Container'
-
-      - job: Frontend_Build
-        displayName: Frontend - Install & Build
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
+              
+          # Frontend Build Steps  
           - task: NodeTool@0
+            displayName: 'Set up Node.js'
             inputs:
               versionSpec: '$(nodeVersion)'
-            displayName: 'Install Node.js'
           - script: |
               cd $(frontendDir)
               npm install
               npm run build
             displayName: 'Build React App'
           - task: PublishBuildArtifacts@1
+            displayName: 'Publish Frontend Artifact'
             inputs:
               PathtoPublish: '$(frontendDir)/build'  # React typically builds to 'build' directory
               ArtifactName: 'frontend-artifact'
               publishLocation: 'Container'
-
-  - stage: Docker
-    displayName: Build Docker Images
-    dependsOn: CI
-    condition: succeeded()
-    jobs:
-      - job: BuildBackendImage
-        displayName: Build Backend Docker Image
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - download: current
-            artifact: backend-artifact
-            displayName: 'Download Backend Artifact'
+              
+          # Backend Docker Build
           - script: |
               # Copy JAR file to a working directory
               mkdir -p $(Build.ArtifactStagingDirectory)/docker-backend
-              cp $(Pipeline.Workspace)/backend-artifact/*.jar $(Build.ArtifactStagingDirectory)/docker-backend/app.jar
+              cp $(backendDir)/target/*.jar $(Build.ArtifactStagingDirectory)/docker-backend/app.jar
               
               # Create Dockerfile if it doesn't exist
               cat > $(Build.ArtifactStagingDirectory)/docker-backend/Dockerfile << 'EOF'
@@ -98,23 +86,17 @@ stages:
               docker save tutorconnect-backend:latest -o tutorconnect-backend-image.tar
             displayName: 'Build Backend Docker Image'
           - task: PublishBuildArtifacts@1
+            displayName: 'Publish Backend Docker Image'
             inputs:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)/docker-backend/tutorconnect-backend-image.tar'
               ArtifactName: 'backend-docker-image'
               publishLocation: 'Container'
-
-      - job: BuildFrontendImage
-        displayName: Build Frontend Docker Image
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - download: current
-            artifact: frontend-artifact
-            displayName: 'Download Frontend Artifact'
+              
+          # Frontend Docker Build
           - script: |
               # Copy build files to a working directory
               mkdir -p $(Build.ArtifactStagingDirectory)/docker-frontend
-              cp -r $(Pipeline.Workspace)/frontend-artifact/* $(Build.ArtifactStagingDirectory)/docker-frontend/
+              cp -r $(frontendDir)/build/* $(Build.ArtifactStagingDirectory)/docker-frontend/
               
               # Create Dockerfile if it doesn't exist
               cat > $(Build.ArtifactStagingDirectory)/docker-frontend/Dockerfile << 'EOF'
@@ -133,24 +115,16 @@ stages:
               docker save tutorconnect-frontend:latest -o tutorconnect-frontend-image.tar
             displayName: 'Build Frontend Docker Image'
           - task: PublishBuildArtifacts@1
+            displayName: 'Publish Frontend Docker Image'
             inputs:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)/docker-frontend/tutorconnect-frontend-image.tar'
               ArtifactName: 'frontend-docker-image'
               publishLocation: 'Container'
-
-  - stage: Verify
-    displayName: Verify Application
-    dependsOn: Docker
-    condition: succeeded()
-    jobs:
-      - job: VerifyBuild
-        displayName: Verify Build Artifacts
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
+              
+          # Verification
           - script: |
-              echo "Verifying build artifacts..."
+              echo "Verifying build results..."
               echo "Backend JAR file exists in artifacts"
               echo "Frontend build files exist in artifacts"
               echo "Docker images were created successfully"
-            displayName: 'Verify Artifacts'
+            displayName: 'Verify Build Results'
