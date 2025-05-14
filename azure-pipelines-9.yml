@@ -12,13 +12,9 @@ trigger:
       - 'pom.xml'
       - 'azure-pipelines-backend.yml'
 
-# Option 1: Microsoft-hosted agent (requires parallelism grant)
-# pool:
-#   vmImage: 'ubuntu-latest'
-
-# Option 2: Self-hosted agent pool (if you set one up)
-pool: 
-  name: 'Default'  # Replace with your self-hosted agent pool name
+# Use Microsoft-hosted agent (recommended for initial setup)
+pool:
+  vmImage: 'ubuntu-latest'
 
 variables:
   JAVA_VERSION: '17'
