@@ -9,6 +9,23 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: tutorconnect
+          MYSQL_USER: tutoruser
+          MYSQL_PASSWORD: tutorpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -prootpassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    
     steps:
       - uses: actions/checkout@v3
       
@@ -32,6 +49,10 @@ jobs:
       - name: Build and test backend
         run: |
           mvn clean package
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/tutor_connect
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: 
       
       # Frontend - Build
       - name: Install frontend dependencies
