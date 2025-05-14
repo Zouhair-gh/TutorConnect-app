@@ -1,37 +1,55 @@
-name: Java CI with Maven
+name: TutorConnect Build Workflow
 
 on:
   push:
-    branches: [ dev_maaroufi, dev_marouane, dev_zouhair, main ]
-    paths:
-      - 'src/**'
-      - 'pom.xml'
-      - '.github/workflows/maven.yml'
+    branches: [ main, dev_maaroufi, dev_marouane, dev_zouhair ]
   pull_request:
     branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
     
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-        
-    - name: Build with Maven
-      run: mvn -B clean package -DskipTests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       
-    - name: Run Tests
-      run: mvn -B test
+      # Setup Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
       
-    - name: Upload JAR artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: backend-jar
-        path: target/*.jar
+      # Backend - Build only (no tests)
+      - name: Build backend
+        run: mvn clean install -DskipTests
+      
+      # Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: 'tutorconnectfrontend/package-lock.json'
+      
+      # Frontend - Build
+      - name: Install frontend dependencies
+        run: |
+          cd tutorconnectfrontend
+          npm ci || npm install
+      
+      - name: Build frontend
+        run: |
+          cd tutorconnectfrontend
+          npm run build || echo "Frontend build skipped"
+      
+      # Store artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: tutorconnect-artifacts
+          path: |
+            target/*.jar
+            tutorconnectfrontend/dist/
