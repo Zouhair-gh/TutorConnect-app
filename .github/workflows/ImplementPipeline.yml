@@ -55,7 +55,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd tutorconnectfrontend
-          npm ci
+          npm install
           npm install react-router-dom axios
       
       - name: Build production bundle
