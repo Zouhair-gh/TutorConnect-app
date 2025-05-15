@@ -55,10 +55,10 @@ jobs:
       - name: Install dependencies
         run: |
           cd tutorconnectfrontend
-          npm install
+          npm ci
           npm install react-router-dom axios
       
-      - name: Build production bundle (ignore ESLint warnings)
+      - name: Build production bundle
         run: CI=false npm run build
         working-directory: tutorconnectfrontend
         env:
@@ -74,6 +74,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      
       - name: Build backend image
         run: docker build -t backend .
       
@@ -85,30 +92,41 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-build-verify
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Install Docker Compose
-      run: |
-        sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        docker-compose --version
-    
-    - name: Start containers
-      run: docker-compose up -d --build
-    
-    - name: Wait for containers to be ready
-      run: sleep 30
-    
-    - name: Check running containers
-      run: docker-compose ps
-    
-    - name: Check backend logs
-      run: docker-compose logs backend
-    
-    - name: Verify backend health
-      run: |
-        curl -f http://localhost:8080/actuator/health || (docker-compose logs && exit 1)
-    
-    - name: Stop containers
-      run: docker-compose down
-      if: always()
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Compose
+        uses: docker/setup-buildx-action@v2
+        with:
+          install-compose: true
+      
+      - name: Start containers
+        run: docker-compose up -d --build
+      
+      - name: Wait for containers to be ready
+        run: |
+          timeout 180 bash -c 'until docker-compose ps | grep "healthy"; do sleep 10; done'
+      
+      - name: Check running containers
+        run: docker-compose ps
+      
+      - name: Verify backend health
+        run: |
+          curl --retry 5 --retry-delay 10 --retry-connrefused -f http://localhost:8080/actuator/health
+      
+      - name: Collect logs if failed
+        if: failure()
+        run: |
+          docker-compose logs --no-color > docker-compose.logs
+          echo "=== Service status ==="
+          docker-compose ps -a
+      
+      - name: Upload logs artifact
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-compose-logs
+          path: docker-compose.logs
+      
+      - name: Stop containers
+        if: always()
+        run: docker-compose down -v --remove-orphans
