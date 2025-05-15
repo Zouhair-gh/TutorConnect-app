@@ -1,3 +1,4 @@
+
 name: CI Pipeline
 on:
   push:
@@ -52,9 +53,7 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: |
-          npm install
-          npm install react-router-dom --save
+        run: npm install
         working-directory: tutorconnectfrontend
       
       - name: Run tests
