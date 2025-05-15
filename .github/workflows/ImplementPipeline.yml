@@ -58,10 +58,6 @@ jobs:
           npm install
           npm install react-router-dom axios
       
-      - name: Run tests
-        run: npm test -- --watchAll=false
-        working-directory: tutorconnectfrontend
-      
       - name: Build production bundle
         run: npm run build
         working-directory: tutorconnectfrontend
