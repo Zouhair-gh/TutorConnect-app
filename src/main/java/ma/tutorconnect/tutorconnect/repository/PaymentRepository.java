@@ -9,10 +9,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT COUNT(pay) FROM Payment pay")
     long countPayments();
 
-
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.participant.id = :participantId AND p.status = 'Paid'")
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.participant.id = :participantId AND p.paid = 'Paid'")
     double sumPaidByParticipantId(@Param("participantId") Long participantId);
 
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.participant.id = :participantId AND p.status <> 'Paid'")
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.participant.id = :participantId AND p.paid <> 'Paid'")
     double sumUnpaidByParticipantId(@Param("participantId") Long participantId);
 }

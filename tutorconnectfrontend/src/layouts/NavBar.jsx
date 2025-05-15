@@ -1,20 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../api/AuthService';
+import NotificationComponent from '../components/Notification/NotificationComponent';
+import { useAuth } from '../api/AuthContext';
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const { currentUser } = useAuth(); // Get current user from auth context
 
     const handleLogout = async () => {
         try {
-
             await AuthService.logout();
-
-
             navigate('/login');
         } catch (error) {
             console.error('Logout failed:', error);
-
             navigate('/login');
         }
     };
@@ -53,7 +52,12 @@ const Navbar = () => {
                                         </div>
                                     </li>
 
-                                    {/* Other menu items - unchanged */}
+                                    {/* Add Notification Component Here */}
+
+                                        <li className="nav-item nav-icon">
+                                            <NotificationComponent />
+                                        </li>
+
 
                                     {/* User profile dropdown */}
                                     <li className="nav-item nav-icon dropdown caption-content">
@@ -68,8 +72,8 @@ const Navbar = () => {
                                                         <img src="../assets/images/user/1.png" alt="profile-img" className="rounded profile-img img-fluid avatar-70" />
                                                     </div>
                                                     <div className="p-3">
-                                                        <h5 className="mb-1">JoanDuo@property.com</h5>
-                                                        <p className="mb-0">Since 10 march, 2020</p>
+                                                        <h5 className="mb-1">{currentUser?.email || 'User'}</h5>
+                                                        <p className="mb-0">Since {new Date().toLocaleDateString()}</p>
                                                         <div className="d-flex align-items-center justify-content-center mt-3">
                                                             <a href="../app/user-profile.html" className="btn border mr-2">Profile</a>
                                                             <button onClick={handleLogout} className="btn border">Sign Out</button>

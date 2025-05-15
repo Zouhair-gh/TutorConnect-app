@@ -16,9 +16,9 @@ public class ParticipantDashboardController {
         this.dashboardService = dashboardService;
     }
 
-    @GetMapping("/{participantId}/dashboard-summary")
+   /* @GetMapping("/{participantId}/dashboard-summary")
     public ResponseEntity<ParticipantDashboardDTO> getDashboardSummary(@PathVariable Long participantId) {
         ParticipantDashboardDTO summary = dashboardService.getDashboardSummary(participantId);
         return ResponseEntity.ok(summary);
-    }
+    } */
 }

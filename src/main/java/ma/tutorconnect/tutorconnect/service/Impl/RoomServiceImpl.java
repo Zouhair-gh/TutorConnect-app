@@ -4,14 +4,15 @@ import ma.tutorconnect.tutorconnect.dto.*;
 import ma.tutorconnect.tutorconnect.entity.*;
 import ma.tutorconnect.tutorconnect.enums.DemandStatus;
 import ma.tutorconnect.tutorconnect.repository.*;
+import ma.tutorconnect.tutorconnect.service.NotificationService;
 import ma.tutorconnect.tutorconnect.service.RoomService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,13 +21,16 @@ public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
     private final TutorRepository tutorRepository;
     private final DemandRepository demandRepository;
+    private final NotificationService notificationService;
 
     public RoomServiceImpl(RoomRepository roomRepository,
                            TutorRepository tutorRepository,
-                           DemandRepository demandRepository) {
+                           DemandRepository demandRepository,
+                           NotificationService notificationService) {
         this.roomRepository = roomRepository;
         this.tutorRepository = tutorRepository;
         this.demandRepository = demandRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -37,11 +41,9 @@ public class RoomServiceImpl implements RoomService {
         room.setStartDate(createRoomDto.getStartDate());
         room.setEndDate(createRoomDto.getEndDate());
         room.setAmount(createRoomDto.getAmount());
-
         Tutor tutor = tutorRepository.findById(createRoomDto.getTutorId())
                 .orElseThrow(() -> new RuntimeException("Tutor not found with id: " + createRoomDto.getTutorId()));
         room.setTutor(tutor);
-
         return roomRepository.save(room);
     }
 
@@ -49,19 +51,16 @@ public class RoomServiceImpl implements RoomService {
     public Room updateRoom(Long id, Room updatedRoom) {
         Room existingRoom = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Room not found with id: " + id));
-
         existingRoom.setName(updatedRoom.getName());
         existingRoom.setCapacity(updatedRoom.getCapacity());
         existingRoom.setStartDate(updatedRoom.getStartDate());
         existingRoom.setEndDate(updatedRoom.getEndDate());
         existingRoom.setAmount(updatedRoom.getAmount());
-
         if (updatedRoom.getTutor() != null) {
             Tutor tutor = tutorRepository.findById(updatedRoom.getTutor().getId())
                     .orElseThrow(() -> new RuntimeException("Tutor not found"));
             existingRoom.setTutor(tutor);
         }
-
         return roomRepository.save(existingRoom);
     }
 
@@ -96,7 +95,6 @@ public class RoomServiceImpl implements RoomService {
     public RoomWithParticipantsDTO getRoomWithParticipants(Long id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Room not found with id: " + id));
-
         List<ParticipantDTO> participants = room.getParticipants().stream()
                 .map(p -> new ParticipantDTO(
                         p.getId(),
@@ -104,7 +102,6 @@ public class RoomServiceImpl implements RoomService {
                         p.getLastName(),
                         p.getEmail()))
                 .collect(Collectors.toList());
-
         CreateRoomDto roomDto = new CreateRoomDto(
                 room.getId(),
                 room.getName(),
@@ -114,9 +111,9 @@ public class RoomServiceImpl implements RoomService {
                 room.getAmount(),
                 room.getTutor() != null ? room.getTutor().getId() : null
         );
-
         return new RoomWithParticipantsDTO(roomDto, participants);
     }
+
     @Override
     public ResponseEntity<?> requestRoomCreation(DemandRoomDto demandRoomDto) {
         Demand demand = new Demand();
@@ -126,9 +123,7 @@ public class RoomServiceImpl implements RoomService {
         demand.setMessage(buildRoomRequestMessage(demandRoomDto));
         demand.setStatus(DemandStatus.PENDING);
         demand.setDemandType("ROOM_CREATION");
-
         demandRepository.save(demand);
-
         return ResponseEntity.ok("Room creation request submitted successfully");
     }
 
@@ -138,6 +133,7 @@ public class RoomServiceImpl implements RoomService {
                 .orElseThrow(() -> new RuntimeException("Room not found with id: " + roomId));
 
         long daysRemaining = calculateDaysRemaining(room.getEndDate());
+
         if (daysRemaining > 5) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Renewal can only be requested when 5, 2, or 1 day remains");
@@ -151,8 +147,18 @@ public class RoomServiceImpl implements RoomService {
         demand.setStatus(DemandStatus.PENDING);
         demand.setDemandType("ROOM_RENEWAL");
         demand.setProcessedAt(null);
-
         demandRepository.save(demand);
+
+        // Corrected notification creation - add recipientId as first parameter
+        NotificationDto notification = new NotificationDto(
+                room.getTutor().getId(),  // recipientId
+                "Room Renewal Requested",  // title
+                String.format("Room '%s' renewal requested (ends in %d days)",
+                        room.getName(), daysRemaining),  // message
+                "ROOM_RENEWAL"  // type
+        );
+
+        notificationService.sendNotification(room.getTutor().getId(), notification);
 
         return ResponseEntity.ok("Room renewal request submitted successfully");
     }
@@ -166,7 +172,7 @@ public class RoomServiceImpl implements RoomService {
     private long calculateDaysRemaining(Date endDate) {
         LocalDate end = endDate.toLocalDate();
         LocalDate now = LocalDate.now();
-        return java.time.temporal.ChronoUnit.DAYS.between(now, end);
+        return ChronoUnit.DAYS.between(now, end);
     }
 
     private String buildRoomRequestMessage(DemandRoomDto demandRoomDto) {

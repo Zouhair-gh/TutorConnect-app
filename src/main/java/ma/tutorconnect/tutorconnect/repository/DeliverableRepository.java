@@ -20,8 +20,8 @@ public interface DeliverableRepository extends JpaRepository<Deliverable, Long> 
     @Query("SELECT COUNT(d) FROM Deliverable d WHERE d.participant.id = :participantId")
     long countAllByParticipantId(@Param("participantId") Long participantId);
 
-    @Query("SELECT COUNT(d) FROM Deliverable d WHERE d.participant.id = :participantId AND d.completed = true")
-    long countCompletedByParticipantId(@Param("participantId") Long participantId);
+    /* @Query("SELECT COUNT(d) FROM Deliverable d WHERE d.participant.id = :participantId AND d.completed = true")
+    long countCompletedByParticipantId(@Param("participantId") Long participantId); */
 
 
 
