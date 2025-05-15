@@ -22,19 +22,19 @@ public class ParticipantDashboardService {
     private PaymentRepository paymentRepository;
 
     @Autowired
-    private ParticipantRepository participantRepository;  // To fetch participant entity (optional)
+    private ParticipantRepository participantRepository;
 
-    public ParticipantDashboardDTO getDashboardSummary(Long participantId) {
+   /* public ParticipantDashboardDTO getDashboardSummary(Long participantId) {
         Participant participant = participantRepository.findById(participantId)
                 .orElseThrow(() -> new RuntimeException("Participant not found"));
 
         long roomCount = roomRepository.findRoomsByParticipant(participant).size();
         long totalAssignments = deliverableRepository.countAllByParticipantId(participantId);
-        long completedAssignments = deliverableRepository.countCompletedByParticipantId(participantId);
+      //  long completedAssignments = deliverableRepository.countCompletedByParticipantId(participantId);
         double totalPaid = paymentRepository.sumPaidByParticipantId(participantId);
         double totalUnpaid = paymentRepository.sumUnpaidByParticipantId(participantId);
 
         return new ParticipantDashboardDTO(roomCount, totalAssignments, completedAssignments, totalPaid, totalUnpaid);
-    }
+    } */
 }
 
