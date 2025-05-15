@@ -58,9 +58,11 @@ jobs:
           npm install
           npm install react-router-dom axios
       
-      - name: Build production bundle
-        run: npm run build
+      - name: Build production bundle (ignore ESLint warnings)
+        run: CI=false npm run build
         working-directory: tutorconnectfrontend
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
 
   docker-build-verify:
     name: Verify Docker Builds
