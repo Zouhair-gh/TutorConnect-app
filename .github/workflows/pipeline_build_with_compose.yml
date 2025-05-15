@@ -83,28 +83,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      # Add Docker Compose setup
-      - name: Setup Docker Compose
-        uses: ndeloof/setup-docker-compose@v1
-        with:
-          version: v2.25.0
+      # Install Docker Compose v2
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose-plugin
+          docker compose version
       
       - name: Start containers
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
       
       - name: Wait for containers to be ready
         run: sleep 30
       
       - name: Check running containers
-        run: docker-compose ps
+        run: docker compose ps
       
       - name: Check backend logs
-        run: docker-compose logs backend
+        run: docker compose logs backend
       
       - name: Verify backend health
         run: |
-          curl -f http://localhost:8080/actuator/health || (docker-compose logs && exit 1)
+          curl -f http://localhost:8080/actuator/health || (docker compose logs && exit 1)
       
       - name: Stop containers
-        run: docker-compose down
+        run: docker compose down
         if: always()
