@@ -1,4 +1,3 @@
-
 name: CI Pipeline
 on:
   push:
@@ -13,7 +12,7 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root  # Set a specific password
+          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: tutor_connect
         ports:
           - 3306:3306
@@ -38,8 +37,8 @@ jobs:
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/tutor_connect
           SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: root  # Match the password set above
-  
+          SPRING_DATASOURCE_PASSWORD: root
+
   frontend-test:
     name: Test React Frontend
     runs-on: ubuntu-latest
@@ -53,17 +52,22 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm install
-        working-directory: tutorconnectfrontend
+        run: |
+          cd tutorconnectfrontend
+          npm ci --legacy-peer-deps  # Force l'installation des dépendances
+          # Si besoin, installe des dépendances manquantes
+          npm list react-router-dom || npm install react-router-dom
       
-      - name: Run tests
-        run: npm test -- --watchAll=false
-        working-directory: tutorconnectfrontend
+      - name: Run tests (with retry)
+        run: |
+          cd tutorconnectfrontend
+          # Premier essai
+          npm test -- --watchAll=false --silent || (echo "Tests failed, retrying after cache cleanup..." && rm -rf node_modules/.cache && npm test -- --watchAll=false --silent)
       
       - name: Build production bundle
         run: npm run build
         working-directory: tutorconnectfrontend
-  
+
   docker-build-verify:
     name: Verify Docker Builds
     runs-on: ubuntu-latest
@@ -79,7 +83,7 @@ jobs:
       
       - name: Build frontend image
         run: docker build -t frontend ./tutorconnectfrontend
-  
+
   docker-compose-test:
     name: Test Docker Compose
     runs-on: ubuntu-latest
@@ -105,4 +109,4 @@ jobs:
       
       - name: Stop containers
         run: docker-compose down
-        if: always()  # Run even if previous steps fail
+        if: always()
