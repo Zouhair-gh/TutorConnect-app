@@ -13,7 +13,7 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root  # Set a specific password
+          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: tutor_connect
         ports:
           - 3306:3306
@@ -38,10 +38,10 @@ jobs:
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/tutor_connect
           SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: root  # Match the password set above
+          SPRING_DATASOURCE_PASSWORD: root
 
-  frontend-test:
-    name: Test React Frontend
+  frontend-build:
+    name: Build React Frontend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -52,10 +52,10 @@ jobs:
           node-version: '18'
           cache: 'npm'
       
-      - name: Install all dependencies
+      - name: Install dependencies
         run: |
           cd tutorconnectfrontend
-          npm install
+          npm ci
           npm install react-router-dom axios
       
       - name: Build production bundle
@@ -65,7 +65,7 @@ jobs:
   docker-build-verify:
     name: Verify Docker Builds
     runs-on: ubuntu-latest
-    needs: [backend-test, frontend-test]
+    needs: [backend-test, frontend-build]
     steps:
       - uses: actions/checkout@v3
       
@@ -103,4 +103,4 @@ jobs:
       
       - name: Stop containers
         run: docker-compose down
-        if: always()  # Run even if previous steps fail
+        if: always()
