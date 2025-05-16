@@ -394,7 +394,7 @@ function App() {
                         }
                     />
                     <Route
-                        path="/admin/rooms/create"
+                        path="/rooms/create"
                         element={
                             <ProtectedAdminRoute>
                                 <AddRoom />
