@@ -1,7 +1,7 @@
 services:
   backend:
     build:
-      context: ./TutorConnect-app
+      context: .
     ports:
       - "8080:8080"
     environment:
@@ -11,7 +11,6 @@ services:
       MYSQL_PASSWORD: pass
     depends_on:
       - mysql
-
   frontend:
     build:
       context: ./tutorconnectfrontend
@@ -19,14 +18,11 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: tutor_connect
-      MYSQL_USER: root
-      MYSQL_PASSWORD: pass
     ports:
       - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
