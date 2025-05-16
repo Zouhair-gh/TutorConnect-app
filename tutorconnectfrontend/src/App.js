@@ -636,7 +636,7 @@ function App() {
                         }
                     />
                     <Route
-                        path="/participant/rooms/:roomId/sessions"
+                        path="/participant/roomsa/:roomId/sessions"
                         element={
                             <ProtectedParticipantRoute>
                                 <SessionManagement />
