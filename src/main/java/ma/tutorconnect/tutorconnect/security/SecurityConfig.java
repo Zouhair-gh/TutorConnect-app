@@ -35,6 +35,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/login", "/api/register", "/api/logout").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         //  permissions for room endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/tutors/all").hasRole("ADMIN")
+                        .requestMatchers("/api/tutors").hasRole("ADMIN")
+
                         .requestMatchers("/api/rooms/create", "/api/rooms/all").hasRole("ADMIN")
                         .requestMatchers("/api/rooms/my-rooms").hasRole("TUTOR")
                         .requestMatchers("/api/rooms/request-room").hasRole("TUTOR")
@@ -45,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/participants/my-rooms").hasRole("PARTICIPANT")
                         .requestMatchers(HttpMethod.GET, "/api/rooms/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/tickets").hasRole("TUTOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/demands/**").hasRole("ADMIN")
                         .requestMatchers("/api/demands").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/tickets").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/tickets/*/status").hasAnyRole("STAFF", "ADMIN")

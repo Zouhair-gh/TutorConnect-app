@@ -31,20 +31,23 @@ const DemandsList = () => {
     }
   };
 
-  const handleStatusChange = async (id, newStatus) => {
-    try {
-      const statusUpdate = { status: newStatus };
-      await axiosClient.put(`/demands/${id}/status`, statusUpdate);
+    const handleStatusChange = async (id, newStatus) => {
+        try {
+            const statusUpdate = { status: newStatus };
+            const response = await axiosClient.put(`/demands/${id}/status`, statusUpdate);
 
-      setError(`Demand successfully ${newStatus.toLowerCase()}`);
-      setTimeout(() => setError(""), 3000);
+            // Handle success
+        } catch (err) {
+            console.error("Detailed error:", {
+                status: err.response?.status,
+                data: err.response?.data,
+                message: err.message
+            });
 
-      fetchDemands();
-    } catch (err) {
-      console.error("Error updating demand status:", err);
-      setError("Failed to update status. Please try again.");
-    }
-  };
+            setError(err.response?.data?.message ||
+                `Failed to update status: ${err.response?.status || 'Network error'}`);
+        }
+    };
 
   const processApprovedDemand = async (demand) => {
     try {
@@ -366,20 +369,11 @@ const DemandsList = () => {
                                         {/* Action buttons based on current status */}
                                         {activeTab === "PENDING" && (
                                             <>
-                                              <button
-                                                  onClick={() =>
-                                                      handleStatusChange(
-                                                          demand,
-                                                          "APPROVED"
-                                                      )
-                                                  }
-                                                  className="btn btn-sm btn-outline-success me-2"
-                                                  title="Approve"
-                                              >
-                                                <i className="ri-check-line"></i>
-                                              </button>
-                                              <button
-                                                  onClick={() =>
+                                                <button onClick={() => handleStatusChange(demand.id, "APPROVED")}>
+                                                    <i className="ri-check-line"></i>
+                                                </button>
+                                                <button
+                                                    onClick={() =>
                                                       handleStatusChange(
                                                           demand,
                                                           "REJECTED"

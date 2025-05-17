@@ -4,6 +4,7 @@ import axiosClient from "../api/axiosClient";
 import SideBar from "../layouts/SideBars/SideBar";
 import Navbar from "../layouts/NavBar";
 import Footer from "../layouts/footer";
+import AdminSideBar from "../layouts/SideBars/AdminSideBar";
 
 const EditRoom = () => {
   const { id } = useParams();
@@ -30,31 +31,31 @@ const EditRoom = () => {
       try {
         setLoading(true);
         const response = await axiosClient.get(`/rooms/${id}`);
-        const roomData = response.data;
+        const roomData = response.data.room; // Access the nested room object
 
-        // Format dates as YYYY-MM-DD for input fields
-        const formattedStartDate = new Date(roomData.startDate)
-          .toISOString()
-          .split("T")[0];
-        const formattedEndDate = new Date(roomData.endDate)
-          .toISOString()
-          .split("T")[0];
+        console.log("Room data:", roomData); // Verify the structure
 
         setFormData({
-          name: roomData.name,
-          capacity: roomData.capacity,
-          amount: roomData.amount,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate,
+          name: roomData.name || '',
+          capacity: roomData.capacity?.toString() || '',
+          amount: roomData.amount?.toString() || '',
+          startDate: roomData.startDate ?
+              new Date(roomData.startDate).toISOString().split('T')[0] : '',
+          endDate: roomData.endDate ?
+              new Date(roomData.endDate).toISOString().split('T')[0] : ''
         });
+
       } catch (err) {
+        console.error("Error details:", {
+          status: err.response?.status,
+          data: err.response?.data,
+          error: err.message
+        });
         setError("Failed to fetch room details");
-        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRoom();
   }, [id]);
 
@@ -102,7 +103,14 @@ const EditRoom = () => {
     setIsSubmitting(true);
 
     try {
-      if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      const startDate = new Date(formData.startDate);
+      const endDate = new Date(formData.endDate);
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        throw new Error("Invalid date values");
+      }
+
+      if (endDate < startDate) {
         throw new Error("La date de fin doit être après la date de début");
       }
 
@@ -110,13 +118,13 @@ const EditRoom = () => {
         ...formData,
         capacity: parseInt(formData.capacity),
         amount: parseInt(formData.amount),
-        startDate: new Date(formData.startDate).toISOString().split("T")[0],
-        endDate: new Date(formData.endDate).toISOString().split("T")[0],
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
       };
 
       await axiosClient.put(`/rooms/${id}`, payload);
       setSuccess("Salle mise à jour avec succès");
-      setTimeout(() => navigate("/rooms"), 1500);
+      setTimeout(() => navigate("/admin/rooms"), 1500);
     } catch (err) {
       if (err.response?.status === 400) {
         const errors = err.response.data
@@ -132,7 +140,9 @@ const EditRoom = () => {
       setIsSubmitting(false);
     }
   };
-
+  useEffect(() => {
+    console.log("Current formData:", formData);
+  }, [formData]);
   const dateInputStyle = {
     cursor: "pointer",
     padding: "10px",
@@ -148,7 +158,7 @@ const EditRoom = () => {
 
   return (
     <>
-      <SideBar />
+      <AdminSideBar />
       <Navbar />
       <div className="wrapper">
         <div className="content-page">
@@ -166,48 +176,48 @@ const EditRoom = () => {
                       Name
                     </label>
                     <input
-                      type="text"
-                      className="form-control"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      maxLength={255}
+                        type="text"
+                        className="form-control"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        maxLength={255}
                     />
                   </div>
                 </div>
 
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label htmlFor="capacity" className="form-label">
+                  <label htmlFor="capacity" className="form-label">
                       Capacity
                     </label>
                     <input
-                      type="number"
-                      className="form-control"
-                      id="capacity"
-                      name="capacity"
-                      value={formData.capacity}
-                      onChange={handleChange}
-                      required
-                      min="1"
+                        type="number"
+                        className="form-control"
+                        id="capacity"
+                        name="capacity"
+                        value={formData.capacity}
+                        onChange={handleChange}
+                        required
+                        min="1"
                     />
                   </div>
 
                   <div className="col-md-6 mb-3">
                     <label htmlFor="amount" className="form-label">
-                      Amount
+                    Amount
                     </label>
                     <div className="input-group">
                       <input
-                        readOnly
-                        type="number"
-                        className="form-control"
-                        id="amount"
-                        name="amount"
-                        value={formData.amount}
-                        min="0"
+                          readOnly
+                          type="number"
+                          className="form-control"
+                          id="amount"
+                          name="amount"
+                          value={formData.amount}
+                          min="0"
                       />
                     </div>
                     <small className="text-muted">
@@ -226,15 +236,15 @@ const EditRoom = () => {
                         <i className="fas fa-calendar"></i>
                       </span>
                       <input
-                        type="date"
-                        className="form-control"
-                        id="startDate"
-                        name="startDate"
-                        value={formData.startDate}
-                        onChange={handleChange}
-                        required
-                        min={today}
-                        style={dateInputStyle}
+                          type="date"
+                          className="form-control"
+                          id="startDate"
+                          name="startDate"
+                          value={formData.startDate}
+                          onChange={handleChange}
+                          required
+                          min={today}
+                          style={dateInputStyle}
                       />
                     </div>
                     <small className="text-muted">
@@ -251,15 +261,15 @@ const EditRoom = () => {
                         <i className="fas fa-calendar"></i>
                       </span>
                       <input
-                        type="date"
-                        className="form-control"
-                        id="endDate"
-                        name="endDate"
-                        value={formData.endDate}
-                        onChange={handleChange}
-                        required
-                        min={formData.startDate || today}
-                        style={dateInputStyle}
+                          type="date"
+                          className="form-control"
+                          id="endDate"
+                          name="endDate"
+                          value={formData.endDate}
+                          onChange={handleChange}
+                          required
+                          min={formData.startDate || today}
+                          style={dateInputStyle}
                       />
                     </div>
                     <small className="text-muted">
@@ -270,7 +280,7 @@ const EditRoom = () => {
 
                 <div className="mt-4">
                   <button
-                    type="submit"
+                      type="submit"
                     className="btn btn-primary"
                     disabled={isSubmitting}
                   >

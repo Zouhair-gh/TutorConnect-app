@@ -1,8 +1,10 @@
 package ma.tutorconnect.tutorconnect.controller;
 
-import ma.tutorconnect.tutorconnect.dto.DemandDto;
+import ma.tutorconnect.tutorconnect.dto.*;
 import ma.tutorconnect.tutorconnect.enums.DemandStatus;
 import ma.tutorconnect.tutorconnect.service.DemandService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,18 @@ public class DemandController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping("/room")
+    public ResponseEntity<DemandDto.Response> createRoomDemand(@RequestBody DemandRoomDto request) {
+        DemandDto.Response response = demandService.createRoomDemand(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/tutor-account")
+    public ResponseEntity<DemandDto.Response> createTutorAccountDemand(@RequestBody DemandDto.Request request) {
+        DemandDto.Response response = demandService.createTutorAccountDemand(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DemandDto.Response> getDemand(@PathVariable Long id) {
         DemandDto.Response response = demandService.getDemandById(id);
@@ -44,11 +58,16 @@ public class DemandController {
         List<DemandDto.Response> demands = demandService.getDemandsByStatus(status);
         return ResponseEntity.ok(demands);
     }
-    // to approve or reject
+
     @PutMapping("/{id}/status")
     public ResponseEntity<DemandDto.Response> updateDemandStatus(
             @PathVariable Long id,
             @RequestBody DemandDto.StatusUpdate statusUpdate) {
+
+       LoggerFactory.getLogger(DemandController.class);
+        System.out.println("Received status update request for ID: " + id);
+        System.out.println("New status: " + statusUpdate.getStatus());
+
         DemandDto.Response response = demandService.updateDemandStatus(id, statusUpdate);
         return ResponseEntity.ok(response);
     }
@@ -58,6 +77,4 @@ public class DemandController {
         demandService.deleteDemand(id);
         return ResponseEntity.noContent().build();
     }
-
-
 }

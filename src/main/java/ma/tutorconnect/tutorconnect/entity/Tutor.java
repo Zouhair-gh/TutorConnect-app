@@ -19,6 +19,8 @@ public class Tutor extends User {
     @OneToMany(mappedBy = "tutor")
     private List<Deliverable> deliverables;
 
+
+
     public List<Deliverable> getDeliverables() {
         return deliverables;
     }
