@@ -13,7 +13,7 @@ const AddRoom = () => {
     capacity: "",
     startDate: "",
     endDate: "",
-    tutorId: "" // Added tutorId field
+    tutorId: ""
   });
 
   const [error, setError] = useState("");
@@ -25,7 +25,7 @@ const AddRoom = () => {
   useEffect(() => {
     const fetchTutors = async () => {
       try {
-        const response = await axiosClient.get("/users/tutors");
+        const response = await axiosClient.get("/tutors/all");
         setTutors(response.data);
       } catch (err) {
         console.error("Failed to fetch tutors", err);

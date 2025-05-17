@@ -23,8 +23,7 @@ import {
 } from "react-bootstrap";
 import axiosClient from "../../api/axiosClient";
 import ParticipantSessionCalendar from "./ParticipantSessionCalendar";
-import NavBar from "../../layouts/NavBar";
-import ParticipantSideBar from "../../layouts/SideBars/ParticipantSidebar";
+
 
 const ParticipantSessionsList = () => {
     const { roomId } = useParams();
@@ -42,7 +41,7 @@ const ParticipantSessionsList = () => {
         const fetchSessions = async () => {
             try {
                 setLoading(true);
-                const response = await axiosClient.get(`/api/sessions/room/${roomId}`);
+                const response = await axiosClient.get(`/sessions/room/${roomId}`);
                 setSessions(response.data);
             } catch (error) {
                 console.error("Error fetching sessions:", error);
@@ -126,8 +125,7 @@ const ParticipantSessionsList = () => {
 
     return (
         <>
-            <NavBar />
-            <ParticipantSideBar />
+
 
             <div className="wrapper">
                 <div className="content-page">
