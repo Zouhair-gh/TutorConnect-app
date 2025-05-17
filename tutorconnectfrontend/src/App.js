@@ -394,7 +394,8 @@ function App() {
                         }
                     />
                     <Route
-                        path="/rooms/create"
+
+                        path="/admin/rooms/create"
                         element={
                             <ProtectedAdminRoute>
                                 <AddRoom />
@@ -636,7 +637,8 @@ function App() {
                         }
                     />
                     <Route
-                        path="/participant/roomsa/:roomId/sessions"
+
+                        path="/participant/rooms/:roomId/sessions"
                         element={
                             <ProtectedParticipantRoute>
                                 <SessionManagement />
