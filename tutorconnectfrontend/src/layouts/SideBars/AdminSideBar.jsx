@@ -7,7 +7,7 @@ const AdminSideBar = () => {
     return (
         <BaseSideBar>
             <li className="active">
-                <a href="" className="svg-icon">
+                <a href="/admin/dashboard" className="svg-icon">
                     <svg
                         className="svg-icon"
                         id="p-dash1"
@@ -81,7 +81,7 @@ const AdminSideBar = () => {
                         </a>
                     </li>
                     <li className="add-room">
-                        <a onClick={() => navigate("admin/rooms/create")}>
+                        <a onClick={() => navigate("/admin/rooms/create")}>
                             <i className="las la-plus"/>
                             <span>Add Room</span>
                         </a>
