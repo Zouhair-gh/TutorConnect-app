@@ -123,6 +123,10 @@ public class DemandServiceImpl implements DemandService {
     }
 
     private void renewRoom(Demand demand) {
+        if(demand.getRoomEndDate() == null) {
+            throw new IllegalStateException("Room end date is required for renewal");
+        }
+
         RoomRenewalRequestDto renewalDto = new RoomRenewalRequestDto();
         renewalDto.setRoomId(demand.getOriginalRoomId());
         renewalDto.setNewEndDate(demand.getRoomEndDate().toString());

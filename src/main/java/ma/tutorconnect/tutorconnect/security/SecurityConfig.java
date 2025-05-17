@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/rooms/*/participants/my-rooms").hasRole("PARTICIPANT")
                         .requestMatchers(HttpMethod.GET, "/api/rooms/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/tickets").hasRole("TUTOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/demands/**").hasRole("ADMIN")
                         .requestMatchers("/api/demands").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/tickets").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/tickets/*/status").hasAnyRole("STAFF", "ADMIN")

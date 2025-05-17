@@ -14,4 +14,5 @@ public interface DemandService {
     List<DemandDto.Response> getDemandsByStatus(DemandStatus status);
     DemandDto.Response updateDemandStatus(Long id, DemandDto.StatusUpdate statusUpdate);
     void deleteDemand(Long id);
+
 }

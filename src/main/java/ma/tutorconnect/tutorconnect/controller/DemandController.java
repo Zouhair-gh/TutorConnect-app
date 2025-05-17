@@ -3,6 +3,8 @@ package ma.tutorconnect.tutorconnect.controller;
 import ma.tutorconnect.tutorconnect.dto.*;
 import ma.tutorconnect.tutorconnect.enums.DemandStatus;
 import ma.tutorconnect.tutorconnect.service.DemandService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +63,11 @@ public class DemandController {
     public ResponseEntity<DemandDto.Response> updateDemandStatus(
             @PathVariable Long id,
             @RequestBody DemandDto.StatusUpdate statusUpdate) {
+
+       LoggerFactory.getLogger(DemandController.class);
+        System.out.println("Received status update request for ID: " + id);
+        System.out.println("New status: " + statusUpdate.getStatus());
+
         DemandDto.Response response = demandService.updateDemandStatus(id, statusUpdate);
         return ResponseEntity.ok(response);
     }
