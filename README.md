@@ -21,20 +21,20 @@ TutorConnect/
 ## Installation Backend (TutorConnect-app)
 
 ```bash
-git clone https://github.com/votre-utilisateur/TutorConnect.git
+git clone https://github.com/Zouhair-gh/TutorConnect-app.git
 cd TutorConnect/TutorConnect-app
 ```
 
-1️⃣ Créez la base de données `tutorconnect` sous MySQL :  
+1️⃣ Créez la base de données `tutor_connect` sous MySQL :  
 ```sql
-CREATE DATABASE tutorconnect;
+CREATE DATABASE tutor_connect;
 ```
 
 2️⃣ Configurez `src/main/resources/application.properties`  
 
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/tutorconnect
+spring.datasource.url=jdbc:mysql://localhost:3306/tutor_connect
 spring.datasource.username=root
 spring.datasource.password=mot_de_passe
 ```
