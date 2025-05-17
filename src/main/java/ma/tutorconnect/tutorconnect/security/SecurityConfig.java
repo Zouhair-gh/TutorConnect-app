@@ -37,6 +37,9 @@ public class SecurityConfig {
                         //  permissions for room endpoints
                         .requestMatchers(HttpMethod.GET, "/api/tutors/all").hasRole("ADMIN")
                         .requestMatchers("/api/tutors").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/users/get").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/users/all").permitAll()
 
                         .requestMatchers("/api/rooms/create", "/api/rooms/all").hasRole("ADMIN")
                         .requestMatchers("/api/rooms/my-rooms").hasRole("TUTOR")

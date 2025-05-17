@@ -2,6 +2,7 @@ package ma.tutorconnect.tutorconnect.controller;
 
 import ma.tutorconnect.tutorconnect.dto.CreateUserDto;
 import ma.tutorconnect.tutorconnect.dto.DashboardStatsDTO;
+import ma.tutorconnect.tutorconnect.dto.UserDto;
 import ma.tutorconnect.tutorconnect.entity.*;
 import ma.tutorconnect.tutorconnect.service.AdminService;
 import ma.tutorconnect.tutorconnect.service.UserService;
@@ -10,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/admin")
@@ -37,10 +40,38 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    @GetMapping("/users/all")
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            System.out.println("Fetching all users from AdminController");
+            List<User> users = adminService.getAllUsers();
+            System.out.println("Found " + users.size() + " users");
+
+            // Create a simpler DTO representation to avoid serialization issues
+            List<Map<String, Object>> simplifiedUsers = new ArrayList<>();
+            for (User user : users) {
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("id", user.getId());
+                userMap.put("firstName", user.getFirstName());
+                userMap.put("lastName", user.getLastName());
+                userMap.put("email", user.getEmail());
+                userMap.put("username", user.getUsername());
+                userMap.put("role", user.getRole());
+                simplifiedUsers.add(userMap);
+
+                System.out.println("Added user: " + user.getId() + ", " + user.getEmail());
+            }
+
+            return ResponseEntity.ok(simplifiedUsers);
+        } catch (Exception e) {
+            System.err.println("Error fetching users: " + e.getMessage());
+            e.printStackTrace();
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorResponse);
+        }
     }
 
     @GetMapping("/users/{id}")
@@ -73,7 +104,6 @@ public class AdminController {
         DashboardStatsDTO stats = adminService.getDashboardStats();
         return new ResponseEntity<>(stats, HttpStatus.OK);
     }
-
 
     @GetMapping("/tutors")
     public ResponseEntity<List<Tutor>> getAllTutors() {
