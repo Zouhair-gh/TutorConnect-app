@@ -61,7 +61,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/deliverables").hasAnyRole("TUTOR", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/deliverables/submit").hasRole("PARTICIPANT")
                         .requestMatchers(HttpMethod.DELETE, "/api/deliverables/**").hasRole("TUTOR")
-
+                        .requestMatchers(HttpMethod.POST, "/api/deliverables/grade").hasRole("TUTOR")                        // MODIFIEZ/COMPLÉTEZ LES PERMISSIONS DES LIVRABLES :
+                        .requestMatchers(HttpMethod.POST, "/api/deliverables/grade").hasRole("TUTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/deliverables/participant/*").hasAnyRole("PARTICIPANT", "TUTOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/deliverables/*/visibility").hasRole("TUTOR")
+                        .requestMatchers(HttpMethod.POST, "/api/deliverables/grade").permitAll()
+                        // AJOUTEZ CES NOUVELLES PERMISSIONS :
+                        .requestMatchers(HttpMethod.GET, "/api/deliverables/{id}/comments").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/deliverables/{id}/comments").authenticated()
                         // Video session endpoints permissions
                         .requestMatchers(HttpMethod.GET, "/api/sessions/*/video").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/video").hasAnyRole("TUTOR", "ADMIN")
