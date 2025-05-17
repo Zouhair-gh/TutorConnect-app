@@ -1,147 +1,161 @@
-import React, { useEffect, useState } from "react";
-import testimonial1 from "../assets/img/testimonial-1.jpg";
-import testimonial2 from "../assets/img/testimonial-2.jpg";
-import testimonial3 from "../assets/img/testimonial-3.jpg";
-import testimonial4 from "../assets/img/testimonial-4.jpg";
+import { useState, useEffect, useRef } from "react";
 
-// const Testimonials = () => {
-//     const testimonialsData = [
-//         { name: 'Customer Name', profession: 'Profession', review: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec pretium mi. Curabitur facilisis ornare velit non vulputate. Aliquam metus tortor, auctor id gravida condimentum, viverra quis sem. Curabitur non nisl nec nisi scelerisque maximus.', image: testimonial1 },
-//         { name: 'Customer Name', profession: 'Profession', review: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec pretium mi. Curabitur facilisis ornare velit non vulputate. Aliquam metus tortor, auctor id gravida condimentum, viverra quis sem. Curabitur non nisl nec nisi scelerisque maximus.', image: testimonial2 },
-//         { name: 'Customer Name', profession: 'Profession', review: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec pretium mi. Curabitur facilisis ornare velit non vulputate. Aliquam metus tortor, auctor id gravida condimentum, viverra quis sem. Curabitur non nisl nec nisi scelerisque maximus.', image: testimonial3 },
-//         { name: 'Customer Name', profession: 'Profession', review: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec pretium mi. Curabitur facilisis ornare velit non vulputate. Aliquam metus tortor, auctor id gravida condimentum, viverra quis sem. Curabitur non nisl nec nisi scelerisque maximus.', image: testimonial4 },
-//     ];
-
-//     return (
-//         <div className="testimonial">
-//             <div className="container">
-//                 <div className="section-header">
-//                     <h2>Clients Review</h2>
-//                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec pretium ornare velit non</p>
-//                 </div>
-//                 <div className="row">
-//                     <div className="col-12">
-//                         <div className="testimonial-slider-nav">
-//                             {testimonialsData.map((testimonial, index) => (
-//                                 <div key={index} className="slider-nav">
-//                                     <img src={testimonial.image} alt={`Testimonial ${index + 1}`} />
-//                                 </div>
-//                             ))}
-//                         </div>
-//                     </div>
-//                 </div>
-//                 <div className="row">
-//                     <div className="col-12">
-//                         <div className="testimonial-slider">
-//                             {testimonialsData.map((testimonial, index) => (
-//                                 <div key={index} className="slider-item">
-//                                     <h3>{testimonial.name}</h3>
-//                                     <h4>{testimonial.profession}</h4>
-//                                     <p>{testimonial.review}</p>
-//                                 </div>
-//                             ))}
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default Testimonials;
-
-//version 2 :
-import "../assets/landingpagestyle/testimonial.css"; // Import the CSS file
 const Testimonials = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
   const testimonials = [
     {
       id: 1,
       name: "Sarah Johnson",
-      role: "Web Development Student",
-      image: testimonial1,
-      text: "Tutor Connect has transformed my career path. The web development course was comprehensive and the instructor support was exceptional.",
+      position: "Web Developer",
+      image: "https://randomuser.me/api/portraits/women/44.jpg",
+      text: "Tutor Connect completely transformed my learning experience. The instructors are highly knowledgeable and the course content is exceptionally well-structured. I was able to land my dream job after completing their web development course!",
+      rating: 5
     },
     {
       id: 2,
       name: "Michael Chen",
-      role: "Graphic Design Professional",
-      image: testimonial2,
-      text: "I've taken several design courses and the quality of instruction is consistently outstanding. The platform is intuitive and engaging.",
+      position: "UI/UX Designer",
+      image: "https://randomuser.me/api/portraits/men/32.jpg",
+      text: "I've tried many online learning platforms, but Tutor Connect stands out with their personalized approach. The one-on-one sessions with my mentor helped me understand complex design principles and apply them effectively in my projects.",
+      rating: 5
     },
     {
       id: 3,
-      name: "Jessica Williams",
-      role: "SEO Specialist",
-      image: testimonial3,
-      text: "The SEO course provided practical knowledge that I immediately applied to my work. My clients are seeing real results thanks to what I learned.",
-    },
+      name: "Emily Rodriguez",
+      position: "Digital Marketer",
+      image: "https://randomuser.me/api/portraits/women/68.jpg",
+      text: "The SEO course offered by Tutor Connect was exactly what I needed to boost my career. The practical examples and case studies made it easy to understand and implement strategies. My website's traffic has increased by 200% since then!",
+      rating: 4
+    }
   ];
 
-  const [currentSlide, setCurrentSlide] = useState(0);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setIsVisible(true);
+          }
+        },
+        { threshold: 0.2 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) =>
-        prev === testimonials.length - 1 ? 0 : prev + 1
-      );
+      if (!isAnimating) {
+        nextTestimonial();
+      }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [testimonials.length]);
+  }, [activeIndex, isAnimating]);
 
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
+  const nextTestimonial = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setActiveIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    setTimeout(() => setIsAnimating(false), 600);
+  };
+
+  const prevTestimonial = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setActiveIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length);
+    setTimeout(() => setIsAnimating(false), 600);
+  };
+
+  const goToTestimonial = (index) => {
+    if (isAnimating || index === activeIndex) return;
+    setIsAnimating(true);
+    setActiveIndex(index);
+    setTimeout(() => setIsAnimating(false), 600);
+  };
+
+  const renderStars = (rating) => {
+    return Array(5)
+        .fill()
+        .map((_, index) => (
+            <span key={index} className={`star ${index < rating ? "filled" : ""}`}>
+          ★
+        </span>
+        ));
   };
 
   return (
-    <section className="testimonials">
-      <div className="container">
-        <h2>What Our Students Say</h2>
-
-        <div className="testimonial-container">
-          <div className="testimonial-image">
-            <img
-              src={testimonials[currentSlide].image}
-              alt="Students learning together"
-            />
+      <section className="testimonials" ref={sectionRef}>
+        <div className="container">
+          <div className={`testimonials-header ${isVisible ? "visible" : ""}`}>
+            <span className="section-subtitle">Testimonials</span>
+            <h2 className="section-title">What Our Students Say</h2>
+            <p className="testimonials-description">
+              Discover how Tutor Connect has helped students achieve their goals and
+              transform their careers through personalized learning experiences.
+            </p>
           </div>
 
-          <div className="testimonial-slider">
-            {testimonials.map((testimonial, index) => (
-              <div
-                className={`testimonial-slide ${
-                  currentSlide === index ? "active" : ""
-                }`}
-                key={testimonial.id}
-              >
-                <div className="testimonial-content">
-                  <p className="testimonial-text">"{testimonial.text}"</p>
-                  <div className="testimonial-author">
-                    <div className="author-image">
-                      <img src={testimonial.image} alt={testimonial.name} />
+          <div className={`testimonials-slider ${isVisible ? "visible" : ""}`}>
+            <div className="testimonials-carousel">
+              {testimonials.map((testimonial, index) => (
+                  <div
+                      key={testimonial.id}
+                      className={`testimonial-card ${
+                          index === activeIndex ? "active" : ""
+                      }`}
+                  >
+                    <div className="quote-icon">❝</div>
+                    <p className="testimonial-text">{testimonial.text}</p>
+                    <div className="testimonial-rating">
+                      {renderStars(testimonial.rating)}
                     </div>
-                    <div className="author-info">
-                      <h4>{testimonial.name}</h4>
-                      <p>{testimonial.role}</p>
+                    <div className="testimonial-profile">
+                      <img
+                          src={testimonial.image}
+                          alt={testimonial.name}
+                          className="testimonial-image"
+                      />
+                      <div className="testimonial-info">
+                        <h4 className="testimonial-name">{testimonial.name}</h4>
+                        <p className="testimonial-position">{testimonial.position}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-
-            <div className="testimonial-dots">
-              {testimonials.map((_, index) => (
-                <span
-                  key={index}
-                  className={`dot ${currentSlide === index ? "active" : ""}`}
-                  onClick={() => goToSlide(index)}
-                ></span>
               ))}
+            </div>
+
+            <div className="carousel-controls">
+              <button className="prev-btn" onClick={prevTestimonial}>
+                <i className="fas fa-chevron-left"></i>
+              </button>
+              <div className="carousel-dots">
+                {testimonials.map((_, index) => (
+                    <button
+                        key={index}
+                        className={`carousel-dot ${index === activeIndex ? "active" : ""}`}
+                        onClick={() => goToTestimonial(index)}
+                    />
+                ))}
+              </div>
+              <button className="next-btn" onClick={nextTestimonial}>
+                <i className="fas fa-chevron-right"></i>
+              </button>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
   );
 };
 

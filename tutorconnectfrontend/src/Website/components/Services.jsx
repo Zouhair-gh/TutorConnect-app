@@ -1,53 +1,5 @@
 import React from "react";
-import "../assets/landingpagestyle/services.css"; // Import the CSS file
-// import icon1 from "../assets/img/icon-service-1.png";
-// import icon2 from "../assets/img/icon-service-2.png";
-// import icon3 from "../assets/img/icon-service-3.png";
-// import icon4 from "../assets/img/icon-service-4.png";
-// import icon5 from "../assets/img/icon-service-5.png";
-// import icon6 from "../assets/img/icon-service-6.png";
-// import icon7 from "../assets/img/icon-service-7.png";
-// import icon8 from "../assets/img/icon-service-8.png";
-
-// const Service = () => {
-//     const services = [
-//         { title: "Web Design", icon: icon1, description: "Lorem ipsum dolor sit amet elit pretium ornare" },
-//         { title: "Development", icon: icon2, description: "Lorem ipsum dolor sit amet elit pretium ornare" },
-//         { title: "UI Design", icon: icon3, description: "Lorem ipsum dolor sit amet elit pretium ornare" },
-//         { title: "Programming", icon: icon4, description: "Lorem ipsum dolor sit amet elit pretium ornare" },
-//         { title: "Graphic Design", icon: icon5, description: "Lorem ipsum dolor sit amet elit pretium ornare" },
-//         { title: "Video Editing", icon: icon6, description: "Lorem ipsum dolor sit amet elit pretium ornare" },
-//         { title: "SEO", icon: icon7, description: "Lorem ipsum dolor sit amet elit pretium ornare" },
-//         { title: "Online Marketing", icon: icon8, description: "Lorem ipsum dolor sit amet elit pretium ornare" },
-//     ];
-
-//     return (
-//         <div className="service">
-//             <div className="container-fluid">
-//                 <div className="section-header">
-//                     <h2>Our Services</h2>
-//                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec pretium ornare velit non</p>
-//                 </div>
-//                 <div className="row">
-//                     {services.map((service, index) => (
-//                         <div key={index} className="col-lg-3 col-md-6">
-//                             <div className="service-item">
-//                                 <h3>{service.title}</h3>
-//                                 <img src={service.icon} alt={service.title} />
-//                                 <p>{service.description}</p>
-//                             </div>
-//                         </div>
-//                     ))}
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default Service;
-
-// version 2
-
+import { useState, useEffect, useRef } from "react";
 import {
   FaLaptopCode,
   FaCode,
@@ -58,67 +10,111 @@ import {
 } from "react-icons/fa";
 
 const Services = () => {
+  const [visibleCards, setVisibleCards] = useState([]);
+  const sectionRef = useRef(null);
+
   const servicesData = [
     {
       icon: <FaLaptopCode />,
       title: "Web Design",
       description:
-        "Learn about best practices for creating visually appealing and user-friendly websites.",
+          "Learn about best practices for creating visually appealing and user-friendly websites that engage visitors.",
+      color: "#4e73df",
     },
     {
       icon: <FaCode />,
       title: "Development",
       description:
-        "Master the latest web development frameworks and build responsive applications.",
+          "Master the latest web development frameworks and build responsive applications that work on any device.",
+      color: "#36b9cc",
     },
     {
       icon: <FaServer />,
       title: "Programming",
       description:
-        "Enhance your coding skills with expert-led courses in various programming languages.",
+          "Enhance your coding skills with expert-led courses in various programming languages and problem-solving techniques.",
+      color: "#1cc88a",
     },
     {
       icon: <FaPalette />,
       title: "Graphic Design",
       description:
-        "Develop creative skills to produce professional visual content and branding materials.",
+          "Develop creative skills to produce professional visual content and branding materials that stand out.",
+      color: "#f6c23e",
     },
     {
       icon: <FaSearch />,
       title: "SEO",
       description:
-        "Learn strategies to improve your website's visibility and drive organic traffic.",
+          "Learn strategies to improve your website's visibility and drive organic traffic through search engine optimization.",
+      color: "#e74a3b",
     },
     {
       icon: <FaLayerGroup />,
       title: "UI Design",
       description:
-        "Create intuitive user interfaces that enhance the user experience and engagement.",
+          "Create intuitive user interfaces that enhance the user experience and engagement for web and mobile applications.",
+      color: "#6f42c1",
     },
   ];
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            const timer = setTimeout(() => {
+              setVisibleCards(Array(servicesData.length).fill(true));
+            }, 200);
+            return () => clearTimeout(timer);
+          }
+        },
+        { threshold: 0.2 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, [servicesData.length]);
+
   return (
-    <section className="services" id="services">
-      <div className="container">
-        <div className="services-header">
-          <h2>Our Services</h2>
-          <p>
-            Enhancing your skills with expert-led courses across multiple
-            disciplines. Find the perfect course to meet your personal or
-            professional goals.
-          </p>
+      <section className="services" id="services" ref={sectionRef}>
+        <div className="container">
+          <div className="services-header">
+            <span className="section-subtitle">What We Offer</span>
+            <h2 className="section-title">Our Popular Courses</h2>
+            <p className="services-description">
+              Enhancing your skills with expert-led courses across multiple
+              disciplines. Find the perfect course to meet your personal or
+              professional goals.
+            </p>
+          </div>
+          <div className="services-grid">
+            {servicesData.map((service, index) => (
+                <div
+                    className={`service-card ${visibleCards[index] ? "visible" : ""}`}
+                    key={index}
+                    style={{ transitionDelay: `${index * 0.1}s` }}
+                >
+                  <div className="service-icon" style={{ backgroundColor: `${service.color}20`, color: service.color }}>
+                    {service.icon}
+                  </div>
+                  <h3>{service.title}</h3>
+                  <p>{service.description}</p>
+                  <a href="#" className="service-link">Learn More <i className="fas fa-arrow-right"></i></a>
+                </div>
+            ))}
+          </div>
+          <div className="services-cta">
+            <a href="#contact" className="btn-primary">Explore All Courses</a>
+          </div>
         </div>
-        <div className="services-grid">
-          {servicesData.map((service, index) => (
-            <div className="service-card" key={index}>
-              <div className="service-icon">{service.icon}</div>
-              <h3>{service.title}</h3>
-              <p>{service.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+      </section>
   );
 };
 
