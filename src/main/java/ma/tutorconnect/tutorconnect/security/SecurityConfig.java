@@ -41,8 +41,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/rooms/request-room").hasRole("TUTOR")
                         .requestMatchers("/api/rooms/request-renewal/*").hasRole("TUTOR")
                         // Explicit permission for participant endpoints within rooms
-                        .requestMatchers("/api/rooms/*/participants/**").hasAnyRole("TUTOR", "PARTICIPANT")
-                        .requestMatchers("/api/rooms/*/participants/my-rooms").hasRole("PARTICIPANT")
+                        .requestMatchers("/api/rooms/*/participants/**").hasAnyRole("TUTOR", "ADMIN", "PARTICIPANT")
+                        // Fix: Add the correct path for the participant's my-rooms endpoint
+                        .requestMatchers("/api/participants/my-rooms").hasRole("PARTICIPANT")
                         .requestMatchers(HttpMethod.GET, "/api/rooms/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/tickets").hasRole("TUTOR")
                         .requestMatchers(HttpMethod.PUT, "/api/demands/**").hasRole("ADMIN")

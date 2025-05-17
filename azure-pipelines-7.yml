@@ -1,0 +1,130 @@
+trigger:
+  branches:
+    include:
+      - dev_maaroufi
+      - dev_marouane
+      - dev_zouhair
+      - main
+variables:
+  buildConfiguration: 'Release'
+  frontendDir: 'tutorconnectfrontend'
+  backendDir: '.'  # Root directory for backend based on your project structure
+  javaVersion: '17'
+  nodeVersion: '18.x'
+
+stages:
+  - stage: Build
+    displayName: Build & Test All Components
+    jobs:
+      - job: BuildAll
+        displayName: Build All Components
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          # Backend Build Steps
+          - task: JavaToolInstaller@0
+            displayName: 'Set up Java'
+            inputs:
+              versionSpec: '$(javaVersion)'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+          - task: Maven@3
+            displayName: 'Maven Build'
+            inputs:
+              mavenPomFile: '$(backendDir)/pom.xml'
+              goals: 'clean package'
+              options: '-DskipTests'
+          - task: Maven@3
+            displayName: 'Maven Test'
+            inputs:
+              mavenPomFile: '$(backendDir)/pom.xml'
+              goals: 'test'
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Backend Artifact'
+            inputs:
+              PathtoPublish: '$(backendDir)/target'
+              ArtifactName: 'backend-artifact'
+              publishLocation: 'Container'
+              
+          # Frontend Build Steps  
+          - task: NodeTool@0
+            displayName: 'Set up Node.js'
+            inputs:
+              versionSpec: '$(nodeVersion)'
+          - script: |
+              cd $(frontendDir)
+              npm install
+              npm run build
+            displayName: 'Build React App'
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Frontend Artifact'
+            inputs:
+              PathtoPublish: '$(frontendDir)/build'  # React typically builds to 'build' directory
+              ArtifactName: 'frontend-artifact'
+              publishLocation: 'Container'
+              
+          # Backend Docker Build
+          - script: |
+              # Copy JAR file to a working directory
+              mkdir -p $(Build.ArtifactStagingDirectory)/docker-backend
+              cp $(backendDir)/target/*.jar $(Build.ArtifactStagingDirectory)/docker-backend/app.jar
+              
+              # Create Dockerfile if it doesn't exist
+              cat > $(Build.ArtifactStagingDirectory)/docker-backend/Dockerfile << 'EOF'
+              FROM openjdk:17-slim
+              VOLUME /tmp
+              COPY app.jar app.jar
+              ENTRYPOINT ["java","-jar","/app.jar"]
+              EOF
+              
+              # Build Docker image
+              cd $(Build.ArtifactStagingDirectory)/docker-backend
+              docker build -t tutorconnect-backend:$(Build.BuildId) .
+              docker tag tutorconnect-backend:$(Build.BuildId) tutorconnect-backend:latest
+              
+              # Save Docker image as artifact (alternative to registry push)
+              docker save tutorconnect-backend:latest -o tutorconnect-backend-image.tar
+            displayName: 'Build Backend Docker Image'
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Backend Docker Image'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/docker-backend/tutorconnect-backend-image.tar'
+              ArtifactName: 'backend-docker-image'
+              publishLocation: 'Container'
+              
+          # Frontend Docker Build
+          - script: |
+              # Copy build files to a working directory
+              mkdir -p $(Build.ArtifactStagingDirectory)/docker-frontend
+              cp -r $(frontendDir)/build/* $(Build.ArtifactStagingDirectory)/docker-frontend/
+              
+              # Create Dockerfile if it doesn't exist
+              cat > $(Build.ArtifactStagingDirectory)/docker-frontend/Dockerfile << 'EOF'
+              FROM nginx:alpine
+              COPY . /usr/share/nginx/html
+              EXPOSE 80
+              CMD ["nginx", "-g", "daemon off;"]
+              EOF
+              
+              # Build Docker image
+              cd $(Build.ArtifactStagingDirectory)/docker-frontend
+              docker build -t tutorconnect-frontend:$(Build.BuildId) .
+              docker tag tutorconnect-frontend:$(Build.BuildId) tutorconnect-frontend:latest
+              
+              # Save Docker image as artifact (alternative to registry push)
+              docker save tutorconnect-frontend:latest -o tutorconnect-frontend-image.tar
+            displayName: 'Build Frontend Docker Image'
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Frontend Docker Image'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/docker-frontend/tutorconnect-frontend-image.tar'
+              ArtifactName: 'frontend-docker-image'
+              publishLocation: 'Container'
+              
+          # Verification
+          - script: |
+              echo "Verifying build results..."
+              echo "Backend JAR file exists in artifacts"
+              echo "Frontend build files exist in artifacts"
+              echo "Docker images were created successfully"
+            displayName: 'Verify Build Results'

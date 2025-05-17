@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useState } from 'react';
 import axiosClient from '../api/axiosClient';
 
 const SubscriptionForm = () => {
@@ -6,7 +7,7 @@ const SubscriptionForm = () => {
         fullName: '',
         email: '',
         phone: '',
-        purpose: '',  // Only keeping purpose
+        purpose: '',
         experience: '',
         message: '',
         status: 'PENDING'
@@ -62,121 +63,128 @@ const SubscriptionForm = () => {
     };
 
     return (
-        <div className="container-fluid">
-            <div className="row">
-                <div className="col-sm-12">
-                    <div className="card">
-                        <div className="card-header d-flex justify-content-between">
-                            <div className="header-title">
-                                <h4 className="card-title">Become a Tutor</h4>
+        <section className="subscription-form-section" id="contact">
+            <div className="container">
+                <div className="form-header">
+                    <h2>Become a Tutor</h2>
+                    <p>Join our network of professional tutors and share your knowledge with students worldwide</p>
+                </div>
+
+                <div className="form-container">
+                    {submitStatus.message && (
+                        <div className={`alert ${submitStatus.success ? 'alert-success' : 'alert-danger'}`}>
+                            {submitStatus.message}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="fullName">Full Name <span className="required">*</span></label>
+                                <input
+                                    type="text"
+                                    id="fullName"
+                                    name="fullName"
+                                    value={formData.fullName}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    placeholder="John Doe"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="email">Email <span className="required">*</span></label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    placeholder="johndoe@example.com"
+                                    required
+                                />
                             </div>
                         </div>
-                        <div className="card-body">
-                            {submitStatus.message && (
-                                <div className={`alert ${submitStatus.success ? 'alert-success' : 'alert-danger'}`}>
-                                    {submitStatus.message}
-                                </div>
-                            )}
 
-                            <form onSubmit={handleSubmit}>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label>Full Name *</label>
-                                            <input
-                                                type="text"
-                                                name="fullName"
-                                                value={formData.fullName}
-                                                onChange={handleChange}
-                                                className="form-control"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label>Email *</label>
-                                            <input
-                                                type="email"
-                                                name="email"
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                                className="form-control"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label>Phone *</label>
-                                            <input
-                                                type="tel"
-                                                name="phone"
-                                                value={formData.phone}
-                                                onChange={handleChange}
-                                                className="form-control"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label>Teaching Purpose *</label>
-                                            <input
-                                                type="text"
-                                                name="purpose"
-                                                value={formData.purpose}
-                                                onChange={handleChange}
-                                                className="form-control"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="form-group">
-                                            <label>Experience *</label>
-                                            <select
-                                                name="experience"
-                                                value={formData.experience}
-                                                onChange={handleChange}
-                                                className="form-control"
-                                                required
-                                            >
-                                                <option value="">Select...</option>
-                                                <option value="Beginner">Beginner</option>
-                                                <option value="Intermediate">Intermediate</option>
-                                                <option value="Advanced">Advanced</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-12">
-                                        <div className="form-group">
-                                            <label>Additional Information</label>
-                                            <textarea
-                                                name="message"
-                                                value={formData.message}
-                                                onChange={handleChange}
-                                                className="form-control"
-                                                rows="4"
-                                            ></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mt-3">
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="btn btn-primary"
-                                    >
-                                        {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                                    </button>
-                                </div>
-                            </form>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="phone">Phone <span className="required">*</span></label>
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    placeholder="+1 (123) 456-7890"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="purpose">Teaching Purpose <span className="required">*</span></label>
+                                <input
+                                    type="text"
+                                    id="purpose"
+                                    name="purpose"
+                                    value={formData.purpose}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    placeholder="e.g., Web Development, Mathematics"
+                                    required
+                                />
+                            </div>
                         </div>
-                    </div>
+
+                        <div className="form-row">
+                            <div className="form-group full-width">
+                                <label htmlFor="experience">Experience Level <span className="required">*</span></label>
+                                <select
+                                    id="experience"
+                                    name="experience"
+                                    value={formData.experience}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    required
+                                >
+                                    <option value="">Select your experience level</option>
+                                    <option value="Beginner">Beginner (1-2 years)</option>
+                                    <option value="Intermediate">Intermediate (3-5 years)</option>
+                                    <option value="Advanced">Advanced (5+ years)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-group full-width">
+                                <label htmlFor="message">Additional Information</label>
+                                <textarea
+                                    id="message"
+                                    name="message"
+                                    value={formData.message}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    rows="4"
+                                    placeholder="Tell us about your teaching experience and qualifications..."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <div className="form-submit">
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="submit-btn"
+                            >
+                                {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
+        </section>
     );
 };
 
