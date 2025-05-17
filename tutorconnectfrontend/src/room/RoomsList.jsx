@@ -4,6 +4,7 @@ import TutorSideBar from "../layouts/SideBars/TutorSideBar"
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axiosClient";
+import AdminSideBar from "../layouts/SideBars/AdminSideBar";
 
 
 const RoomsList = () => {
@@ -64,7 +65,7 @@ const RoomsList = () => {
 
   return (
     <>
-      <TutorSideBar />
+     <AdminSideBar />
       <Navbar />
       <div className="wrapper">
         <div className="content-page">
@@ -72,7 +73,7 @@ const RoomsList = () => {
             <div className="container p-4">
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Room Management</h2>
-                <Link to="/rooms/create" className="btn btn-primary">
+                <Link to="/admin/rooms/create" className="btn btn-primary">
                   Create New Room
                 </Link>
               </div>

@@ -1,5 +1,6 @@
 package ma.tutorconnect.tutorconnect.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class Room {
 
     @ManyToOne
     @JoinColumn(name = "tutor_id")
+    @JsonIgnore
     private Tutor tutor;
 
     @ManyToMany

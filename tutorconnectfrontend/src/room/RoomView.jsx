@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import TutorSideBar from "../layouts/SideBars/TutorSideBar"
 
 import Navbar from "../layouts/NavBar";
 import Footer from "../layouts/footer";
 import axiosClient from "../api/axiosClient";
 import { Calendar, User, DollarSign, Clock, Home, Edit, Trash2, ArrowLeft } from "lucide-react";
+import AdminSideBar from "../layouts/SideBars/AdminSideBar";
 
 const RoomView = () => {
   const { id } = useParams();
@@ -66,9 +66,8 @@ const RoomView = () => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
   };
 
-  // Calculate price per day
   const calculatePricePerDay = () => {
-    if (!room) return 0;
+    if (!room || !room.amount) return "0.00";
     const days = calculateDuration();
     return (room.amount / days).toFixed(2);
   };
@@ -76,7 +75,7 @@ const RoomView = () => {
   if (loading) {
     return (
         <>
-          <TutorSideBar />
+          <AdminSideBar />
           <Navbar />
           <div className="wrapper">
             <div className="content-page">
@@ -99,7 +98,7 @@ const RoomView = () => {
 
   const renderError = () => (
       <>
-        <TutorSideBar />
+        <AdminSideBar />
         <Navbar />
         <div className="wrapper">
           <div className="content-page">
@@ -132,7 +131,7 @@ const RoomView = () => {
 
   const renderNotFound = () => (
       <>
-        <TutorSideBar />
+        <AdminSideBar />
         <Navbar />
         <div className="wrapper">
           <div className="content-page">
@@ -149,7 +148,7 @@ const RoomView = () => {
                     </div>
                     <h4 className="text-warning">Room Not Found</h4>
                     <p className="text-muted">The room you're looking for doesn't exist or has been removed.</p>
-                    <Link to="/rooms" className="btn btn-primary mt-3">
+                    <Link to="/admin/rooms" className="btn btn-primary mt-3">
                       <ArrowLeft size={18} className="me-2" />
                       Back to Rooms
                     </Link>
@@ -173,7 +172,7 @@ const RoomView = () => {
 
   return (
       <>
-        <TutorSideBar />
+        <AdminSideBar />
         <Navbar />
         <div className="wrapper">
           <div className="content-page">
@@ -204,11 +203,11 @@ const RoomView = () => {
                     </p>
                   </div>
                   <div>
-                    <Link to="/rooms" className="btn btn-outline-secondary me-2">
+                    <Link to="/admin/rooms" className="btn btn-outline-secondary me-2">
                       <ArrowLeft size={18} className="me-1" />
                       Back
                     </Link>
-                    <Link to={`/rooms/edit/${id}`} className="btn btn-warning me-2">
+                    <Link to={`/admin/rooms/edit/${id}`} className="btn btn-warning me-2">
                       <Edit size={18} className="me-1" />
                       Edit
                     </Link>
@@ -330,7 +329,7 @@ const RoomView = () => {
                           </div>
                           <div>
                             <h6 className="text-muted mb-1">Total Amount</h6>
-                            <h4 className="mb-0">${room.amount.toFixed(2)}</h4>
+                            <h4 className="mb-0">${room?.amount?.toFixed(2) || "0.00"}</h4>
                           </div>
                         </div>
 

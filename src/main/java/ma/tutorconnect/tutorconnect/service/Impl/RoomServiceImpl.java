@@ -1,5 +1,6 @@
 package ma.tutorconnect.tutorconnect.service.Impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import ma.tutorconnect.tutorconnect.dto.*;
 import ma.tutorconnect.tutorconnect.entity.*;
 import ma.tutorconnect.tutorconnect.enums.DemandStatus;
@@ -170,9 +171,25 @@ public class RoomServiceImpl implements RoomService {
         }
     }
 
-    @Override
-    public Room saveRoom(CreateRoomDto createRoomDto) {
-        return null;
+    @Transactional
+    public Room saveRoom(CreateRoomDto dto) throws EntityNotFoundException {
+
+        Tutor tutor = tutorRepository.findById(dto.getTutorId())
+                .orElseThrow(() -> new EntityNotFoundException("Tutor not found with id: " + dto.getTutorId()));
+
+
+        Room room = new Room();
+        room.setName(dto.getName());
+        room.setCapacity(dto.getCapacity());
+        room.setAmount(dto.getAmount());
+        room.setStartDate(Date.valueOf(dto.getStartDate().toLocalDate()));
+        room.setEndDate(Date.valueOf(dto.getEndDate().toLocalDate()));
+        room.setTutor(tutor);
+
+
+        Room savedRoom = roomRepository.save(room);
+
+        return savedRoom;
     }
 
     @Override
@@ -255,6 +272,33 @@ public class RoomServiceImpl implements RoomService {
         return ResponseEntity.ok("Room creation request submitted successfully");
     }
 
+    @Override
+    public Room updateRoom(Long id, UpdateRoomDto updateRoomDto) {
+        // 1. Find the existing room
+        Room existingRoom = roomRepository.findById(id).get();
+
+        // 2. Validate dates
+        LocalDate startDate = LocalDate.parse(updateRoomDto.getStartDate());
+        LocalDate endDate = LocalDate.parse(updateRoomDto.getEndDate());
+
+        if (endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("End date cannot be before start date");
+        }
+
+        // 3. Calculate duration and amount if needed
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        double amount = daysBetween * 20; // Assuming 20 per day
+
+        // 4. Update the room entity
+        existingRoom.setName(updateRoomDto.getName());
+        existingRoom.setCapacity(updateRoomDto.getCapacity());
+        existingRoom.setAmount((long) amount);
+        existingRoom.setStartDate(Date.valueOf(startDate));
+        existingRoom.setEndDate(Date.valueOf(endDate));
+
+        // 5. Save and return
+        return roomRepository.save(existingRoom);
+    }
 
 
     private Tutor getCurrentTutor() {
