@@ -25,4 +25,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findByEndDateBetween(@Param("startDate") java.sql.Date startDate,
                                      @Param("endDate") java.sql.Date endDate);
 
+    @Query("SELECT DISTINCT r FROM Room r JOIN r.participants p WHERE p.id = :participantId")
+    List<Room> findRoomsByParticipantId(@Param("participantId") Long participantId);
 }

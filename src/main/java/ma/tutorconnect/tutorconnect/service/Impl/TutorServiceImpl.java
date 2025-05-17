@@ -1,9 +1,6 @@
 package ma.tutorconnect.tutorconnect.service.Impl;
 
-import ma.tutorconnect.tutorconnect.dto.CreateRoomDto;
-import ma.tutorconnect.tutorconnect.dto.ParticipantDTO;
-import ma.tutorconnect.tutorconnect.dto.RoomRenewalRequestDto;
-import ma.tutorconnect.tutorconnect.dto.RoomWithParticipantsDTO;
+import ma.tutorconnect.tutorconnect.dto.*;
 import ma.tutorconnect.tutorconnect.entity.Demand;
 import ma.tutorconnect.tutorconnect.entity.Room;
 import ma.tutorconnect.tutorconnect.entity.Tutor;
@@ -53,6 +50,7 @@ public class TutorServiceImpl implements TutorService {
     public void deleteTutor(Long id) {
 
     }
+
     @Override
     public List<CreateRoomDto> getRoomsByTutor(Long tutorId) {
         List<Room> rooms = roomRepository.findByTutorId(tutorId);
@@ -70,14 +68,16 @@ public class TutorServiceImpl implements TutorService {
     public List<RoomWithParticipantsDTO> getRoomsWithParticipantsByTutor(Long tutorId) {
         List<Room> rooms = roomRepository.findByTutorId(tutorId);
         return rooms.stream().map(room -> {
-            CreateRoomDto roomDTO = new CreateRoomDto(
+            // Create RoomDTO instead of CreateRoomDto
+            RoomDTO roomDTO = new RoomDTO(
                     room.getId(),
                     room.getName(),
                     room.getCapacity(),
-                    room.getStartDate(),
-                    room.getEndDate(),
-                    room.getAmount()
+                    room.getAmount(),
+                    room.getStartDate().toLocalDate(),
+                    room.getEndDate().toLocalDate()
             );
+
             List<ParticipantDTO> participantDTOS = room.getParticipants()
                     .stream()
                     .map(p -> new ParticipantDTO(p.getId(), p.getFirstName(), p.getLastName(), p.getEmail()))
@@ -86,6 +86,7 @@ public class TutorServiceImpl implements TutorService {
             return new RoomWithParticipantsDTO(roomDTO, participantDTOS);
         }).collect(Collectors.toList());
     }
+
     public ResponseEntity<?> requestRoomRenewal(RoomRenewalRequestDto renewalRequest) {
         try {
             // Vérifier que la salle existe et appartient au tuteur
@@ -123,6 +124,4 @@ public class TutorServiceImpl implements TutorService {
         return tutorRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Tutor not found"));
     }
-
-
 }

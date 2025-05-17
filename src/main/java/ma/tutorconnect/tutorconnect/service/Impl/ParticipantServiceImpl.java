@@ -1,21 +1,18 @@
 package ma.tutorconnect.tutorconnect.service.Impl;
 
-import ma.tutorconnect.tutorconnect.dto.CreateRoomDto;
-import ma.tutorconnect.tutorconnect.dto.ParticipantDTO;
-import ma.tutorconnect.tutorconnect.dto.AddParticipantRequest;
-import ma.tutorconnect.tutorconnect.dto.RoomWithParticipantsDTO;
+import ma.tutorconnect.tutorconnect.dto.*;
 import ma.tutorconnect.tutorconnect.entity.Participant;
 import ma.tutorconnect.tutorconnect.entity.Room;
+import ma.tutorconnect.tutorconnect.entity.User;
+import ma.tutorconnect.tutorconnect.enums.RoleEnum;
 import ma.tutorconnect.tutorconnect.repository.ParticipantRepository;
 import ma.tutorconnect.tutorconnect.repository.RoomRepository;
+import ma.tutorconnect.tutorconnect.repository.UserRepository;
 import ma.tutorconnect.tutorconnect.service.ParticipantService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,11 +21,14 @@ public class ParticipantServiceImpl implements ParticipantService {
 
     private final RoomRepository roomRepository;
     private final ParticipantRepository participantRepository;
+    private final UserRepository userRepository;
 
     public ParticipantServiceImpl(RoomRepository roomRepository,
-                                  ParticipantRepository participantRepository) {
+                                  ParticipantRepository participantRepository,
+                                  @Qualifier("userRepository") UserRepository userRepository) {
         this.roomRepository = roomRepository;
         this.participantRepository = participantRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -111,41 +111,63 @@ public class ParticipantServiceImpl implements ParticipantService {
         return Optional.empty();
     }
 
-
     @Override
     public List<RoomWithParticipantsDTO> getRoomsForCurrentParticipant() {
-        // Get the currently authenticated user's email
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Find the participant by email
-        Optional<Participant> participantOptional = findByEmail(email);
-        Participant participant = participantOptional.orElseThrow(() -> new RuntimeException("Participant not found with email: " + email));
+        User user = userRepository.findByEmail(email);
 
-        // Get all rooms where this participant is a member using the custom query
-        List<Room> participantRooms = roomRepository.findRoomsByParticipant(participant);
+        if (!RoleEnum.PARTICIPANT.equals(user.getRole())) {
+            throw new RuntimeException("User is not registered as a participant");
+        }
 
-        // Convert rooms to DTOs
-        return participantRooms.stream()
-                .map(room -> {
-                    // Create CreateRoomDto from Room
-                    CreateRoomDto roomDto = new CreateRoomDto(
-                            room.getId(),
-                            room.getName(),
-                            room.getCapacity(),
-                            room.getStartDate(),
-                            room.getEndDate(),
-                            room.getAmount(),
-                            room.getTutor() != null ? room.getTutor().getId() : null
-                    );
+        Participant participant = participantRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("Participant record not found"));
 
-                    // Get participants for this room
-                    List<ParticipantDTO> participantDTOs = room.getParticipants().stream()
-                            .map(this::convertToDTO)
-                            .collect(Collectors.toList());
+        List<Room> rooms = roomRepository.findRoomsByParticipantId(participant.getId());
 
-                    // Create and return RoomWithParticipantsDTO
-                    return new RoomWithParticipantsDTO(roomDto, participantDTOs);
-                })
+        return rooms.stream()
+                .map(this::convertToRoomWithParticipantsDTO)
                 .collect(Collectors.toList());
+    }
+
+    private RoomWithParticipantsDTO convertToRoomWithParticipantsDTO(Room room) {
+        RoomDTO roomDto = new RoomDTO(
+                room.getId(),
+                room.getName(),
+                room.getCapacity(),
+                room.getAmount(),
+                room.getStartDate().toLocalDate(),
+                room.getEndDate().toLocalDate()
+        );
+
+        List<ParticipantDTO> participantDTOs = room.getParticipants().stream()
+                .map(this::convertParticipantToDTO)
+                .collect(Collectors.toList());
+
+        return new RoomWithParticipantsDTO(roomDto, participantDTOs);
+    }
+
+    private ParticipantDTO convertParticipantToDTO(Participant participant) {
+        // Try to get user from repository
+        User user = userRepository.findById(participant.getId())
+                .orElse(null);
+
+        // If user found, use those details, otherwise use participant details
+        if (user != null) {
+            return new ParticipantDTO(
+                    participant.getId(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getEmail()
+            );
+        } else {
+            return new ParticipantDTO(
+                    participant.getId(),
+                    participant.getFirstName(),
+                    participant.getLastName(),
+                    participant.getEmail()
+            );
+        }
     }
 }

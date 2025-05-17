@@ -1,177 +1,167 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
-import axios from "axios";
-import {
-    Card,
-    Button,
-    Spinner,
-    Alert,
-    Badge,
-    Row,
-    Col,
-    Container
-} from "react-bootstrap";
-import {
-    FiCalendar,
-    FiUsers,
-    FiArrowRight,
-    FiClock
-} from "react-icons/fi";
-import NavBar from "../layouts/NavBar";
-import ParticipantSidebar from "../layouts/SideBars/ParticipantSidebar";
 import Footer from "../layouts/footer";
+import Navbar from "../layouts/NavBar";
+import ParticipantSidebar from "../layouts/SideBars/ParticipantSidebar";
+import { Link } from "react-router-dom";
 
 const ParticipantRoomsList = () => {
-    const [rooms, setRooms] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [roomsWithParticipants, setRoomsWithParticipants] = useState([]);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
 
-    // Color classes from the second implementation
     const colorClasses = ["primary", "success", "danger", "warning", "info"];
+
     const getRandomColorClass = (index) => colorClasses[index % colorClasses.length];
 
-    useEffect(() => {
-        const fetchRooms = async () => {
-            try {
-                // Try both API endpoints - first implementation endpoint
-                const response = await axiosClient.get("/rooms/1/participants/my-rooms");
-                setRooms(response.data);
-            } catch (error) {
-                try {
-                    // Fallback to second implementation endpoint if first fails
-                    const altResponse = await axios.get("/api/participants/my-rooms");
-                    // Extract only room info from DTO as in second implementation
-                    const roomList = altResponse.data.map(item => item.room);
-                    setRooms(roomList);
-                } catch (fallbackError) {
-                    console.error("Error fetching rooms:", error);
-                    setError("Failed to load rooms. Please try again later.");
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchRooms();
-    }, []);
-
     const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    const getStatusBadge = (status) => {
-        const variants = {
-            ACTIVE: "success",
-            PENDING: "warning",
-            COMPLETED: "primary",
-            CANCELLED: "danger"
-        };
-        return <Badge bg={variants[status] || "secondary"}>{status}</Badge>;
+    // Check authentication
+    const checkAuth = () => {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            setError("You are not authenticated. Please log in.");
+            setLoading(false);
+            return false;
+        }
+        return true;
     };
 
-    if (loading) {
-        return (
-            <div className="text-center py-5">
-                <Spinner animation="border" variant="primary" />
-                <p className="mt-2">Loading your rooms...</p>
-            </div>
-        );
-    }
+    useEffect(() => {
+        if (!checkAuth()) return;
 
-    if (error) {
-        return (
-            <div className="container py-4">
-                <Alert variant="danger">{error}</Alert>
-            </div>
-        );
-    }
+        setLoading(true);
+        console.log("Fetching participant rooms...");
+
+        // Use axiosClient which has the base URL configured
+        axiosClient.get("/participants/my-rooms")
+            .then(response => {
+                console.log("Room data received:", response.data);
+
+                // Handle backend response format
+                if (Array.isArray(response.data)) {
+                    // Filter out any entries with null room
+                    const validRoomData = response.data.filter(item => item && item.room);
+                    setRoomsWithParticipants(validRoomData);
+
+                    if (validRoomData.length === 0 && response.data.length > 0) {
+                        console.warn("Received data but all rooms are null", response.data);
+                    }
+                } else {
+                    console.error("Unexpected response format:", response.data);
+                    setError("Received an unexpected data format from the server");
+                }
+
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error("Error fetching rooms:", error);
+
+                // Provide more specific error messages based on HTTP status
+                if (error.response) {
+                    switch (error.response.status) {
+                        case 401:
+                            setError("Authentication expired. Please log in again.");
+                            // Optionally redirect to login page
+                            break;
+                        case 403:
+                            setError("You don't have permission to access this resource. Please contact an administrator.");
+                            break;
+                        case 404:
+                            setError("The rooms resource was not found. The API endpoint may have changed.");
+                            break;
+                        default:
+                            setError(`Failed to fetch rooms: ${error.response.status} ${error.response.statusText}`);
+                    }
+                } else if (error.request) {
+                    setError("Network error. Please check your connection and try again.");
+                } else {
+                    setError("Failed to fetch rooms. Please try again later.");
+                }
+
+                setLoading(false);
+            });
+    }, []);
+
+    // Extract rooms from roomsWithParticipants data structure
+    const rooms = roomsWithParticipants.map(item => item.room);
 
     return (
         <>
-            <NavBar />
             <ParticipantSidebar />
+            <Navbar />
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">
-                        <Container className="py-4">
+                        <div className="container p-4">
                             <h2 className="mb-4">My Rooms</h2>
 
-                            {rooms.length === 0 ? (
-                                <Alert variant="info">
-                                    You haven't joined any rooms yet. Contact your tutor to get access.
-                                </Alert>
-                            ) : (
-                                <Row className="g-4">
-                                    {rooms.map((roomData, index) => {
-                                        // Handle both data structures (from first or second implementation)
-                                        const room = roomData.room || roomData;
-                                        const participants = roomData.participants || [];
-                                        const colorClass = getRandomColorClass(index);
-
-                                        return (
-                                            <Col key={room.id} md={6} lg={4}>
-                                                <Card className="h-100 shadow-sm">
-                                                    <Card.Body>
-                                                        <div className="d-flex justify-content-between align-items-start mb-3">
-                                                            <Card.Title>{room.name}</Card.Title>
-                                                            {room.status && getStatusBadge(room.status)}
-                                                        </div>
-
-                                                        <div className="mb-3">
-                                                            {participants.length > 0 && (
-                                                                <p className="mb-1">
-                                                                    <FiUsers className="me-2" />
-                                                                    {participants.length} participants
-                                                                </p>
-                                                            )}
-                                                            {room.capacity && (
-                                                                <p className="mb-1">
-                                                                    <FiUsers className="me-2" />
-                                                                    Capacity: {room.capacity} people
-                                                                </p>
-                                                            )}
-                                                            {room.amount && (
-                                                                <p className="mb-1">
-                                                                    Amount: {room.amount}
-                                                                </p>
-                                                            )}
-                                                            <p className="mb-1">
-                                                                <FiCalendar className="me-2" />
-                                                                {formatDate(room.startDate)} - {formatDate(room.endDate)}
-                                                            </p>
-                                                            {room.schedule && (
-                                                                <p className="mb-1">
-                                                                    <FiClock className="me-2" />
-                                                                    {room.schedule}
-                                                                </p>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="d-flex justify-content-between align-items-center">
-                                                            {/* Primary action button from first implementation */}
-                                                            <Button
-                                                                variant="primary"
-                                                                onClick={() => navigate(`/participant/participantroom/${room.id}/sessions`)}
-                                                            >
-                                                                View Sessions <FiArrowRight className="ms-2" />
-                                                            </Button>
-
-                                                            {/* Alternative view link from second implementation */}
-                                                            <Link to={`/participant/rooms/${room.id}/1`} className="btn btn-sm btn-info">
-                                                                <i className="fa fa-eye"></i> Details
-                                                            </Link>
-                                                        </div>
-                                                    </Card.Body>
-                                                </Card>
-                                            </Col>
-                                        );
-                                    })}
-                                </Row>
+                            {loading && (
+                                <div className="text-center py-5">
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
                             )}
-                        </Container>
+
+                            {error && (
+                                <div className="alert alert-danger">
+                                    <i className="fa fa-exclamation-triangle me-2"></i>
+                                    {error}
+                                </div>
+                            )}
+
+                            {!loading && !error && (
+                                <div className="row">
+                                    {rooms && rooms.length > 0 ? (
+                                        rooms.map((room, index) => {
+                                            // Skip any null room objects
+                                            if (!room) return null;
+
+                                            const colorClass = getRandomColorClass(index);
+                                            return (
+                                                <div key={room.id || index} className="col-md-6 col-lg-4 mb-4">
+                                                    <div className="card card-block card-stretch card-height-helf">
+                                                        <div className="card-body card-item-right">
+                                                            <div className="d-flex align-items-top">
+                                                                <div className={`bg-${colorClass}-light rounded p-3 me-3`}>
+                                                                    <i className={`fa fa-building fa-2x text-${colorClass}`} aria-hidden="true"></i>
+                                                                </div>
+                                                                <div className="style-text text-left flex-grow-1">
+                                                                    <h5 className="mb-2">{room.name || "Unnamed Room"}</h5>
+                                                                    <p className="mb-1">Capacity: {room.capacity || "N/A"} people</p>
+                                                                    <p className="mb-1">Amount: {room.amount || "N/A"}</p>
+                                                                    <p className="mb-1">
+                                                                        Period: {formatDate(room.startDate)} - {formatDate(room.endDate)}
+                                                                    </p>
+                                                                    <div className="mt-3">
+                                                                        {room.id && (
+                                                                            <Link to={`/participant/rooms/${room.id}/1`} className="btn btn-sm btn-info me-2">
+                                                                                <i className="fa fa-eye"></i> View
+                                                                            </Link>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="col-12 text-center">
+                                            <div className="alert alert-info">
+                                                <p className="mb-0">No rooms found. You are not enrolled in any rooms yet.</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

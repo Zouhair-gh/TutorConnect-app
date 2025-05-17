@@ -247,14 +247,13 @@ public class RoomServiceImpl implements RoomService {
                         p.getLastName(),
                         p.getEmail()))
                 .collect(Collectors.toList());
-        CreateRoomDto roomDto = new CreateRoomDto(
+        RoomDTO roomDto = new RoomDTO(
                 room.getId(),
                 room.getName(),
                 room.getCapacity(),
-                room.getStartDate(),
-                room.getEndDate(),
                 room.getAmount(),
-                room.getTutor() != null ? room.getTutor().getId() : null
+                room.getStartDate().toLocalDate(),
+                room.getEndDate().toLocalDate()
         );
         return new RoomWithParticipantsDTO(roomDto, participants);
     }
