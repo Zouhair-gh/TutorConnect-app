@@ -1,6 +1,6 @@
 package ma.tutorconnect.tutorconnect.controller;
 
-import ma.tutorconnect.tutorconnect.dto.DemandDto;
+import ma.tutorconnect.tutorconnect.dto.*;
 import ma.tutorconnect.tutorconnect.enums.DemandStatus;
 import ma.tutorconnect.tutorconnect.service.DemandService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,18 @@ public class DemandController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping("/room")
+    public ResponseEntity<DemandDto.Response> createRoomDemand(@RequestBody DemandRoomDto request) {
+        DemandDto.Response response = demandService.createRoomDemand(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/tutor-account")
+    public ResponseEntity<DemandDto.Response> createTutorAccountDemand(@RequestBody DemandDto.Request request) {
+        DemandDto.Response response = demandService.createTutorAccountDemand(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DemandDto.Response> getDemand(@PathVariable Long id) {
         DemandDto.Response response = demandService.getDemandById(id);
@@ -44,7 +56,7 @@ public class DemandController {
         List<DemandDto.Response> demands = demandService.getDemandsByStatus(status);
         return ResponseEntity.ok(demands);
     }
-    // to approve or reject
+
     @PutMapping("/{id}/status")
     public ResponseEntity<DemandDto.Response> updateDemandStatus(
             @PathVariable Long id,
@@ -58,6 +70,4 @@ public class DemandController {
         demandService.deleteDemand(id);
         return ResponseEntity.noContent().build();
     }
-
-
 }

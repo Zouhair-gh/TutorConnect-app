@@ -17,4 +17,5 @@ public interface TutorService {
 
     List<CreateRoomDto> getRoomsByTutor(Long tutorId);
     List<RoomWithParticipantsDTO> getRoomsWithParticipantsByTutor(Long tutorId);
+
 }

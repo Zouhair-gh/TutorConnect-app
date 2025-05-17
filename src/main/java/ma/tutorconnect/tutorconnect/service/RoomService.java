@@ -16,5 +16,10 @@ public interface RoomService {
     List<Room> getRoomsByCurrentTutor();
     RoomWithParticipantsDTO getRoomWithParticipants(Long id);
     ResponseEntity<?> requestRoomCreation(DemandRoomDto demandRoomDto);
+
     ResponseEntity<?> requestRoomRenewal(Long roomId, DemandRoomDto demandRoomDto);
+
+    Room createRoom(CreateRoomDto createRoomDto);
+    void renewRoom(RoomRenewalRequestDto renewalDto);
+    ResponseEntity<?> createRoomDemand(DemandRoomDto demandRoomDto);
 }

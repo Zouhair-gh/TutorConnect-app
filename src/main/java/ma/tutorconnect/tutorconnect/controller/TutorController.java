@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/tutors")
@@ -21,9 +22,10 @@ public class TutorController {
         this.tutorService = tutorService;
     }
 
-    @GetMapping
-    public List<Tutor> getAllTutors() {
-        return tutorService.getAllTutors();
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Tutor>> getAllTutors() {
+        return ResponseEntity.ok(tutorService.getAllTutors());
     }
 
     @GetMapping("/{id}")
@@ -64,6 +66,8 @@ public class TutorController {
     public ResponseEntity<?> requestRoomRenewal(@RequestBody RoomRenewalRequestDto renewalRequest) {
         return tutorService.requestRoomRenewal(renewalRequest);
     }
+
+
 
 }
 

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ma.tutorconnect.tutorconnect.enums.DemandStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,22 +32,82 @@ public class Demand {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime processedAt;
 
-    // Add demand type for better categorization
     private String demandType; // "ROOM_CREATION", "ROOM_RENEWAL", "TUTOR_ACCOUNT"
-    private Long roomId;
 
-    public Long getRoomId() {
-        return roomId;
+    // For room-related demands
+    private String roomName;
+    private Integer roomCapacity;
+    private LocalDate roomStartDate;
+    private LocalDate roomEndDate;
+    private Double roomAmount;
+    private Long tutorId;
+    private Long originalRoomId;
+    private Integer renewalDuration;
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
+    public void setRoomCapacity(Integer roomCapacity) {
+        this.roomCapacity = roomCapacity;
     }
 
-    // Relations can be added here if needed
-    // For example, if a demand is approved and a user account is created:
-    // @OneToOne(mappedBy = "demand")
-    // private User user;
+    public void setRoomStartDate(LocalDate roomStartDate) {
+        this.roomStartDate = roomStartDate;
+    }
+
+    public void setRoomEndDate(LocalDate roomEndDate) {
+        this.roomEndDate = roomEndDate;
+    }
+
+    public void setOriginalRoomId(Long originalRoomId) {
+        this.originalRoomId = originalRoomId;
+    }
+
+    public void setRoomAmount(Double roomAmount) {
+        this.roomAmount = roomAmount;
+    }
+
+    public void setTutorId(Long tutorId) {
+        this.tutorId = tutorId;
+    }
+
+    public void setRenewalDuration(Integer renewalDuration) {
+        this.renewalDuration = renewalDuration;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public Integer getRoomCapacity() {
+        return roomCapacity;
+    }
+
+    public LocalDate getRoomEndDate() {
+        return roomEndDate;
+    }
+
+    public LocalDate getRoomStartDate() {
+        return roomStartDate;
+    }
+
+    public Double getRoomAmount() {
+        return roomAmount;
+    }
+
+    public Long getTutorId() {
+        return tutorId;
+    }
+
+    public Long getOriginalRoomId() {
+        return originalRoomId;
+    }
+
+    public Integer getRenewalDuration() {
+        return renewalDuration;
+    }
+
     public String getDemandType() {
         return demandType;
     }
