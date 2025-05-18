@@ -18,7 +18,7 @@ const About = () => {
             scheduling and affordable pricing, we make quality education
             accessible to everyone.
           </p>
-        </div>
+d           </div>
       </div>
     </section>
   );
