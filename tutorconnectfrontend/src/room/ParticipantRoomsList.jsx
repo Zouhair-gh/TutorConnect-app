@@ -3,12 +3,14 @@ import axiosClient from "../api/axiosClient";
 import Footer from "../layouts/footer";
 import Navbar from "../layouts/NavBar";
 import ParticipantSidebar from "../layouts/SideBars/ParticipantSidebar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FiUsers, FiFileText, FiCalendar, FiEye, FiCheck } from "react-icons/fi";
 
 const ParticipantRoomsList = () => {
     const [roomsWithParticipants, setRoomsWithParticipants] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const colorClasses = ["primary", "success", "danger", "warning", "info"];
 
@@ -90,6 +92,11 @@ const ParticipantRoomsList = () => {
     // Extract rooms from roomsWithParticipants data structure
     const rooms = roomsWithParticipants.map(item => item.room);
 
+    // Handle view room management
+    const handleCheckRoom = (roomId) => {
+        navigate(`/participant/room-management/${roomId}`);
+    };
+
     return (
         <>
             <ParticipantSidebar />
@@ -134,15 +141,22 @@ const ParticipantRoomsList = () => {
                                                                 <div className="style-text text-left flex-grow-1">
                                                                     <h5 className="mb-2">{room.name || "Unnamed Room"}</h5>
                                                                     <p className="mb-1">Capacity: {room.capacity || "N/A"} people</p>
-                                                                    <p className="mb-1">Amount: {room.amount || "N/A"}</p>
+
                                                                     <p className="mb-1">
                                                                         Period: {formatDate(room.startDate)} - {formatDate(room.endDate)}
                                                                     </p>
                                                                     <div className="mt-3">
                                                                         {room.id && (
-                                                                            <Link to={`/participant/rooms/${room.id}/1`} className="btn btn-sm btn-info me-2">
-                                                                                <i className="fa fa-eye"></i> View
-                                                                            </Link>
+                                                                            <>
+                                                                                <Link to={`/participant/rooms/${room.id}/1`} className="btn btn-sm btn-info me-2">
+                                                                                    <i className="fa fa-eye"></i> View
+                                                                                </Link>
+                                                                                <button
+                                                                                    onClick={() => handleCheckRoom(room.id)}
+                                                                                    className="btn btn-sm btn-success">
+                                                                                    <FiCheck className="me-1" /> Check
+                                                                                </button>
+                                                                            </>
                                                                         )}
                                                                     </div>
                                                                 </div>

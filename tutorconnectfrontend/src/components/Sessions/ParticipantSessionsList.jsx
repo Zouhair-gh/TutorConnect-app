@@ -4,7 +4,7 @@ import {
     FiCalendar,
     FiUsers,
     FiClock,
-    FiCheckCircle,
+    FiCheckSquare,
     FiVideo,
     FiInfo,
     FiTrash2,
@@ -23,7 +23,8 @@ import {
 } from "react-bootstrap";
 import axiosClient from "../../api/axiosClient";
 import ParticipantSessionCalendar from "./ParticipantSessionCalendar";
-
+import ParticipantSidebar from "../../layouts/SideBars/ParticipantSidebar";
+import NavBar from "../../layouts/NavBar";
 
 const ParticipantSessionsList = () => {
     const { roomId } = useParams();
@@ -84,21 +85,6 @@ const ParticipantSessionsList = () => {
         navigate(`/participant/sessions/${sessionId}/video`);
     };
 
-    const handleConfirmAttendance = async (sessionId) => {
-        try {
-            await axiosClient.post(`/api/sessions/${sessionId}/confirm-attendance`);
-            setSessions(sessions.map(session =>
-                session.id === sessionId
-                    ? { ...session, isConfirmed: true, confirmedAttendees: session.confirmedAttendees + 1 }
-                    : session
-            ));
-            showToastMessage("Attendance confirmed successfully!", "success");
-        } catch (error) {
-            console.error("Error confirming attendance:", error);
-            showToastMessage("Failed to confirm attendance", "danger");
-        }
-    };
-
     const handleShowDeleteModal = (session) => {
         setSelectedSession(session);
         setShowDeleteModal(true);
@@ -123,9 +109,15 @@ const ParticipantSessionsList = () => {
         setShowToast(true);
     };
 
+    // Handler for navigating to confirm attendance page
+    const handleGoToConfirmAttendance = () => {
+        navigate(`/participant/participantroom/${roomId}/confirm-attendance`);
+    };
+
     return (
         <>
-
+            <ParticipantSidebar />
+            <NavBar />
 
             <div className="wrapper">
                 <div className="content-page">
@@ -145,6 +137,13 @@ const ParticipantSessionsList = () => {
                                     <p className="text-muted">Manage your session attendance and details</p>
                                 </div>
                                 <div className="d-flex gap-2">
+                                    <Button
+                                        variant="success"
+                                        onClick={handleGoToConfirmAttendance}
+                                        className="rounded-pill"
+                                    >
+                                        <FiCheckSquare className="me-1" /> Confirm Attendances
+                                    </Button>
                                     <Button
                                         variant={viewMode === "list" ? "primary" : "outline-primary"}
                                         onClick={() => setViewMode("list")}
@@ -193,45 +192,65 @@ const ParticipantSessionsList = () => {
                                 </Card>
                             )}
 
-                            {/* List View */}
+                            {/* List View - Improved Styling */}
                             {!loading && sessions.length > 0 && viewMode === 'list' && (
                                 <div className="row g-4">
                                     {sessions.map((session) => (
                                         <div key={session.id} className="col-md-6 col-lg-4">
-                                            <Card className="h-100 shadow-sm">
-                                                <Card.Header className="bg-white border-bottom-0">
+                                            <Card className="h-100 shadow-sm border-0 hover-shadow">
+                                                <div className={`card-status-indicator bg-${getStatusBadge(session.status).props.bg}`} style={{ height: '4px' }}></div>
+                                                <Card.Header className="bg-white border-bottom-0 py-3">
                                                     <div className="d-flex justify-content-between align-items-center">
-                                                        <h5 className="mb-0">{session.title}</h5>
+                                                        <h5 className="mb-0 text-truncate" style={{ maxWidth: '70%' }}>{session.title}</h5>
                                                         {getStatusBadge(session.status)}
                                                     </div>
                                                 </Card.Header>
-                                                <Card.Body>
+                                                <Card.Body className="pt-0">
                                                     <ListGroup variant="flush" className="mb-3">
-                                                        <ListGroup.Item className="d-flex align-items-center">
-                                                            <FiCalendar className="me-2 text-primary" />
-                                                            {formatDate(session.startTime)}
+                                                        <ListGroup.Item className="d-flex align-items-center ps-0 border-0 py-2">
+                                                            <div className="bg-light rounded-circle p-2 me-3">
+                                                                <FiCalendar className="text-primary" />
+                                                            </div>
+                                                            <span>{formatDate(session.startTime)}</span>
                                                         </ListGroup.Item>
-                                                        <ListGroup.Item className="d-flex align-items-center">
-                                                            <FiClock className="me-2 text-primary" />
-                                                            {session.sessionType}
+                                                        <ListGroup.Item className="d-flex align-items-center ps-0 border-0 py-2">
+                                                            <div className="bg-light rounded-circle p-2 me-3">
+                                                                <FiClock className="text-primary" />
+                                                            </div>
+                                                            <span>{session.sessionType}</span>
                                                         </ListGroup.Item>
-                                                        <ListGroup.Item className="d-flex align-items-center">
-                                                            <FiUsers className="me-2 text-primary" />
-                                                            {session.confirmedAttendees} attending
+                                                        <ListGroup.Item className="ps-0 border-0 py-2">
+                                                            <div className="d-flex align-items-center mb-2">
+                                                                <div className="bg-light rounded-circle p-2 me-3">
+                                                                    <FiUsers className="text-primary" />
+                                                                </div>
+                                                                <span>{session.confirmedAttendees} attending</span>
+                                                            </div>
                                                             <ProgressBar
                                                                 now={(session.confirmedAttendees / session.totalParticipants) * 100}
-                                                                className="ms-2 flex-grow-1"
+                                                                variant="primary"
+                                                                className="rounded-pill"
                                                                 style={{ height: '8px' }}
                                                             />
                                                         </ListGroup.Item>
                                                     </ListGroup>
 
-                                                    <p className="text-muted mb-3">{session.description}</p>
+                                                    <div className="text-muted mb-3" style={{
+                                                        maxHeight: '60px',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        display: '-webkit-box',
+                                                        WebkitLineClamp: 3,
+                                                        WebkitBoxOrient: 'vertical'
+                                                    }}>
+                                                        {session.description}
+                                                    </div>
 
-                                                    <div className="d-flex justify-content-between">
+                                                    <div className="d-flex justify-content-between mt-auto">
                                                         <Button
-                                                            variant="info"
+                                                            variant="outline-info"
                                                             size="sm"
+                                                            className="rounded-pill"
                                                             onClick={() => navigate(`/participant/rooms/${session.roomId}/sessions/${session.id}`)}
                                                         >
                                                             <FiInfo className="me-1" /> Details
@@ -242,26 +261,18 @@ const ParticipantSessionsList = () => {
                                                                 <Button
                                                                     variant="success"
                                                                     size="sm"
+                                                                    className="rounded-pill"
                                                                     onClick={() => handleJoinSession(session.id)}
                                                                 >
                                                                     <FiVideo className="me-1" /> Join
                                                                 </Button>
                                                             )}
 
-                                                            {session.status === "SCHEDULED" && !session.isConfirmed && (
-                                                                <Button
-                                                                    variant="primary"
-                                                                    size="sm"
-                                                                    onClick={() => handleConfirmAttendance(session.id)}
-                                                                >
-                                                                    <FiCheckCircle className="me-1" /> Confirm
-                                                                </Button>
-                                                            )}
-
                                                             {session.isConfirmed && (
                                                                 <Button
-                                                                    variant="danger"
+                                                                    variant="outline-danger"
                                                                     size="sm"
+                                                                    className="rounded-pill"
                                                                     onClick={() => handleShowDeleteModal(session)}
                                                                 >
                                                                     <FiTrash2 className="me-1" /> Cancel
@@ -310,6 +321,17 @@ const ParticipantSessionsList = () => {
                     <Toast.Body className="text-white">{toastMessage}</Toast.Body>
                 </Toast>
             </ToastContainer>
+
+            <style jsx>{`
+                .hover-shadow:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+                    transition: all 0.3s ease;
+                }
+                .card-status-indicator {
+                    width: 100%;
+                }
+            `}</style>
         </>
     );
 };
