@@ -58,6 +58,7 @@ import ParticipantSessionsList from "./components/Sessions/ParticipantSessionsLi
 import AttendanceConfirmation from "./components/Sessions/AttendanceConfirmation";
 import { AuthProvider } from "./api/AuthContext";
 import NotificationComponent from "./components/Notification/NotificationComponent";
+import ParticipantRoomManagement from "./room/ParticipantRoomManagement";
 
 const AuthContext = React.createContext();
 
@@ -676,7 +677,14 @@ function App() {
                 </ProtectedParticipantRoute>
               }
             />
-
+            <Route
+                path="/participant/room-management/:id"
+                element={
+                  <ProtectedParticipantRoute>
+                    <ParticipantRoomManagement />
+                  </ProtectedParticipantRoute>
+                }
+            />
             <Route
               path="/participant/participantroom/:roomId/confirm-attendance"
               element={
