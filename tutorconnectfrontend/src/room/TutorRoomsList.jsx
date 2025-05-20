@@ -64,67 +64,70 @@ const TutorRoomsList = () => {
 
     setShowRenewalModal(true);
   };
-const handleSubmitRenewal = async (e) => {
-  e.preventDefault();
+  const handleSubmitRenewal = async (e) => {
+    e.preventDefault();
 
-  if (!selectedRoom) return;
+    if (!selectedRoom) return;
 
-  try {
-    let newEndDate;
+    try {
+      let newEndDate;
 
-    // Validate and calculate new end date
-    if (renewalType === "days") {
-      if (!renewalDuration || renewalDuration <= 0) {
-        throw new Error("Please enter a valid number of days");
+      // Validate and calculate new end date
+      if (renewalType === "days") {
+        if (!renewalDuration || renewalDuration <= 0) {
+          throw new Error("Please enter a valid number of days");
+        }
+        const currentEndDate = new Date(selectedRoom.endDate);
+        newEndDate = new Date(currentEndDate);
+        newEndDate.setDate(
+          currentEndDate.getDate() + parseInt(renewalDuration)
+        );
+      } else {
+        if (!customEndDate) {
+          throw new Error("Please select an end date");
+        }
+        newEndDate = new Date(customEndDate);
       }
-      const currentEndDate = new Date(selectedRoom.endDate);
-      newEndDate = new Date(currentEndDate);
-      newEndDate.setDate(currentEndDate.getDate() + parseInt(renewalDuration));
-    } else {
-      if (!customEndDate) {
-        throw new Error("Please select an end date");
+
+      // Validate new end date is in the future
+      if (newEndDate <= new Date(selectedRoom.endDate)) {
+        throw new Error("New end date must be after current end date");
       }
-      newEndDate = new Date(customEndDate);
+
+      // Prepare the request payload matching DemandRoomDto
+      const renewalData = {
+        name: selectedRoom.name,
+        capacity: capacity,
+        startDate: selectedRoom.startDate, // or new Date().toISOString() if you want current date
+        endDate: newEndDate.toISOString().split("T")[0],
+        amount: amount,
+        tutorId: selectedRoom.tutor.id, // assuming tutor info is in selectedRoom
+        isRenewal: true,
+        originalRoomId: selectedRoom.id,
+      };
+
+      // Send the request
+      await axiosClient.post(
+        `/rooms/request-renewal/${selectedRoom.id}`,
+        renewalData
+      );
+
+      // Handle success
+      setSuccess(
+        `Renewal request for "${selectedRoom.name}" submitted successfully!`
+      );
+      setTimeout(() => setSuccess(""), 5000);
+      setShowRenewalModal(false);
+      fetchRooms(); // Refresh the rooms list
+    } catch (err) {
+      console.error("Renewal error:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Error submitting renewal request"
+      );
     }
-
-    // Validate new end date is in the future
-    if (newEndDate <= new Date(selectedRoom.endDate)) {
-      throw new Error("New end date must be after current end date");
-    }
-
-    // Prepare the request payload matching DemandRoomDto
-    const renewalData = {
-      name: selectedRoom.name,
-      capacity: capacity,
-      startDate: selectedRoom.startDate, // or new Date().toISOString() if you want current date
-      endDate: newEndDate.toISOString().split("T")[0],
-      amount: amount,
-      tutorId: selectedRoom.tutor.id, // assuming tutor info is in selectedRoom
-      isRenewal: true,
-      originalRoomId: selectedRoom.id
-    };
-
-    // Send the request
-    await axiosClient.post(
-      `/rooms/request-renewal/${selectedRoom.id}`,
-      renewalData
-    );
-
-    // Handle success
-    setSuccess(`Renewal request for "${selectedRoom.name}" submitted successfully!`);
-    setTimeout(() => setSuccess(""), 5000);
-    setShowRenewalModal(false);
-    fetchRooms(); // Refresh the rooms list
-
-  } catch (err) {
-    console.error("Renewal error:", err);
-    setError(
-      err.response?.data?.message ||
-      err.message ||
-      "Error submitting renewal request"
-    );
-  }
-};
+  };
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
