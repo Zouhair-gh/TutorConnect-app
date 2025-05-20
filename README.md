@@ -7,7 +7,7 @@ TutorConnect est une plateforme de tutorat en ligne permettant aux tuteurs de cr
 
 ```
 TutorConnect/
-├── TutorConnect-app/ (Backend - Jakarta EE)
+├── TutorConnect-app/ (Backend - Spring Boot)
 ├── tutorconnectfrontend/ (Frontend - React)
 ```
 
@@ -15,7 +15,7 @@ TutorConnect/
 
 - **Java 17**
 - **Maven 3.8+**
-- **Node.js 16+** (pour le frontend React)
+- **React Js** (pour le frontend React)
 - **MySQL 8**
 
 ## Installation Backend (TutorConnect-app)
