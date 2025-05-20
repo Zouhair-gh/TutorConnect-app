@@ -106,4 +106,17 @@ public class    DeliverableController {
         return ResponseEntity.ok(deliverableService.getTutorDeliverables());
     }
 
+    @GetMapping("/room/{roomId}/participant")
+    public ResponseEntity<List<DeliverableDTO>> getRoomDeliverablesForParticipant(
+            @PathVariable Long roomId,
+            Principal principal
+    ) {
+        return ResponseEntity.ok(deliverableService.getRoomDeliverablesForParticipant(roomId, principal));
+    }
+
+    @GetMapping("/participant/me")
+    public ResponseEntity<List<DeliverableDTO>> getMyDeliverables(Principal principal) {
+        return ResponseEntity.ok(deliverableService.getDeliverablesForCurrentParticipant(principal));
+    }
+
 }

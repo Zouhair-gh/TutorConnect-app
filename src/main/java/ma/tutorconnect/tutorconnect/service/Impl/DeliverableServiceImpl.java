@@ -2,6 +2,7 @@ package ma.tutorconnect.tutorconnect.service.Impl;
 
 import ma.tutorconnect.tutorconnect.dto.*;
 import ma.tutorconnect.tutorconnect.entity.*;
+import ma.tutorconnect.tutorconnect.enums.RoleEnum;
 import ma.tutorconnect.tutorconnect.repository.*;
 import ma.tutorconnect.tutorconnect.security.AuthenticationFacade;
 import ma.tutorconnect.tutorconnect.service.DeliverableService;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -224,25 +226,22 @@ public class DeliverableServiceImpl implements DeliverableService {
         String email = authenticationFacade.getAuthenticatedUsername();
         User user = userRepository.findByEmail(email);
 
-        Deliverable deliverable = deliverableRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Deliverable not found"));
+        Deliverable deliverable = deliverableRepository.findByIdWithRelations(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // Check access permissions
-        boolean hasAccess = false;
-
-        // Tutor access - must be the owner of the room
-        if (tutorRepository.existsByEmail(email)) {
-            Tutor tutor = tutorRepository.findByEmail(email).get();
-            hasAccess = deliverable.getTutor().getId().equals(tutor.getId());
-        }
-        // Participant access - must be assigned to this deliverable
-        else if (participantRepository.existsByEmail(email)) {
-            Participant participant = participantRepository.findByEmail(email);
-            hasAccess = deliverable.getParticipant().getId().equals(participant.getId()) && deliverable.isVisible();
-        }
+        boolean hasAccess = switch (user.getRole()) {
+            case ADMIN -> true;
+            case TUTOR -> deliverable.getTutor() != null &&
+                    deliverable.getTutor().getId().equals(user.getId());
+            case PARTICIPANT -> deliverable.getParticipant() != null &&
+                    deliverable.getParticipant().getId().equals(user.getId()) &&
+                    deliverable.isVisible();
+            default -> false;
+        };
 
         if (!hasAccess) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have access to this deliverable");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You don't have access to this deliverable");
         }
 
         return convertToDTO(deliverable);
@@ -439,6 +438,39 @@ public class DeliverableServiceImpl implements DeliverableService {
         List<Deliverable> deliverables = deliverableRepository.findByTutorId(tutor.getId());
 
         return deliverables.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DeliverableDTO> getRoomDeliverablesForParticipant(Long roomId, Principal principal) {
+        // Get authenticated participant
+        Participant participant = participantRepository.findByEmail(principal.getName());
+
+        // Verify room exists and participant is enrolled
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        if (!room.getParticipants().contains(participant)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not enrolled in this room");
+        }
+
+        // Get deliverables for this participant in the room
+        List<Deliverable> deliverables = deliverableRepository.findByRoomIdAndParticipantId(roomId, participant.getId());
+
+        return deliverables.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DeliverableDTO> getDeliverablesForCurrentParticipant(Principal principal) {
+        Participant participant = participantRepository.findByEmail(principal.getName());
+
+        List<Deliverable> deliverables = deliverableRepository.findByParticipantId(participant.getId());
+
+        return deliverables.stream()
+                .filter(Deliverable::isVisible)
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

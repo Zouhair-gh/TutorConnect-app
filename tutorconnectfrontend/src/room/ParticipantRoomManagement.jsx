@@ -24,15 +24,12 @@ const ParticipantRoomManagement = () => {
             try {
                 setLoading(true);
 
-                // Validate room ID
                 if (!id || isNaN(id)) {
                     throw new Error("Invalid room ID");
                 }
 
-                // For now, we'll use static data for demonstration
-                // In the future, we'll replace this with actual API calls
 
-                // Mock data for initial static implementation
+
                 const mockRoom = {
                     id: id,
                     name: "Web Development Bootcamp",
@@ -48,7 +45,7 @@ const ParticipantRoomManagement = () => {
                     progress: 65
                 };
 
-                // Set state with mock data
+
                 setRoom(mockRoom);
                 setStats(mockStats);
 
@@ -205,7 +202,7 @@ const ParticipantRoomManagement = () => {
                                         </div>
                                         <div className="card-footer bg-white border-0">
                                             <Link
-                                                to={`/participant/rooms/${id}/assignments`}
+                                                to={`/participant/rooms/${id}/deliverables`}
                                                 className="btn btn-outline-warning w-100 rounded-pill"
                                             >
                                                 <FiEye className="me-2" /> View Assignments

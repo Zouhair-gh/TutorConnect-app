@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DeliverableRepository extends JpaRepository<Deliverable, Long> {
     List<Deliverable> findByRoomId(Long roomId);
@@ -14,6 +15,14 @@ public interface DeliverableRepository extends JpaRepository<Deliverable, Long> 
     List<Deliverable> findByRoomIdAndParticipantId(Long roomId, Long participantId);
     List<Deliverable> findByRoomIdAndTutorId(Long roomId, Long tutorId);
     List<Deliverable> findByParticipantIdAndIsVisibleTrue(Long participantId);
+
+
+    @Query("SELECT d FROM Deliverable d " +
+            "LEFT JOIN FETCH d.participant " +
+            "LEFT JOIN FETCH d.tutor " +
+            "LEFT JOIN FETCH d.room " +
+            "WHERE d.id = :id")
+    Optional<Deliverable> findByIdWithRelations(@Param("id") Long id);
 
 
 

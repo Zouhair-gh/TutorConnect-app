@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../../api/axiosClient";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate , useParams } from "react-router-dom";
 
 import {
     FiFileText,
@@ -18,22 +18,29 @@ const ParticipantDeliverables = () => {
     const [deliverables, setDeliverables] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const { roomId } = useParams();
     const navigate = useNavigate();
 
     const fetchDeliverables = async () => {
         try {
             setLoading(true);
-            const response = await axiosClient.get("/deliverables/participant");
+            const endpoint = roomId
+                ? `/deliverables/room/${roomId}/participant`  // New endpoint
+                : "/deliverables/participant";  // Existing endpoint
+
+            const response = await axiosClient.get(endpoint);
             setDeliverables(response.data);
             setError("");
         } catch (err) {
-            setError("Failed to fetch your deliverables");
-            console.error(err);
+            setError(err.response?.data?.detail || "Failed to fetch deliverables");
         } finally {
             setLoading(false);
         }
     };
 
+    useEffect(() => {
+        fetchDeliverables();
+    },  [roomId]);
     const formatDate = (dateString) => {
         if (!dateString) return "Not submitted";
         const date = new Date(dateString);
@@ -154,10 +161,10 @@ const ParticipantDeliverables = () => {
                                                     <div className="card-footer bg-white border-0 pt-0">
                                                         <div className="d-flex justify-content-between">
                                                             <Link
-                                                                to={`/participant/deliverables/${deliverable.id}`}
+                                                                to={`/participant/deliverables/${deliverable.id}/submit`}
                                                                 className="btn btn-sm btn-outline-primary rounded-pill px-3"
                                                             >
-                                                                <FiArrowRight className="me-1" /> Details
+                                                                <FiArrowRight className="me-1" /> Submit assignment
                                                             </Link>
                                                             {!deliverable.isSubmitted && deliverable.isVisible && (
                                                                 <Link

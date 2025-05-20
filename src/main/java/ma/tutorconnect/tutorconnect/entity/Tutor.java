@@ -1,5 +1,6 @@
 package ma.tutorconnect.tutorconnect.entity;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -13,6 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@DiscriminatorValue("TUTOR")
 public class Tutor extends User {
     private String specialites;
 

@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
-
 import { FiUpload, FiSave, FiArrowLeft } from "react-icons/fi";
 import { Button, Form, ProgressBar } from "react-bootstrap";
 import NavBar from "../../layouts/NavBar";
-import TutorSideBar from "../../layouts/SideBars/TutorSideBar";
+import ParticipantSidebar from "../../layouts/SideBars/ParticipantSidebar";
 
 
 const SubmitDeliverableForm = () => {
@@ -20,30 +19,53 @@ const SubmitDeliverableForm = () => {
     const [error, setError] = useState("");
     const [deliverable, setDeliverable] = useState(null);
 
-    const fetchDeliverable = async () => {
-        try {
-            const response = await axiosClient.get(`/deliverables/${id}`);
-            setDeliverable(response.data);
-        } catch (err) {
-            setError("Failed to fetch deliverable details");
-        }
+    // Add validation state
+    const [validationError, setValidationError] = useState("");
+
+    useEffect(() => {
+        const fetchDeliverable = async () => {
+            try {
+                const response = await axiosClient.get(`/deliverables/${id}`);
+                if (!response.data.isVisible) {
+                    navigate(`/participant/deliverables/${id}`, {
+                        state: { error: "This assignment is not available for submission" }
+                    });
+                }
+                setDeliverable(response.data);
+            } catch (err) {
+                setError("Failed to fetch deliverable details");
+            }
+        };
+
+        fetchDeliverable();
+    }, [id, navigate]);
+
+    const validateFiles = (files) => {
+        const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+        const ALLOWED_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+        const invalidFiles = files.filter(file =>
+            !ALLOWED_TYPES.includes(file.type) || file.size > MAX_SIZE
+        );
+
+        return invalidFiles.length === 0;
     };
 
-    React.useEffect(() => {
-        fetchDeliverable();
-    }, [id]);
-
     const handleFileChange = (e) => {
-        setFormData(prev => ({
-            ...prev,
-            files: Array.from(e.target.files)
-        }));
+        const files = Array.from(e.target.files);
+        if (!validateFiles(files)) {
+            setValidationError("Invalid file type or size (max 10MB). Allowed types: PDF, PNG, JPG, DOC/DOCX");
+            return;
+        }
+        setValidationError("");
+        setFormData(prev => ({ ...prev, files }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        if (!validateFiles(formData.files)) return;
 
+        setLoading(true);
         try {
             const formDataToSend = new FormData();
             formDataToSend.append("request", JSON.stringify({
@@ -56,9 +78,7 @@ const SubmitDeliverableForm = () => {
             });
 
             await axiosClient.post("/deliverables/submit", formDataToSend, {
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                },
+                headers: { "Content-Type": "multipart/form-data" },
                 onUploadProgress: (progressEvent) => {
                     const percentCompleted = Math.round(
                         (progressEvent.loaded * 100) / progressEvent.total
@@ -67,7 +87,10 @@ const SubmitDeliverableForm = () => {
                 }
             });
 
-            navigate(`/participant/deliverables/${id}`);
+            // Redirect to deliverable view with success state
+            navigate(`/participant/deliverables/${id}`, {
+                state: { success: "Submission successful!" }
+            });
         } catch (err) {
             setError(err.response?.data?.message || "Submission failed");
         } finally {
@@ -77,9 +100,9 @@ const SubmitDeliverableForm = () => {
 
     return (
         <>
-
             <NavBar/>
-            <TutorSideBar/>
+           <ParticipantSidebar />
+
             <div className="wrapper">
                 <div className="content-page">
                     <div className="container-fluid">

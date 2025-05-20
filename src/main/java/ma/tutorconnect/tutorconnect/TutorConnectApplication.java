@@ -20,7 +20,7 @@ public class TutorConnectApplication {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
+    //@Bean
     public CommandLineRunner addInitialAdmin(UserRepository userRepository, BCryptPasswordEncoder encoder) {
         return args -> {
             String tutorEmail = "zouhairghaouri@gmail.com";

@@ -59,6 +59,8 @@ import AttendanceConfirmation from "./components/Sessions/AttendanceConfirmation
 import { AuthProvider } from "./api/AuthContext";
 import NotificationComponent from "./components/Notification/NotificationComponent";
 import ParticipantRoomManagement from "./room/ParticipantRoomManagement";
+import DeliverablesParticipantList from "./components/Deliverable/DeliverablesParticipantList";
+import DeliverableDetailsView from "./components/Deliverable/DeliverableDetailsView";
 
 const AuthContext = React.createContext();
 
@@ -621,18 +623,18 @@ function App() {
 
             {/* Deliverable Routes for Participants */}
             <Route
-              path="/participant/deliverables"
-              element={
-                <ProtectedParticipantRoute>
-                  <ParticipantDeliverables />
-                </ProtectedParticipantRoute>
-              }
+                path="/participant/rooms/:roomId/deliverables"
+                element={
+                  <ProtectedParticipantRoute>
+                    <ParticipantDeliverables />
+                  </ProtectedParticipantRoute>
+                }
             />
             <Route
               path="/participant/deliverables/:id"
               element={
                 <ProtectedParticipantRoute>
-                  <DeliverableView />
+                  <DeliverableDetailsView />
                 </ProtectedParticipantRoute>
               }
             />
@@ -643,6 +645,14 @@ function App() {
                   <SubmitDeliverableForm />
                 </ProtectedParticipantRoute>
               }
+            />
+            <Route
+                path="/participant/deliverables"
+                element={
+                  <ProtectedParticipantRoute>
+                    <DeliverablesParticipantList />
+                  </ProtectedParticipantRoute>
+                }
             />
             <Route
               path="/participant/rooms/:roomId/sessions"

@@ -3,6 +3,7 @@ package ma.tutorconnect.tutorconnect.service;
 import ma.tutorconnect.tutorconnect.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface DeliverableService {
@@ -17,4 +18,6 @@ public interface DeliverableService {
     DeliverableDTO setDeliverableVisibility(Long id, boolean isVisible);
     List<DeliverableDTO> getParticipantDeliverables(Long participantId);
     List<DeliverableDTO> getTutorDeliverables();
+    List<DeliverableDTO> getRoomDeliverablesForParticipant(Long roomId, Principal principal);
+    List<DeliverableDTO> getDeliverablesForCurrentParticipant(Principal principal);
 }

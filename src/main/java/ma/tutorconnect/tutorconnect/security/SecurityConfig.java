@@ -32,20 +32,20 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints that don't require authentication
+                        // Public endpoints
                         .requestMatchers("/api/login", "/api/register", "/api/logout").permitAll()
                         .requestMatchers("/api/admin/users/all").permitAll()
                         .requestMatchers("/api/demands").permitAll()
 
-                        // Admin-only endpoints
-                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                        // Admin endpoints
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/tutors/all").hasRole("ADMIN")
                         .requestMatchers("/api/tutors").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/users/get").hasRole("ADMIN")
                         .requestMatchers("/api/rooms/create", "/api/rooms/all").hasRole("ADMIN")
 
-                        // Tutor-specific endpoints
+                        // Tutor endpoints
                         .requestMatchers("/api/rooms/my-rooms").hasRole("TUTOR")
                         .requestMatchers("/api/rooms/request-room").hasRole("TUTOR")
                         .requestMatchers("/api/rooms/request-renewal/*").hasRole("TUTOR")
@@ -55,14 +55,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/deliverables/grade").hasRole("TUTOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/deliverables/*/visibility").hasRole("TUTOR")
 
-                        // Participant-specific endpoints
+                        // Participant endpoints
                         .requestMatchers("/api/participants/my-rooms").hasAnyRole("PARTICIPANT", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/deliverables/participant/me").hasRole("PARTICIPANT") // New
+                        .requestMatchers(HttpMethod.GET, "/api/deliverables/room/{roomId}/participant").hasRole("PARTICIPANT") // New
                         .requestMatchers(HttpMethod.POST, "/api/deliverables/submit").hasRole("PARTICIPANT")
+                        .requestMatchers(HttpMethod.GET, "/api/deliverables/{id}").hasAnyRole("PARTICIPANT", "TUTOR", "ADMIN") // New
 
-                        // Staff-specific endpoints
+                        // Staff endpoints
                         .requestMatchers(HttpMethod.PUT, "/api/tickets/*/status").hasAnyRole("STAFF", "ADMIN")
 
-                        // Shared endpoints (require any authenticated user)
+                        // Shared endpoints
                         .requestMatchers("/api/rooms/*/participants/**").hasAnyRole("TUTOR", "ADMIN", "PARTICIPANT")
                         .requestMatchers(HttpMethod.GET, "/api/rooms/*").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/demands/**").hasRole("ADMIN")
@@ -78,7 +81,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/sessions/room/*").hasAnyRole("TUTOR", "ADMIN", "PARTICIPANT")
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/confirm-attendance").hasAnyRole("PARTICIPANT", "TUTOR", "ADMIN")
 
-                        // All other endpoints require authentication
+                        // Fallback to authenticated
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
