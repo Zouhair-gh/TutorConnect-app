@@ -655,7 +655,6 @@ const TutorRoomsDashboard = () => {
                               <div className="card">
                                 <div className="card-body">
                                   <h5 className="card-title">
-                                    <FiDollarSign className="me-2" />
                                     Classroom Revenue (MAD)
                                   </h5>
                                   <div style={{ height: "250px" }}>
