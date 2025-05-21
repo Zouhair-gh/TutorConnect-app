@@ -6,6 +6,7 @@ import ma.tutorconnect.tutorconnect.enums.RoleEnum;
 import ma.tutorconnect.tutorconnect.repository.*;
 import ma.tutorconnect.tutorconnect.security.AuthenticationFacade;
 import ma.tutorconnect.tutorconnect.service.DeliverableService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -13,8 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import ma.tutorconnect.tutorconnect.config.FileStorageProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +28,7 @@ import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,10 +41,11 @@ public class DeliverableServiceImpl implements DeliverableService {
     private final DeliverableRepository deliverableRepository;
     private final DeliverableCommentRepository commentRepository;
     private final DeliverableAttachmentRepository attachmentRepository;
+    private final FileStorageProperties fileStorageProperties;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
-
+   // private static final Logger log = LoggerFactory.getLogger(DeliverableServiceImpl.class);
     @Autowired
     public DeliverableServiceImpl(AuthenticationFacade authenticationFacade,
                                   TutorRepository tutorRepository,
@@ -48,6 +53,7 @@ public class DeliverableServiceImpl implements DeliverableService {
                                   UserRepository userRepository,
                                   RoomRepository roomRepository,
                                   DeliverableRepository deliverableRepository,
+                                  FileStorageProperties fileStorageProperties,
                                   DeliverableCommentRepository commentRepository,
                                   DeliverableAttachmentRepository attachmentRepository) {
         this.authenticationFacade = authenticationFacade;
@@ -58,7 +64,11 @@ public class DeliverableServiceImpl implements DeliverableService {
         this.deliverableRepository = deliverableRepository;
         this.commentRepository = commentRepository;
         this.attachmentRepository = attachmentRepository;
+        this.fileStorageProperties = fileStorageProperties;
     }
+
+
+
 
     @Override
     @Transactional
@@ -168,57 +178,92 @@ public class DeliverableServiceImpl implements DeliverableService {
     @Transactional
     public DeliverableDTO submitDeliverable(SubmitDeliverableRequest request, List<MultipartFile> files) {
         String email = authenticationFacade.getAuthenticatedUsername();
+
+        // Get authenticated participant with proper error handling
         Participant participant = participantRepository.findByEmail(email);
 
-        Deliverable deliverable = deliverableRepository.findById(request.deliverableId())
+        // Get deliverable with all necessary relationships
+        Deliverable deliverable = deliverableRepository.findByIdWithRelations(request.deliverableId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Deliverable not found"));
 
-        // Verify this deliverable belongs to this participant
-        if (!deliverable.getParticipant().getId().equals(participant.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot submit this deliverable");
+        // Validate participant assignment
+        if (deliverable.getParticipant() == null ||
+                !deliverable.getParticipant().getId().equals(participant.getId())) {
+
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "This deliverable is not assigned to you");
         }
 
-        // Check if deliverable is already submitted
-        if (deliverable.isSubmitted()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deliverable has already been submitted");
-        }
-
-        // Check if deliverable is visible to participants
+        // Validate deliverable state
         if (!deliverable.isVisible()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This deliverable is not available for submission yet");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "This deliverable is not available for submission");
         }
 
-        // Save submission data
-        Date currentDate = new Date(System.currentTimeMillis());
-        deliverable.setFilePath(request.filePath());
-        deliverable.setSubmissionDate(currentDate);
-        deliverable.setSubmitted(true);
+        if (deliverable.isSubmitted()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "This deliverable has already been submitted");
+        }
 
-        // Process attachments if provided
+        // Process file uploads first
+        List<String> filePaths = new ArrayList<>();
         if (files != null && !files.isEmpty()) {
-            for (MultipartFile file : files) {
-                String filePath = saveFile(file, deliverable.getId());
+            try {
+                for (MultipartFile file : files) {
+                    String filePath = saveFile(file, deliverable.getId());
+                    filePaths.add(filePath);
 
-                DeliverableAttachment attachment = new DeliverableAttachment();
-                attachment.setFileName(file.getOriginalFilename());
-                attachment.setFileType(file.getContentType());
-                attachment.setDeliverable(deliverable);
-                attachmentRepository.save(attachment);
+                    DeliverableAttachment attachment = new DeliverableAttachment();
+                    attachment.setFileName(file.getOriginalFilename());
+                    attachment.setFileType(file.getContentType());
+                    attachment.setFileUrl(filePath);
+                    attachment.setDeliverable(deliverable);
+                    attachmentRepository.save(attachment);
+                }
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Failed to store files");
             }
         }
 
-        // Add submission notes as a comment if provided
-        if (request.submissionNotes() != null && !request.submissionNotes().isEmpty()) {
+        // Update deliverable status
+        deliverable.setSubmissionDate(new Date(System.currentTimeMillis()));
+        deliverable.setSubmitted(true);
+        deliverable.setFilePath(!filePaths.isEmpty() ? filePaths.get(0) : null);
+
+        // Add submission comment
+        if (StringUtils.hasText(request.submissionNotes())) {
             DeliverableComment comment = new DeliverableComment();
             comment.setContent(request.submissionNotes());
             comment.setCreatedAt(new Date(System.currentTimeMillis()));
-            comment.setUser(participant);
+            comment.setUser(userRepository.findById(participant.getId()).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")));
+            comment.setDeliverable(deliverable);
             comment.setDeliverable(deliverable);
             commentRepository.save(comment);
         }
 
         Deliverable saved = deliverableRepository.save(deliverable);
         return convertToDTO(saved);
+    }
+
+    private String saveFile(MultipartFile file, Long deliverableId) {
+        try {
+            String uploadPath = uploadDir + "/deliverables/" + deliverableId;
+            Path path = Paths.get(uploadPath);
+
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path filePath = path.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath);
+
+            return filePath.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file", e);
+        }
     }
 
     @Override
@@ -475,24 +520,7 @@ public class DeliverableServiceImpl implements DeliverableService {
                 .collect(Collectors.toList());
     }
 
-    private String saveFile(MultipartFile file, Long deliverableId) {
-        try {
-            String uploadPath = uploadDir + "/deliverables/" + deliverableId;
-            Path path = Paths.get(uploadPath);
 
-            if (!Files.exists(path)) {
-                Files.createDirectories(path);
-            }
-
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path filePath = path.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
-
-            return filePath.toString();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store file", e);
-        }
-    }
 
     private DeliverableDTO convertToDTO(Deliverable deliverable) {
         DeliverableDTO dto = new DeliverableDTO();

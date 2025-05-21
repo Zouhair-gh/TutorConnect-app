@@ -13,7 +13,7 @@ const AddRoom = () => {
     capacity: "",
     startDate: "",
     endDate: "",
-    tutorId: ""
+    tutorId: "",
   });
 
   const [error, setError] = useState("");
@@ -45,10 +45,10 @@ const AddRoom = () => {
         let endpointSuccess = false;
 
         const endpointsToTry = [
-          "/tutors/all",           // Original endpoint
-          "/admin/tutors/all",     // Maybe needs admin prefix
-          "/admin/tutors",         // Alternative path
-          "/tutors"                // Simplified path
+          "/tutors/all", // Original endpoint
+          "/admin/tutors/all", // Maybe needs admin prefix
+          "/admin/tutors", // Alternative path
+          "/tutors", // Simplified path
         ];
 
         // Try all endpoints
@@ -60,16 +60,24 @@ const AddRoom = () => {
             const response = await axiosClient.get(endpoint);
 
             if (response.data) {
-              console.log(`Successful response from ${endpoint}:`, response.data);
+              console.log(
+                `Successful response from ${endpoint}:`,
+                response.data
+              );
 
               // Handle different response structures
               if (Array.isArray(response.data)) {
                 tutorsData = response.data;
-              } else if (response.data.content && Array.isArray(response.data.content)) {
+              } else if (
+                response.data.content &&
+                Array.isArray(response.data.content)
+              ) {
                 tutorsData = response.data.content;
-              } else if (typeof response.data === 'object') {
+              } else if (typeof response.data === "object") {
                 // Try to extract array from response
-                const possibleArrays = Object.values(response.data).filter(val => Array.isArray(val));
+                const possibleArrays = Object.values(response.data).filter(
+                  (val) => Array.isArray(val)
+                );
                 if (possibleArrays.length > 0) {
                   tutorsData = possibleArrays[0];
                 }
@@ -102,9 +110,13 @@ const AddRoom = () => {
             navigate("/login");
           }, 2000);
         } else if (err.response?.status === 403) {
-          setError("You don't have permission to view tutors. Admin role required. Try logging out and back in.");
+          setError(
+            "You don't have permission to view tutors. Admin role required. Try logging out and back in."
+          );
         } else {
-          setError("Failed to load tutors: " + (err.message || "Unknown error"));
+          setError(
+            "Failed to load tutors: " + (err.message || "Unknown error")
+          );
         }
         setTutorsLoading(false);
       }
@@ -124,9 +136,9 @@ const AddRoom = () => {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
         const calculatedAmount = diffDays * 20;
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          amount: calculatedAmount
+          amount: calculatedAmount,
         }));
       }
     }
@@ -153,7 +165,7 @@ const AddRoom = () => {
         amount: parseFloat(formData.amount),
         startDate: formData.startDate,
         endDate: formData.endDate,
-        tutorId: parseInt(formData.tutorId)
+        tutorId: parseInt(formData.tutorId),
       };
 
       console.log("Submitting room with payload:", payload);
@@ -163,7 +175,9 @@ const AddRoom = () => {
       // Handle successful creation (201 Created)
       if (response.status === 201) {
         console.log("Room created successfully:", response.data);
-        setSuccess(`Room created successfully! ID: ${response.data.roomId || 'N/A'}`);
+        setSuccess(
+          `Room created successfully! ID: ${response.data.roomId || "N/A"}`
+        );
         setTimeout(() => navigate("/admin/rooms"), 1500);
       } else {
         throw new Error(`Unexpected status code: ${response.status}`);
@@ -174,7 +188,9 @@ const AddRoom = () => {
       // Enhanced error messages
       if (err.response) {
         if (err.response.status === 404) {
-          setError("The selected tutor was not found. Please refresh the tutor list.");
+          setError(
+            "The selected tutor was not found. Please refresh the tutor list."
+          );
         } else if (err.response.data) {
           setError(err.response.data.message || err.response.data);
         } else {
@@ -194,7 +210,7 @@ const AddRoom = () => {
     if (token) {
       try {
         // Split the token and decode the payload
-        const payloadBase64 = token.split('.')[1];
+        const payloadBase64 = token.split(".")[1];
         const payload = JSON.parse(atob(payloadBase64));
         console.log("Token payload:", payload);
         alert("Token info logged to console. Check roles and expiration.");
@@ -208,19 +224,19 @@ const AddRoom = () => {
   };
 
   return (
-      <>
-        <AdminSideBar />
-        <Navbar />
-        <div className="wrapper">
-          <div className="content-page">
-            <div className="container-fluid">
-              <div className="container p-4">
-                <h2 className="mb-4">Create a New Room</h2>
+    <>
+      <AdminSideBar />
+      <Navbar />
+      <div className="wrapper">
+        <div className="content-page">
+          <div className="container-fluid">
+            <div className="container p-4">
+              <h2 className="mb-4">Create a New Room</h2>
 
-                {error && <div className="alert alert-danger">{error}</div>}
-                {success && <div className="alert alert-success">{success}</div>}
+              {error && <div className="alert alert-danger">{error}</div>}
+              {success && <div className="alert alert-success">{success}</div>}
 
-                {process.env.NODE_ENV === 'development' && (
+              {/* {process.env.NODE_ENV === 'development' && (
                     <div className="mb-3">
                       <button
                           className="btn btn-sm btn-outline-secondary"
@@ -230,130 +246,149 @@ const AddRoom = () => {
                         Debug Auth Token
                       </button>
                     </div>
-                )}
+                )} */}
 
-                <form onSubmit={handleSubmit}>
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label htmlFor="name" className="form-label">Room Name</label>
-                      <input
-                          type="text"
-                          className="form-control"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          required
-                      />
-                    </div>
-
-                    <div className="col-md-6 mb-3">
-                      <label htmlFor="capacity" className="form-label">Capacity</label>
-                      <input
-                          type="number"
-                          className="form-control"
-                          id="capacity"
-                          name="capacity"
-                          value={formData.capacity}
-                          onChange={handleChange}
-                          required
-                      />
-                    </div>
+              <form onSubmit={handleSubmit}>
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label htmlFor="name" className="form-label">
+                      Room Name
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
 
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label htmlFor="startDate" className="form-label">Start Date</label>
-                      <input
-                          type="date"
-                          className="form-control"
-                          id="startDate"
-                          name="startDate"
-                          value={formData.startDate}
-                          onChange={handleChange}
-                          required
-                      />
-                    </div>
+                  <div className="col-md-6 mb-3">
+                    <label htmlFor="capacity" className="form-label">
+                      Capacity
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="capacity"
+                      name="capacity"
+                      value={formData.capacity}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
 
-                    <div className="col-md-6 mb-3">
-                      <label htmlFor="endDate" className="form-label">End Date</label>
-                      <input
-                          type="date"
-                          className="form-control"
-                          id="endDate"
-                          name="endDate"
-                          value={formData.endDate}
-                          onChange={handleChange}
-                          required
-                      />
-                    </div>
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label htmlFor="startDate" className="form-label">
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      id="startDate"
+                      name="startDate"
+                      value={formData.startDate}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
 
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label htmlFor="amount" className="form-label">Amount (Calculated)</label>
-                      <input
-                          type="number"
-                          className="form-control"
-                          id="amount"
-                          name="amount"
-                          value={formData.amount}
-                          onChange={handleChange}
-                          readOnly
-                      />
-                      <small className="text-muted">Amount is calculated as $20 per day</small>
-                    </div>
+                  <div className="col-md-6 mb-3">
+                    <label htmlFor="endDate" className="form-label">
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      id="endDate"
+                      name="endDate"
+                      value={formData.endDate}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
 
-                    <div className="col-md-6 mb-3">
-                      <label htmlFor="tutorId" className="form-label">
-                        Assign to Tutor
-                      </label>
-                      <select
-                          className="form-control"
-                          id="tutorId"
-                          name="tutorId"
-                          value={formData.tutorId}
-                          onChange={handleChange}
-                          required
-                          disabled={tutorsLoading}
-                      >
-                        <option value="">{tutorsLoading ? "Loading tutors..." : "Select a tutor"}</option>
-                        {tutors.map(tutor => (
-                            <option key={tutor.id} value={tutor.id}>
-                              {tutor.firstName} {tutor.lastName} ({tutor.email})
-                            </option>
-                        ))}
-                      </select>
-                      {tutorsLoading && <small className="text-muted">Loading tutors...</small>}
-                      {tutors.length === 0 && !tutorsLoading && (
-                          <small className="text-danger">No tutors available or you may not have permission to view them</small>
-                      )}
-                    </div>
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label htmlFor="amount" className="form-label">
+                      Amount (Calculated)
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="amount"
+                      name="amount"
+                      value={formData.amount}
+                      onChange={handleChange}
+                      readOnly
+                    />
+                    <small className="text-muted">
+                      Amount is calculated as $20 per day
+                    </small>
                   </div>
 
-                  <div className="mt-4">
-                    <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={isSubmitting || tutorsLoading}
+                  <div className="col-md-6 mb-3">
+                    <label htmlFor="tutorId" className="form-label">
+                      Assign to Tutor
+                    </label>
+                    <select
+                      className="form-control"
+                      id="tutorId"
+                      name="tutorId"
+                      value={formData.tutorId}
+                      onChange={handleChange}
+                      required
+                      disabled={tutorsLoading}
                     >
-                      {isSubmitting ? "Creating..." : "Create Room"}
-                    </button>
-                    <button
-                        type="button"
-                        className="btn btn-secondary ms-3"
-                        onClick={() => navigate(-1)}
-                    >
-                      Cancel
-                    </button>
+                      <option value="">
+                        {tutorsLoading ? "Loading tutors..." : "Select a tutor"}
+                      </option>
+                      {tutors.map((tutor) => (
+                        <option key={tutor.id} value={tutor.id}>
+                          {tutor.firstName} {tutor.lastName} ({tutor.email})
+                        </option>
+                      ))}
+                    </select>
+                    {tutorsLoading && (
+                      <small className="text-muted">Loading tutors...</small>
+                    )}
+                    {tutors.length === 0 && !tutorsLoading && (
+                      <small className="text-danger">
+                        No tutors available or you may not have permission to
+                        view them
+                      </small>
+                    )}
                   </div>
-                </form>
-              </div>
+                </div>
+
+                <div className="mt-4">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={isSubmitting || tutorsLoading}
+                  >
+                    {isSubmitting ? "Creating..." : "Create Room"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary ms-3"
+                    onClick={() => navigate(-1)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
-        <Footer />
-      </>
+      </div>
+      <Footer />
+    </>
   );
 };
 

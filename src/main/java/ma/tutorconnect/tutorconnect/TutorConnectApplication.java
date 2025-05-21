@@ -1,15 +1,25 @@
 package ma.tutorconnect.tutorconnect;
 
+import jakarta.annotation.PostConstruct;
+import ma.tutorconnect.tutorconnect.config.FileStorageProperties;
 import ma.tutorconnect.tutorconnect.entity.User;
 import ma.tutorconnect.tutorconnect.enums.RoleEnum;
 import ma.tutorconnect.tutorconnect.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 @SpringBootApplication
+@EnableConfigurationProperties({
+        FileStorageProperties.class
+})
 public class TutorConnectApplication {
 
     public static void main(String[] args) {
@@ -40,4 +50,6 @@ public class TutorConnectApplication {
             }
         };
     }
+
 }
+
