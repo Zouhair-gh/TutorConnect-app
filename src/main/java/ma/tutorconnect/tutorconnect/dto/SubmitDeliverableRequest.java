@@ -1,14 +1,18 @@
 package ma.tutorconnect.tutorconnect.dto;
 
-import java.sql.Date;
-import java.util.List;
-// SubmitDeliverable this i forr participants
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record SubmitDeliverableRequest(
         Long deliverableId,
-        String filePath,
-        String submissionNotes,
-        List<String> attachmentUrls
-) {}
-
-
-
+        String submissionNotes
+) {
+    @JsonCreator
+    public SubmitDeliverableRequest(
+            @JsonProperty("deliverableId") Long deliverableId,
+            @JsonProperty("submissionNotes") String submissionNotes
+    ) {
+        this.deliverableId = deliverableId;
+        this.submissionNotes = submissionNotes;
+    }
+}
