@@ -17,7 +17,8 @@ const SessionManagement = () => {
     useEffect(() => {
         const fetchSessions = async () => {
             try {
-                const response = await axiosClient.get(`/sessions/room/${roomId}/upcoming`);
+                const response = await axiosClient.get(`/sessions/room/${roomId}`);
+                console.log("API Response:", response.data);
                 setSessions(response.data);
             } catch (error) {
                 console.error("Error fetching sessions:", error);
