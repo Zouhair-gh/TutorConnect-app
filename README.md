@@ -1,5 +1,4 @@
-
-# TutorConnect
+# TutorConnect 🚀
 
 TutorConnect est une plateforme de tutorat en ligne permettant aux tuteurs de créer des classes virtuelles payantes et d’interagir efficacement avec leurs étudiants via visioconférence, messagerie et dépôt de devoirs.
 
@@ -11,54 +10,99 @@ TutorConnect/
 ├── tutorconnectfrontend/ (Frontend - React)
 ```
 
-## Prérequis
+## 📌 Table des Matières
+- [Fonctionnalités](#-fonctionnalités)
+- [Architecture](#-architecture-technique)
+- [Prérequis](#-prérequis)
+- [Installation](#-installation)
+  - [Avec Docker](#avec-docker-recommandé)
+  - [Manuelle](#installation-manuelle)
+- [Déploiement](#-déploiement-docker)
+- [Tests](#-suite-de-tests)
+- [Contribuer](#-guide-de-contribution)
+- [Support](#-support--contact)
 
-- **Java 17**
-- **Maven 3.8+**
-- **React Js** (pour le frontend React)
-- **MySQL 8**
+## ✨ Fonctionnalités
 
-## Installation Backend (TutorConnect-app)
+### 🎓 Pour les Tuteurs
+- 🎥 **Visioconférence** avec Jitsi Meet (HD, partage d'écran, enregistrement)
+- 📅 **Gestion de planning** intelligent avec rappels
+- 📊 **Tableau de bord** analytique (statistiques d'engagement)
+- 📝 **Système de devoirs** avec correction automatique/manuelle
+- 💰 **Gestion des paiements** intégrée
 
-```bash
-git clone https://github.com/Zouhair-gh/TutorConnect-app.git
-cd TutorConnect/TutorConnect-app
-```
+### 🧑‍🎓 Pour les Étudiants
+- 🏠 **Espace personnel** avec suivi de progression détaillé
+- 📚 **Bibliothèque de ressources** partagées
+- ✉️ **Messagerie sécurisée** (texte, fichiers, code)
+- 🔔 **Système de notification** (email, in-app)
+- ⏱ **Historique des sessions** avec replay
 
-1️⃣ Créez la base de données `tutor_connect` sous MySQL :  
-```sql
-CREATE DATABASE tutor_connect;
-```
+### ⚙️ Fonctionnalités Techniques
+- 🔐 **Auth JWT** avec refresh tokens
+- 🌐 **API RESTful** documentée (Swagger)
+- 📦 **Dockerisé** (multi-stage builds)
+- 📈 **Monitoring** (Prometheus, Grafana)
+- ✅ **Test CI/CD** (GitHub Actions)
 
-2️⃣ Configurez `src/main/resources/application.properties`  
+## 🏗 Architecture Technique
+
+![image](https://github.com/user-attachments/assets/eadeffd6-8985-45c9-a967-3431935a0ae7)
+
+## Contenerisation
+
+# 1. Cloner le dépôt
+git clone https://github.com/Zouhair-gh/TutorConnect.git
+cd TutorConnect
+
+# 2. Configurer les variables d'environnement
+cp .env.example .env
+nano .env  # Éditer selon votre configuration
+
+# 3. Démarrer les services
+docker-compose -f docker-compose.prod.yml up --build -d
+
+# 4. Accéder à l'application
+# Frontend: http://localhost:3000
+# Backend: http://localhost:8080
+# Swagger: http://localhost:8080/swagger-ui.html
 
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/tutor_connect
-spring.datasource.username=root
-spring.datasource.password=mot_de_passe
-```
+# 1. Configurer la base de données
+mysql -u root -p
+CREATE DATABASE tutorconnect;
+CREATE USER 'tutoradmin'@'localhost' IDENTIFIED BY 'securepassword';
+GRANT ALL PRIVILEGES ON tutorconnect.* TO 'tutoradmin'@'localhost';
+FLUSH PRIVILEGES;
 
-3️⃣ Build et exécutez le backend :  
-```bash
-mvn clean install
-mvn spring-boot:run
-```
+# 2. Configurer application.properties
+nano src/main/resources/application.properties
 
-- **API accessible** : http://localhost:8080/api
+# 3. Builder et lancer
+mvn clean package
+java -jar target/tutorconnect-1.0.0.jar
 
-## Installation Frontend (tutorconnectfrontend)
+## FRONT END 
 
-```bash
-cd TutorConnect/tutorconnectfrontend
 npm install
-npm start
-```
+npm run build
+serve -s build -p 3000
 
-- **Frontend accessible** : http://localhost:3000
 
-## Lancer les tests (Backend)
+## BACK END 
 
-```bash
+# Tests unitaires
 mvn test
-```
+
+# Tests d'intégration
+mvn verify
+
+# Couverture de code
+mvn jacoco:report
+
+# Contact 
+MAROUANE MORAD
+Zouhair-gh
+Amine Maaroufi
+
+
