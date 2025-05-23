@@ -51,23 +51,23 @@ TutorConnect/
 
 ## Contenerisation
 
-# 1. Cloner le dépôt
+## 1. Cloner le dépôt
 ```
 git clone https://github.com/Zouhair-gh/TutorConnect.git
 cd TutorConnect
 ```
-# 2. Configurer les variables d'environnement
+## 2. Configurer les variables d'environnement
 ```
 cp .env.example .env
 nano .env
 ```
-# 3. Démarrer les services
-docker-compose -f docker-compose.prod.yml up --build -d
+## 3. Démarrer les services
+docker-compose -f docker-compose.yml up --build -d
 
 # 4. Accéder à l'application
-# Frontend:
+## Frontend:
 ```http://localhost:3000```
-# Backend:
+## Backend:
 ```http://localhost:8080```
 
 
@@ -89,24 +89,26 @@ mvn clean package
 java -jar target/tutorconnect-1.0.0.jar
 ```
 ## FRONT END
+```
 
 npm install
 npm run build
 serve -s build -p 3000
+```
 
 
 ## BACK END
 
-# Tests unitaires
+## Tests unitaires
 mvn test
 
-# Tests d'intégration
+## Tests d'intégration
 mvn verify
 
-# Couverture de code
+## Couverture de code
 mvn jacoco:report
 
-# Contact
+## Contact
 ```
 MAROUANE MORAD
 Zouhair-gh
