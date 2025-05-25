@@ -12,8 +12,8 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar /app/TutorConnect-app.jar
+COPY --from=build /app/target/TutorConnect-0.0.1-SNAPSHOT.jar .
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "TutorConnect-app.jar"]
+CMD ["java", "-jar", "/app/TutorConnect-0.0.1-SNAPSHOT.jar"]
