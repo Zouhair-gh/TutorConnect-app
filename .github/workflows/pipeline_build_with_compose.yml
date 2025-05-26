@@ -54,9 +54,9 @@ jobs:
       
       - name: Install dependencies
         run: |
-          cd tutorconnectfrontend
           npm install
           npm install react-router-dom axios
+        working-directory: tutorconnectfrontend
       
       - name: Build production bundle
         run: CI=false npm run build
@@ -75,8 +75,8 @@ jobs:
         uses: docker/setup-buildx-action@v2
       
       - name: Build backend image
-        run: docker build -t backend .
-      
+        run: docker build -t backend -f Dockerfile .
+
       - name: Build frontend image
         run: docker build -t frontend ./tutorconnectfrontend
 
